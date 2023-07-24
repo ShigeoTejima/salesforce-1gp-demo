@@ -16,4 +16,8 @@
         <object>Demo__c</object>
         <viewAllRecords>false</viewAllRecords>
     </objectPermissions>
+    <tabSettings>
+        <tab>demo_page</tab>
+        <visibility>Visible</visibility>
+    </tabSettings>
 </PermissionSet>
