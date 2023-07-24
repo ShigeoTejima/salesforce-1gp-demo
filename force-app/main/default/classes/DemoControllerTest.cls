@@ -3,7 +3,10 @@ private class DemoControllerTest {
     @IsTest
     static void getDemos() {
 
-        User u = new User(ID = UserInfo.getUserID());
+        Profile p = [SELECT Id, Name FROM Profile WHERE Name IN ('Standard User', '標準ユーザ')];
+
+        User u = demoUser(p);
+        insert u;
 
         PermissionSet ps = [SELECT Id FROM PermissionSet WHERE Name = 'demo'];
         insert new PermissionSetAssignment(AssigneeId = u.Id, PermissionSetId = ps.Id);
@@ -31,6 +34,24 @@ private class DemoControllerTest {
     
             Test.stopTest();
         }
+
+    }
+
+    private static User demoUser(Profile p) {
+        String baseUsername = UserInfo.getUserName();
+        List<String> partsOfUsername = baseUsername.split('@');
+        String demoUsername = String.format('{0}-demo@{1}', partsOfUsername);
+
+        return new User(UserName = demoUsername,
+            Email = demoUsername,
+            LastName = 'demo',
+            Alias = 'demo',
+            TimeZoneSidKey = 'asia/tokyo',
+            LocaleSidKey = 'ja_JP',
+            EmailEncodingKey = 'UTF-8',
+            LanguageLocaleKey = 'ja',
+            ProfileId = p.Id
+        );
 
     }
 }
