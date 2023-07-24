@@ -1,1 +1,1 @@
-# salesforce-1gp-demo
+# Salesforce 1gp demo
