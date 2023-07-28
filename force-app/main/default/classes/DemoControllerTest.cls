@@ -25,10 +25,12 @@ private class DemoControllerTest {
             System.assertEquals(2, actual.size());
     
             DemoController.Demo actualThat = actual.get(0);
+            System.assertEquals(true, actualThat.id != null);
             System.assertEquals('Bar', actualThat.name);
             System.assertEquals(null, actualThat.description);
     
             actualThat = actual.get(1);
+            System.assertEquals(true, actualThat.id != null);
             System.assertEquals('Foo', actualThat.name);
             System.assertEquals(null, actualThat.description);
     
