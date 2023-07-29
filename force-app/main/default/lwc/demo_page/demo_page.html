@@ -1,13 +1,15 @@
 <template>
     <lightning-card title="Demo">
         <lightning-button class="reflesh" label="Reflesh" slot="actions" onclick={handleReflesh}></lightning-button>
-        <template if:true={existsDemos}>
-            <lightning-datatable
-                key-field="id"
-                data={demos.data}
-                columns={demo_columns}
-                hide-checkbox-column="true">
-            </lightning-datatable>
-        </template>
+        <div class="slds-m-around_medium">
+            <template if:true={existsDemos}>
+                <lightning-datatable
+                    key-field="id"
+                    data={demos.data}
+                    columns={demo_columns}
+                    hide-checkbox-column="true">
+                </lightning-datatable>
+            </template>
+            </div>
     </lightning-card>
 </template>

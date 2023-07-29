@@ -52,7 +52,7 @@ describe('c-demo-page', () => {
             document.body.appendChild(element);
 
             const mockGetDemos = [
-                { "id": 1, "name": "Foo" },
+                { "id": 1, "name": "Foo", "description": "Foo Description" },
                 { "id": 2, "name": "Bar" }
             ];
             getDemos.emit(mockGetDemos);
@@ -63,7 +63,7 @@ describe('c-demo-page', () => {
 
             expect(datatableElement.data.length).toBe(2);
             expect(datatableElement.data).toEqual([
-                { "id": 1, "name": "Foo" },
+                { "id": 1, "name": "Foo", "description": "Foo Description" },
                 { "id": 2, "name": "Bar" }
             ])
         });
