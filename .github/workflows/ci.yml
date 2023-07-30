@@ -2,7 +2,6 @@ name: CI workflow
 
 on:
   workflow_dispatch:
-    # Inputs the workflow accepts.
     inputs:
       scratch_username:
         description: 'when input, connected to username for scratch'
@@ -63,7 +62,6 @@ jobs:
       if: ${{ inputs.scratch_username == '' }}
       run: |
         sf org create scratch --definition-file config/project-scratch-def.json --set-default --alias scratch
-        sf org list
 
     - name: authorize scratch org
       if: ${{ inputs.scratch_username != '' }}
@@ -73,7 +71,9 @@ jobs:
         decoded_private_key_file: "/tmp/server.pem"
       run: |
         sf auth jwt grant --client-id ${devhub_client_id} --jwt-key-file ${decoded_private_key_file} --username ${scratch_username} --instance-url https://test.salesforce.com --set-default --alias scratch
-        sf org list
+
+    - name: show org list
+      run: sf org list
 
     - name: deploy to scratch org
       run: sf project deploy start --ignore-conflicts
