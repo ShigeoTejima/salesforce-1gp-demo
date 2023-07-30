@@ -51,9 +51,9 @@ jobs:
 
     - name: generate private key from encoded private key
       env:
-        encoded_private_key_content: ${{ secrets.encoded_private_key_content }}
-        encode_raw_key: ${{ secrets.encode_raw_key }}
-        encode_iv: ${{ secrets.encode_iv }}
+        encoded_private_key_content: ${{ secrets.devhub_org_encoded_private_key_content }}
+        encode_raw_key: ${{ secrets.devhub_org_encode_raw_key }}
+        encode_iv: ${{ secrets.devhub_org_encode_iv }}
         encoded_private_key_file: "/tmp/server.pem.enc"
         decoded_private_key_file: "/tmp/server.pem"
       run: |
@@ -62,11 +62,11 @@ jobs:
 
     - name: authorize devhub org
       env:
-        devhub_username: ${{ secrets.devhub_username }}
-        devhub_client_id: ${{ secrets.devhub_client_id }}
-        decoded_private_key_file: "/tmp/server.pem"
+        client_id: ${{ secrets.devhub_org_client_id }}
+        org_username: ${{ secrets.devhub_org_username }}
+        private_key_file: "/tmp/server.pem"
       run: |
-        sf auth jwt grant --client-id ${devhub_client_id} --jwt-key-file ${decoded_private_key_file} --username ${devhub_username} --set-default-dev-hub --alias devhub --json
+        sf auth jwt grant --client-id ${client_id} --jwt-key-file ${private_key_file} --username ${org_username} --set-default-dev-hub --alias devhub --json
         sf org list
     
     - name: create scratch org
@@ -77,11 +77,11 @@ jobs:
     - name: authorize scratch org
       if: ${{ inputs.scratch_username != '' }}
       env:
-        devhub_client_id: ${{ secrets.devhub_client_id }}
-        scratch_username: ${{ inputs.scratch_username }}
-        decoded_private_key_file: "/tmp/server.pem"
+        client_id: ${{ secrets.devhub_org_client_id }}
+        org_username: ${{ inputs.scratch_username }}
+        private_key_file: "/tmp/server.pem"
       run: |
-        sf auth jwt grant --client-id ${devhub_client_id} --jwt-key-file ${decoded_private_key_file} --username ${scratch_username} --instance-url https://test.salesforce.com --set-default --alias scratch --json
+        sf auth jwt grant --client-id ${client_id} --jwt-key-file ${private_key_file} --username ${org_username} --instance-url https://test.salesforce.com --set-default --alias scratch --json
 
     - name: show org list
       run: sf org list
@@ -145,11 +145,11 @@ jobs:
 
     - name: authorize package org
       env:
-        org_client_id: ${{ secrets.package_org_client_id }}
+        client_id: ${{ secrets.package_org_client_id }}
         org_username: ${{ secrets.package_org_username }}
-        decoded_private_key_file: "/tmp/server.pem"
+        private_key_file: "/tmp/server.pem"
       run: |
-        sf auth jwt grant --client-id ${org_client_id} --jwt-key-file ${decoded_private_key_file} --username ${org_username} --set-default --alias package --json
+        sf auth jwt grant --client-id ${client_id} --jwt-key-file ${private_key_file} --username ${org_username} --set-default --alias package --json
         sf org list
 
     - name: deploy metadata to package org
