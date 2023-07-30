@@ -15,7 +15,7 @@ jobs:
     steps:
     - name: install salesforce cli
       env:
-        dir_install: "${{ env.HOME }}/.local/sf"
+        dir_install: "${{ env.GITHUB_WORKSPACE }}/.local/sf"
         filename_installer: sf-linux-x64.tar.gz
       run: |
         cd /tmp
