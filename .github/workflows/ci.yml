@@ -55,13 +55,13 @@ jobs:
         devhub_client_id: ${{ secrets.devhub_client_id }}
         decoded_private_key_file: "/tmp/server.pem"
       run: |
-        sf auth jwt grant --client-id ${devhub_client_id} --jwt-key-file ${decoded_private_key_file} --username ${devhub_username} --set-default-dev-hub --alias devhub
+        sf auth jwt grant --client-id ${devhub_client_id} --jwt-key-file ${decoded_private_key_file} --username ${devhub_username} --set-default-dev-hub --alias devhub --json
         sf org list
     
     - name: create scratch org
       if: ${{ inputs.scratch_username == '' }}
       run: |
-        sf org create scratch --definition-file config/project-scratch-def.json --set-default --alias scratch
+        sf org create scratch --definition-file config/project-scratch-def.json --set-default --alias scratch --json
 
     - name: authorize scratch org
       if: ${{ inputs.scratch_username != '' }}
@@ -70,7 +70,7 @@ jobs:
         scratch_username: ${{ inputs.scratch_username }}
         decoded_private_key_file: "/tmp/server.pem"
       run: |
-        sf auth jwt grant --client-id ${devhub_client_id} --jwt-key-file ${decoded_private_key_file} --username ${scratch_username} --instance-url https://test.salesforce.com --set-default --alias scratch
+        sf auth jwt grant --client-id ${devhub_client_id} --jwt-key-file ${decoded_private_key_file} --username ${scratch_username} --instance-url https://test.salesforce.com --set-default --alias scratch --json
 
     - name: show org list
       run: sf org list
