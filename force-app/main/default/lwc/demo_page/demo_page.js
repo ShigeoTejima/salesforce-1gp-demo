@@ -27,19 +27,30 @@ export default class Demo_page extends LightningElement {
         this.demos = value;
         const { data, error } = value;
         if (error) {
-            this.dispatchEvent(
-                new ShowToastEvent({
-                    title: 'Error loading Demo',
-                    message: 'fail to fetch records of demo',
-                    variant: 'error'
-                })
-            );
+            this.dispatchErrorToast();
         } else if (data) {
             // nop
         }
     }
 
     handleReflesh() {
-        refreshApex(this.demos);
+        /*
+         * NOTE: 2023/7/30) 取得済みのthis.demosがerrorだった場合に、
+         * その後接続先のApexが正常に回復しても、refleshApexで正しい結果が反映されないように見えた
+         */
+        refreshApex(this.demos).catch(() => {
+            this.dispatchErrorToast();
+        });
     }
+
+    // Helper
+    dispatchErrorToast() {
+        this.dispatchEvent(
+            new ShowToastEvent({
+                title: 'Error loading Demo',
+                message: 'fail to fetch records of demo',
+                variant: 'error'
+            })
+        );
+}
 }

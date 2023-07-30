@@ -144,5 +144,48 @@ describe('c-demo-page', () => {
             expect(reflesheddatatableElement.data.length).toBe(1);
 
         });
+
+        it('when returned error to get data', async () => {
+            const element = createElement('c-demo-page', {
+                is: Demo_page
+            });
+            document.body.appendChild(element);
+
+            // Mock handler for toast event
+            const toastHandler = jest.fn();
+            element.addEventListener(ShowToastEventName, toastHandler);
+
+            getDemos.emit([]);
+
+            // show initial page
+            await flushPromises();
+
+            const datatableElement = element.shadowRoot.querySelector('lightning-datatable');
+            expect(datatableElement.data.length).toBe(0);
+
+            expect(toastHandler).toHaveBeenCalledTimes(0);
+
+            // click reflesh button
+            const refleshButtonElement = element.shadowRoot.querySelector('lightning-button.reflesh');
+            refleshButtonElement.click();
+
+            getDemos.error();
+
+            await flushPromises();
+
+            expect(refreshApex).toHaveBeenCalled();
+            expect(refreshApex).toHaveBeenCalledTimes(1);
+
+            const reflesheddatatableElement = element.shadowRoot.querySelector('lightning-datatable');
+            expect(reflesheddatatableElement).toBe(null);
+
+            /*
+             * NOTE: 2023/7/30) refleshApexがエラーの場合に、ShowToastEventをdispatchしてなくても
+             * このjestではなぜかtoastHandlerが呼ばれてるように見えた
+             * 実際に画面で確認するとToastは表示されない
+             */
+            expect(toastHandler).toHaveBeenCalled();
+            expect(toastHandler).toHaveBeenCalledTimes(1);
+        });
     });
 });
