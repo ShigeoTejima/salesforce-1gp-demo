@@ -13,11 +13,17 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
+    - name: show env temporally
+      run: |
+        pwd
+        env
+        
     - name: install salesforce cli
       env:
         dir_install: "${{ env.GITHUB_WORKSPACE }}/.local/sf"
         filename_installer: sf-linux-x64.tar.gz
       run: |
+        echo ${dir_install}
         cd /tmp
         wget https://developer.salesforce.com/media/salesforce-cli/sf/channels/stable/${filename_installer}
         mkdir -p "${dir_install}"
