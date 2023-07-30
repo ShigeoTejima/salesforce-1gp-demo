@@ -1,5 +1,6 @@
 import { LightningElement, wire } from 'lwc';
 import { refreshApex } from '@salesforce/apex';
+import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 import getDemos from '@salesforce/apex/DemoController.getDemos';
 
 const DEMO_COLUMNS = [
@@ -11,11 +12,31 @@ export default class Demo_page extends LightningElement {
 
     demo_columns = DEMO_COLUMNS;
 
-    @wire(getDemos)
     demos;
 
     get existsDemos() {
         return this.demos && this.demos.data;
+    }
+
+    get demoData() {
+        return this.existsDemos ? this.demos.data : null;
+    }
+
+    @wire(getDemos)
+    getDemos(value) {
+        this.demos = value;
+        const { data, error } = value;
+        if (error) {
+            this.dispatchEvent(
+                new ShowToastEvent({
+                    title: 'Error loading Demo',
+                    message: 'fail to fetch records of demo',
+                    variant: 'error'
+                })
+            );
+        } else if (data) {
+            // nop
+        }
     }
 
     handleReflesh() {

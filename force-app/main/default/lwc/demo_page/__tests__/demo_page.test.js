@@ -1,5 +1,6 @@
 import { createElement } from 'lwc';
 import { refreshApex } from '@salesforce/apex';
+import { ShowToastEventName } from 'lightning/platformShowToastEvent';
 import Demo_page from 'c/demo_page';
 import getDemos from '@salesforce/apex/DemoController.getDemos';
 
@@ -86,13 +87,15 @@ describe('c-demo-page', () => {
 
         });
 
-        it('returned error when get data', async () => {
+        it('when returned error to get data', async () => {
             const element = createElement('c-demo-page', {
                 is: Demo_page
             });
-    
-            // Act
             document.body.appendChild(element);
+
+            // Mock handler for toast event
+            const toastHandler = jest.fn();
+            element.addEventListener(ShowToastEventName, toastHandler);
 
             getDemos.error();
 
@@ -101,6 +104,9 @@ describe('c-demo-page', () => {
             const datatableElement = element.shadowRoot.querySelector('lightning-datatable');
 
             expect(datatableElement).toBe(null);
+
+            expect(toastHandler).toHaveBeenCalled();
+            expect(toastHandler).toHaveBeenCalledTimes(1);
         });
     });
 
