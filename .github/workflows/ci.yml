@@ -7,6 +7,17 @@ on:
         description: 'when input, connected to username for scratch'
         required: false
         type: string
+      create_beta_package:
+        description: 'True to create beta package'
+        required: true
+        default: false
+        type: boolean
+      package_version_name:
+        required: false
+        type: string
+      package_version_number:
+          required: false
+          type: string
 
 jobs:
   test:
@@ -91,3 +102,109 @@ jobs:
       with:
         name: apex-test-results
         path: /tmp/apex-test-results.zip
+
+  create-beta-package:
+    needs: test
+    if: ${{ inputs.create_beta_package }}
+    runs-on: ubuntu-latest
+    steps:
+    - name: install salesforce cli
+      env:
+        filename_installer: sf-linux-x64.tar.gz
+      run: |
+        declare dir_install=${HOME}/.local/sf
+        cd /tmp
+        wget https://developer.salesforce.com/media/salesforce-cli/sf/channels/stable/${filename_installer}
+        mkdir -p "${dir_install}"
+        tar -xzf ${filename_installer} -C "${dir_install}" --strip-components 1
+        echo "${dir_install}/bin" >> $GITHUB_PATH
+
+    - name: confirm sf version
+      run: |
+        sf version
+
+    - name: checkout
+      uses: actions/checkout@v3
+
+    - name: convert source to metadata
+      run: |
+        sf project convert source --output-dir metadata --json
+        ls -lR metadata
+        cat metadata/package.xml
+
+    - name: generate private key from encoded private key
+      env:
+        encoded_private_key_content: ${{ secrets.package_org_encoded_private_key_content }}
+        encode_raw_key: ${{ secrets.package_org_encode_raw_key }}
+        encode_iv: ${{ secrets.package_org_encode_iv }}
+        encoded_private_key_file: "/tmp/server.pem.enc"
+        decoded_private_key_file: "/tmp/server.pem"
+      run: |
+        echo ${encoded_private_key_content} | base64 -d > ${encoded_private_key_file}
+        openssl enc -nosalt -aes-256-cbc -d -in ${encoded_private_key_file} -out ${decoded_private_key_file} -base64 -K ${encode_raw_key} -iv ${encode_iv}
+
+    - name: authorize package org
+      env:
+        org_client_id: ${{ secrets.package_org_client_id }}
+        org_username: ${{ secrets.package_org_username }}
+        decoded_private_key_file: "/tmp/server.pem"
+      run: |
+        sf auth jwt grant --client-id ${org_client_id} --jwt-key-file ${decoded_private_key_file} --username ${org_username} --set-default --alias package --json
+        sf org list
+
+    - name: deploy metadata to package org
+      run: |
+        sf project deploy start --manifest metadata/package.xml
+
+    - name: create beta package version
+      id: create-beta-package-version
+      env:
+        metadata_package_id: ${{ secrets.package_metadata_package_id }}
+        version_name: ${{ inputs.package_version_name }}
+        version_number: ${{ inputs.package_version_number }}
+      run: |
+        declare file_result=/tmp/result_package1_version_create.json
+        sf package1 version create --package-id ${metadata_package_id} --name ${version_name} --version ${version_number} --json | tee ${file_result}
+
+        declare request_id=$(cat ${file_result} | jq -r '.result.Id')
+        echo "request_id=${request_id}" >> "$GITHUB_OUTPUT"
+
+    - name: confirm to create beta package version
+      run: |
+        declare request_id=${{ steps.create-beta-package-version.outputs.request_id }}
+
+        declare file_result=/tmp/result_package1_version_create.json
+        declare -i interval=10
+        declare -i timeout=120
+        declare -i times=0
+
+        while [[ ${times} -le ${timeout} ]]
+        do
+          echo "$(date) - ${times} seconds elapsed"
+
+          sf package1 version create get -i ${request_id} --json | tee ${file_result}
+          declare status=$(cat ${file_result} | jq -r '.result.Status')
+
+          if [[ ${status} == "SUCCESS" ]]
+          then
+            echo "$(date) - loop break by status is SUCCESS)"
+            break
+          fi
+
+          if [[ ${times} -ge ${timeout} ]]
+          then
+            echo "$(date) - loop break by timeout(${timeout} seconds)"
+            break
+          fi
+
+          echo "$(date) - ${interval} seconds sleep...)"
+          sleep ${interval}
+
+          times=$((${times} + ${interval}))
+        done
+
+        echo "$(date) - loop end. ${times} seconds elapsed"
+
+    - name: list beta package version
+      run: |
+        sf package1 version list
