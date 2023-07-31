@@ -7,7 +7,13 @@ on:
         description: 'when input, connected to username for scratch'
         required: false
         type: string
-
+      package_version_name:
+        required: false
+        type: string
+      package_version_number:
+          required: false
+          type: string
+  
 jobs:
   job1:
     runs-on: ubuntu-latest
@@ -60,3 +66,20 @@ jobs:
         username: ${{ secrets.package_org_username }}
         alias: package
   
+    - name: convert source to metadata
+      run: |
+        sf project convert source --output-dir metadata --json
+        ls -lR metadata
+        cat metadata/package.xml
+  
+    - name: deploy metadata to package org
+      run: |
+        sf project deploy start --manifest metadata/package.xml -o package
+
+    - name: create beta package version
+      uses: ./.github/actions/create-package-version
+      with:
+        metadata_package_id: ${{ secrets.package_metadata_package_id }}
+        version_name: ${{ inputs.package_version_name }}
+        version_number: ${{ inputs.package_version_number }}
+        alias: package

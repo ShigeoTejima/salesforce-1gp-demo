@@ -1,0 +1,85 @@
+name: 'Create Package Version'
+inputs:
+  metadata_package_id:
+    required: true
+  version_name:
+    required: true
+  version_number:
+    required: true
+  alias:
+    required: true
+  confirm-interval:
+    required: false
+    default: 10
+  confirm-timeout:
+    required: false
+    default: 120
+
+runs:
+  using: 'composite'
+  steps:
+    - name: validation for inputs
+      run: |
+        declare -i interval=${{ inputs.confirm-interval }}
+        declare -i timeout=${{ inputs.confirm-timeout }}
+        if [[ ${interval} -le 0 || ${timeout} -le 0 ]]; then
+          echo "confirm-interval and confirm-timeout must be greater than zero."
+          exit 1
+        fi
+      shell: bash
+
+    - name: list package version before creation
+      run: sf package1 version list -o ${{ inputs.alias }}
+      shell: bash
+
+    - name: create package version
+      id: create-package-version
+      run: |
+        declare result_file=${RUNNER_TEMP}/create-package-version-result.json
+
+        sf package1 version create --package-id ${{ inputs.metadata_package_id }} --name ${{ inputs.version_name }} --version ${{ inputs.version_number }} -o ${{ inputs.alias }} --json | tee ${result_file}
+
+        declare request_id=$(cat ${result_file} | jq -r '.result.Id')
+        echo "request_id=${request_id}" >> "$GITHUB_OUTPUT"
+      shell: bash
+
+    - name: confirm to create package version
+      run: |
+        declare request_id=${{ steps.create-package-version.outputs.request_id }}
+
+        declare result_file=${RUNNER_TEMP}/create-package-version-result.json
+        declare -i interval=${{ inputs.confirm-interval }}
+        declare -i timeout=${{ inputs.confirm-timeout }}
+        declare -i times=0
+
+        while [[ ${times} -le ${timeout} ]]
+        do
+          echo "$(date) - ${times} seconds elapsed"
+
+          sf package1 version create get -i ${request_id} -o ${{ inputs.alias }} --json | tee ${result_file}
+          declare status=$(cat ${result_file} | jq -r '.result.Status')
+
+          if [[ ${status} == "SUCCESS" ]]
+          then
+            echo "$(date) - loop break by status is SUCCESS"
+            break
+          fi
+
+          if [[ ${times} -ge ${timeout} ]]
+          then
+            echo "$(date) - loop break by timeout(${timeout} seconds)"
+            break
+          fi
+
+          echo "$(date) - ${interval} seconds sleep..."
+          sleep ${interval}
+
+          times=$((${times} + ${interval}))
+        done
+
+        echo "$(date) - loop end. ${times} seconds elapsed"
+      shell: bash
+
+    - name: list package version after creation
+      run: sf package1 version list -o ${{ inputs.alias }}
+      shell: bash
