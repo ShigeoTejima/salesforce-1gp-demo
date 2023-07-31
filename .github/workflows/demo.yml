@@ -1,6 +1,12 @@
 name: Demo workflow
 
-on: workflow_dispatch
+on:
+  workflow_dispatch:
+    inputs:
+      scratch_username:
+        description: 'when input, connected to username for scratch'
+        required: false
+        type: string
 
 jobs:
   job1:
@@ -20,7 +26,7 @@ jobs:
 
     - uses: ./.github/actions/setup-salesforce-cli
 
-    - name: authorize devhub
+    - name: authorize devhub org
       uses: ./.github/actions/authorize-org
       with:
         encoded_private_key_content: ${{ secrets.devhub_org_encoded_private_key_content }}
@@ -31,3 +37,26 @@ jobs:
         alias: devhub
         is-devhub: true
         set-default: true
+
+    - name: authorize scratch org
+      uses: ./.github/actions/authorize-org
+      with:
+        encoded_private_key_content: ${{ secrets.devhub_org_encoded_private_key_content }}
+        encode_raw_key: ${{ secrets.devhub_org_encode_raw_key }}
+        encode_iv: ${{ secrets.devhub_org_encode_iv }}
+        client_id: ${{ secrets.devhub_org_client_id }}
+        username: ${{ inputs.scratch_username }}
+        alias: scratch
+        is-scratch: true
+        set-default: true
+  
+    - name: authorize package org
+      uses: ./.github/actions/authorize-org
+      with:
+        encoded_private_key_content: ${{ secrets.package_org_encoded_private_key_content }}
+        encode_raw_key: ${{ secrets.package_org_encode_raw_key }}
+        encode_iv: ${{ secrets.package_org_encode_iv }}
+        client_id: ${{ secrets.package_org_client_id }}
+        username: ${{ secrets.package_org_username }}
+        alias: package
+  
