@@ -1,0 +1,18 @@
+name: Demo workflow
+
+on: workflow_dispatch
+
+jobs:
+  job1:
+    runs-on: ubuntu-latest
+    steps:
+    - name: checkout
+      uses: actions/checkout@v3
+    - id: foo
+      uses: ./.github/actions/hello
+      with:
+        who-to-greet: 'John'
+    - name: post hello
+      run: |
+        echo greet is ${{ steps.foo.outputs.greet }}
+    - uses: ./.github/actions/setup-salesforce-cli
