@@ -48,7 +48,7 @@ runs:
         declare option_set_default
         if ${{ inputs.is-devhub }} && ${{ inputs.set-default }} ; then
           option_set_default="--set-default-dev-hub"
-        elif ! ${{ inputs.is-devhub }} && ${{ set-default }} ; then
+        elif ! ${{ inputs.is-devhub }} && ${{ inputs.set-default }} ; then
           option_set_default="--set-default"
         fi
         echo "option_set_default: ${option_set_default}"
