@@ -30,6 +30,10 @@ runs:
         private_key_dir=${RUNNER_TEMP}/${{ inputs.alias }}
         private_key_file_encoded=${private_key_dir}/server.pem.enc
         private_key_file=${private_key_dir}/server.pem
+
+        echo "private_key_dir=${private_key_dir}" >> $GITHUB_OUTPUT
+        echo "private_key_file_encoded=${private_key_file_encoded}" >> $GITHUB_OUTPUT
+        echo "private_key_file=${private_key_file}" >> $GITHUB_OUTPUT        
       shell: bash
 
     - name: generate private key from encoded private key
