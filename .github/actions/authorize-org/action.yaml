@@ -22,19 +22,10 @@ inputs:
     required: false
     default: false
 runs:
-  env:
-    foo: "FooBar"
   using: 'composite'
   steps:
     - name: generate private key from encoded private key
       run: |
-        echo "foo: ${foo}"
-        if [[ "${foo}" == "FooBar" ]]; then
-          echo "foo is correct."
-        else
-          echo "foo is wrong."
-        fi
-
         encoded_private_key_file=${RUNNER_TEMP}/server.pem.enc
         decoded_private_key_file=${RUNNER_TEMP}/server.pem
         echo ${encoded_private_key_file}
