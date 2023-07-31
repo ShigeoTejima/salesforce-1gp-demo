@@ -18,7 +18,8 @@ runs:
         mkdir -p "${dir_install}"
         tar -xzf ${filename_installer} -C "${dir_install}" --strip-components 1
         echo "${dir_install}/bin" >> $GITHUB_PATH
-
+      shell: bash
     - name: confirm sf version
       run: |
         sf version
+      shell: bash
