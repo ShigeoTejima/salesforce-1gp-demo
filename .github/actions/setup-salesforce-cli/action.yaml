@@ -1,14 +1,8 @@
 name: 'Setup Salesforce CLI'
-inputs:
-  who-to-greet:
-    required: true
-outputs:
-  greet:
-    value: ${{ steps.say-hello.outputs.greet }}
 runs:
   using: 'composite'
   steps:
-    - name: Install Salesforce CLI
+    - name: install salesforce cli
       env:
         filename_installer: sf-linux-x64.tar.gz
       run: |
@@ -19,6 +13,7 @@ runs:
         tar -xzf ${filename_installer} -C "${dir_install}" --strip-components 1
         echo "${dir_install}/bin" >> $GITHUB_PATH
       shell: bash
+
     - name: confirm sf version
       run: |
         sf version

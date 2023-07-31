@@ -1,0 +1,70 @@
+name: 'Authorize Org'
+inputs:
+  encoded_private_key_content:
+    required: true
+  encode_raw_key:
+    required: true
+  encode_iv:
+    required: true
+  client_id:
+    required: true
+  username:
+    required: true
+  alias:
+    required: true
+  is-devhub:
+    required: false
+    default: false
+  is-scratch:
+    required: false
+    default: false
+  set-default:
+    required: false
+    default: false
+runs:
+  using: 'composite'
+  env:
+    foo: "FooBar"
+  steps:
+    - name: generate private key from encoded private key
+      run: |
+        echo "foo: ${foo}"
+        if [[ "${foo}" == "FooBar" ]]; then
+          echo "foo is correct."
+        else
+          echo "foo is wrong."
+        fi
+
+        encoded_private_key_file=${RUNNER_TEMP}/server.pem.enc
+        decoded_private_key_file=${RUNNER_TEMP}/server.pem
+        echo ${encoded_private_key_file}
+        echo ${decoded_private_key_file}
+
+        echo ${{ inputs.encoded_private_key_content }} | base64 -d > ${encoded_private_key_file}
+        openssl enc -nosalt -aes-256-cbc -d -in ${encoded_private_key_file} -out ${decoded_private_key_file} -base64 -K ${{ inputs.encode_raw_key }} -iv ${{ inputs.encode_iv }}
+      shell: bash
+
+    - name: authorize org
+      run: |
+        decoded_private_key_file=${RUNNER_TEMP}/server.pem
+
+        declare option_instance_url
+        if ${{ inputs.is-scratch }} ; then
+          option_instance_url="--instance-url https://test.salesforce.com"
+        fi
+        echo "option_instance_url: ${option_instance_url}"
+
+        declare option_set_default
+        if ${{ inputs.is-devhub }} && ${{ inputs.set-default }} ; then
+          option_set_default="--set-default-dev-hub"
+        elif ! ${{ inputs.is-devhub }} && ${{ set-default }} ; then
+          option_set_default="--set-default"
+        fi
+        echo "option_set_default: ${option_set_default}"
+
+        sf auth jwt grant --client-id ${{ inputs.client_id }} --jwt-key-file ${decoded_private_key_file} --username ${{ inputs.username }} ${option_instance_url} ${option_set_default} --alias ${{ inputs.alias }} --json
+      shell: bash
+
+    - name: confirm org list
+      run: sf org list
+      shell: bash

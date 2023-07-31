@@ -8,11 +8,26 @@ jobs:
     steps:
     - name: checkout
       uses: actions/checkout@v3
+
     - id: foo
       uses: ./.github/actions/hello
       with:
         who-to-greet: 'John'
+
     - name: post hello
       run: |
         echo greet is ${{ steps.foo.outputs.greet }}
+
     - uses: ./.github/actions/setup-salesforce-cli
+
+    - name: authorize devhub
+      uses: ./.github/actions/authorize-org
+      with:
+        encoded_private_key_content: ${{ secrets.devhub_org_encoded_private_key_content }}
+        encode_raw_key: ${{ secrets.devhub_org_encode_raw_key }}
+        encode_iv: ${{ secrets.devhub_org_encode_iv }}
+        client_id: ${{ secrets.devhub_org_client_id }}
+        username: ${{ secrets.devhub_org_username }}
+        alias: devhub
+        is-devhub: true
+        set-default: true
