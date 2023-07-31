@@ -23,23 +23,11 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-    - name: install salesforce cli
-      env:
-        filename_installer: sf-linux-x64.tar.gz
-      run: |
-        declare dir_install=${HOME}/.local/sf
-        cd /tmp
-        wget https://developer.salesforce.com/media/salesforce-cli/sf/channels/stable/${filename_installer}
-        mkdir -p "${dir_install}"
-        tar -xzf ${filename_installer} -C "${dir_install}" --strip-components 1
-        echo "${dir_install}/bin" >> $GITHUB_PATH
-
-    - name: confirm sf version
-      run: |
-        sf version
-
     - name: checkout
       uses: actions/checkout@v3
+
+    - name: setup salesforce cli
+      uses: ./.github/actions/setup-salesforce-cli
 
     - name: install sfdx-lwc-jest by npm
       run: |
@@ -49,25 +37,17 @@ jobs:
       run: |
         sf force lightning lwc test run
 
-    - name: generate private key from encoded private key
-      env:
+    - name: authorize devhub org
+      uses: ./.github/actions/authorize-org
+      with:
         encoded_private_key_content: ${{ secrets.devhub_org_encoded_private_key_content }}
         encode_raw_key: ${{ secrets.devhub_org_encode_raw_key }}
         encode_iv: ${{ secrets.devhub_org_encode_iv }}
-        encoded_private_key_file: "/tmp/server.pem.enc"
-        decoded_private_key_file: "/tmp/server.pem"
-      run: |
-        echo ${encoded_private_key_content} | base64 -d > ${encoded_private_key_file}
-        openssl enc -nosalt -aes-256-cbc -d -in ${encoded_private_key_file} -out ${decoded_private_key_file} -base64 -K ${encode_raw_key} -iv ${encode_iv}
-
-    - name: authorize devhub org
-      env:
         client_id: ${{ secrets.devhub_org_client_id }}
-        org_username: ${{ secrets.devhub_org_username }}
-        private_key_file: "/tmp/server.pem"
-      run: |
-        sf auth jwt grant --client-id ${client_id} --jwt-key-file ${private_key_file} --username ${org_username} --set-default-dev-hub --alias devhub --json
-        sf org list
+        username: ${{ secrets.devhub_org_username }}
+        alias: devhub
+        is-devhub: true
+        set-default: true
     
     - name: create scratch org
       if: ${{ inputs.scratch_username == '' }}
@@ -75,56 +55,55 @@ jobs:
         sf org create scratch --definition-file config/project-scratch-def.json --set-default --alias scratch --json
 
     - name: authorize scratch org
-      if: ${{ inputs.scratch_username != '' }}
-      env:
+      uses: ./.github/actions/authorize-org
+      with:
+        encoded_private_key_content: ${{ secrets.devhub_org_encoded_private_key_content }}
+        encode_raw_key: ${{ secrets.devhub_org_encode_raw_key }}
+        encode_iv: ${{ secrets.devhub_org_encode_iv }}
         client_id: ${{ secrets.devhub_org_client_id }}
-        org_username: ${{ inputs.scratch_username }}
-        private_key_file: "/tmp/server.pem"
-      run: |
-        sf auth jwt grant --client-id ${client_id} --jwt-key-file ${private_key_file} --username ${org_username} --instance-url https://test.salesforce.com --set-default --alias scratch --json
-
-    - name: show org list
-      run: sf org list
+        username: ${{ inputs.scratch_username }}
+        alias: scratch
+        is-scratch: true
+        set-default: true
 
     - name: deploy to scratch org
       run: sf project deploy start --ignore-conflicts
 
     - name: run apex test 
-      run: sf apex run test --code-coverage --synchronous --result-format json --output-dir /tmp/build/apex-test-results
-
-    - name: archive apext test results
+      id: run-apex-test
       run: |
-        cd /tmp/build
-        zip -r /tmp/apex-test-results.zip apex-test-results
+        apex_test_results_dir=${RUNNER_TEMP}/build/apex-test-results
+        sf apex run test --code-coverage --synchronous --result-format json --output-dir ${apex_test_results_dir}
+
+        echo "apex_test_results_dir=${apex_test_results_dir}" >> "$GITHUB_OUTPUT"
+
+    - name: archive apex test results
+      id: archive-apex-test-results
+      run: |
+        declare apex_test_results_dir=${{ steps.run-apex-test.outputs.apex_test_results_dir }}
+        declare archive_file=${RUNNER_TEMP}/$(basename ${apex_test_results_dir}).zip
+
+        cd $(dirname ${apex_test_results_dir})
+        zip -r ${archive_file} $(basename ${apex_test_results_dir})
+
+        echo "archive_file=${archive_file}" >> "$GITHUB_OUTPUT"
 
     - name: upload apex test results
       uses: actions/upload-artifact@v3
       with:
         name: apex-test-results
-        path: /tmp/apex-test-results.zip
+        path: ${{ steps.archive-apex-test-results.outputs.archive_file }}
 
   create-beta-package:
     needs: test
     if: ${{ inputs.create_beta_package }}
     runs-on: ubuntu-latest
     steps:
-    - name: install salesforce cli
-      env:
-        filename_installer: sf-linux-x64.tar.gz
-      run: |
-        declare dir_install=${HOME}/.local/sf
-        cd /tmp
-        wget https://developer.salesforce.com/media/salesforce-cli/sf/channels/stable/${filename_installer}
-        mkdir -p "${dir_install}"
-        tar -xzf ${filename_installer} -C "${dir_install}" --strip-components 1
-        echo "${dir_install}/bin" >> $GITHUB_PATH
-
-    - name: confirm sf version
-      run: |
-        sf version
-
     - name: checkout
       uses: actions/checkout@v3
+
+    - name: setup salesforce cli
+      uses: ./.github/actions/setup-salesforce-cli
 
     - name: convert source to metadata
       run: |
@@ -132,79 +111,25 @@ jobs:
         ls -lR metadata
         cat metadata/package.xml
 
-    - name: generate private key from encoded private key
-      env:
+    - name: authorize package org
+      uses: ./.github/actions/authorize-org
+      with:
         encoded_private_key_content: ${{ secrets.package_org_encoded_private_key_content }}
         encode_raw_key: ${{ secrets.package_org_encode_raw_key }}
         encode_iv: ${{ secrets.package_org_encode_iv }}
-        encoded_private_key_file: "/tmp/server.pem.enc"
-        decoded_private_key_file: "/tmp/server.pem"
-      run: |
-        echo ${encoded_private_key_content} | base64 -d > ${encoded_private_key_file}
-        openssl enc -nosalt -aes-256-cbc -d -in ${encoded_private_key_file} -out ${decoded_private_key_file} -base64 -K ${encode_raw_key} -iv ${encode_iv}
-
-    - name: authorize package org
-      env:
         client_id: ${{ secrets.package_org_client_id }}
-        org_username: ${{ secrets.package_org_username }}
-        private_key_file: "/tmp/server.pem"
-      run: |
-        sf auth jwt grant --client-id ${client_id} --jwt-key-file ${private_key_file} --username ${org_username} --set-default --alias package --json
-        sf org list
+        username: ${{ secrets.package_org_username }}
+        alias: package
+        set-default: true
 
     - name: deploy metadata to package org
       run: |
         sf project deploy start --manifest metadata/package.xml
 
     - name: create beta package version
-      id: create-beta-package-version
-      env:
+      uses: ./.github/actions/create-package-version
+      with:
         metadata_package_id: ${{ secrets.package_metadata_package_id }}
         version_name: ${{ inputs.package_version_name }}
         version_number: ${{ inputs.package_version_number }}
-      run: |
-        declare file_result=/tmp/result_package1_version_create.json
-        sf package1 version create --package-id ${metadata_package_id} --name ${version_name} --version ${version_number} --json | tee ${file_result}
-
-        declare request_id=$(cat ${file_result} | jq -r '.result.Id')
-        echo "request_id=${request_id}" >> "$GITHUB_OUTPUT"
-
-    - name: confirm to create beta package version
-      run: |
-        declare request_id=${{ steps.create-beta-package-version.outputs.request_id }}
-
-        declare file_result=/tmp/result_package1_version_create.json
-        declare -i interval=10
-        declare -i timeout=120
-        declare -i times=0
-
-        while [[ ${times} -le ${timeout} ]]
-        do
-          echo "$(date) - ${times} seconds elapsed"
-
-          sf package1 version create get -i ${request_id} --json | tee ${file_result}
-          declare status=$(cat ${file_result} | jq -r '.result.Status')
-
-          if [[ ${status} == "SUCCESS" ]]
-          then
-            echo "$(date) - loop break by status is SUCCESS)"
-            break
-          fi
-
-          if [[ ${times} -ge ${timeout} ]]
-          then
-            echo "$(date) - loop break by timeout(${timeout} seconds)"
-            break
-          fi
-
-          echo "$(date) - ${interval} seconds sleep...)"
-          sleep ${interval}
-
-          times=$((${times} + ${interval}))
-        done
-
-        echo "$(date) - loop end. ${times} seconds elapsed"
-
-    - name: list beta package version
-      run: |
-        sf package1 version list
+        alias: package
