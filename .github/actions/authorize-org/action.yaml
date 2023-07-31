@@ -22,22 +22,27 @@ inputs:
     required: false
     default: false
 runs:
+  env:
+    encoded_private_key_file: ${RUNNER_TEMP}/server.pem.enc
+    decoded_private_key_file: ${RUNNER_TEMP}/server.pem
   using: 'composite'
   steps:
     - name: generate private key from encoded private key
       run: |
-        encoded_private_key_file=${RUNNER_TEMP}/server.pem.enc
-        decoded_private_key_file=${RUNNER_TEMP}/server.pem
+        # encoded_private_key_file=${RUNNER_TEMP}/server.pem.enc
+        # decoded_private_key_file=${RUNNER_TEMP}/server.pem
         echo ${encoded_private_key_file}
         echo ${decoded_private_key_file}
 
         echo ${{ inputs.encoded_private_key_content }} | base64 -d > ${encoded_private_key_file}
         openssl enc -nosalt -aes-256-cbc -d -in ${encoded_private_key_file} -out ${decoded_private_key_file} -base64 -K ${{ inputs.encode_raw_key }} -iv ${{ inputs.encode_iv }}
+
+        ls -l ${RUNNER_TEMP}
       shell: bash
 
     - name: authorize org
       run: |
-        decoded_private_key_file=${RUNNER_TEMP}/server.pem
+        # decoded_private_key_file=${RUNNER_TEMP}/server.pem
 
         declare option_instance_url
         if ${{ inputs.is-scratch }} ; then
