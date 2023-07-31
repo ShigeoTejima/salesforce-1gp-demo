@@ -22,9 +22,9 @@ inputs:
     required: false
     default: false
 runs:
-  using: 'composite'
   env:
     foo: "FooBar"
+  using: 'composite'
   steps:
     - name: generate private key from encoded private key
       run: |
