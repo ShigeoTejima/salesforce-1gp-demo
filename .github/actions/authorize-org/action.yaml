@@ -27,21 +27,27 @@ runs:
     - name: define env in this action
       id: define-env
       run: |
-        encoded_private_key_file=${RUNNER_TEMP}/${{ inputs.alias }}/server.pem.enc
-        decoded_private_key_file=${RUNNER_TEMP}/${{ inputs.alias }}/server.pem
-        echo "encoded_private_key_file=${encoded_private_key_file}" >> $GITHUB_OUTPUT
-        echo "decoded_private_key_file=${decoded_private_key_file}" >> $GITHUB_OUTPUT
+        private_key_dir=${RUNNER_TEMP}/${{ inputs.alias }}
+        private_key_file_encoded=${private_key_dir}/server.pem.enc
+        private_key_file=${private_key_dir}/server.pem
+        echo "private_key_dir=${private_key_dir}" >> $GITHUB_OUTPUT
+        echo "private_key_file_encoded=${private_key_file_encoded}" >> $GITHUB_OUTPUT
+        echo "private_key_file=${private_key_file}" >> $GITHUB_OUTPUT
       shell: bash
 
     - name: generate private key from encoded private key
       run: |
-        encoded_private_key_file=${{ steps.define-env.outputs.encoded_private_key_file }}
-        decoded_private_key_file=${{ steps.define-env.outputs.decoded_private_key_file }}
-        echo ${encoded_private_key_file}
-        echo ${decoded_private_key_file}
+        private_key_dir=${{ steps.define-env.outputs.private_key_dir }}
+        private_key_file_encoded=${{ steps.define-env.outputs.private_key_file_encoded }}
+        private_key_file=${{ steps.define-env.outputs.private_key_file }}
+        echo ${private_key_dir}
+        echo ${private_key_file_encoded}
+        echo ${private_key_file}
 
-        echo ${{ inputs.encoded_private_key_content }} | base64 -d > ${encoded_private_key_file}
-        openssl enc -nosalt -aes-256-cbc -d -in ${encoded_private_key_file} -out ${decoded_private_key_file} -base64 -K ${{ inputs.encode_raw_key }} -iv ${{ inputs.encode_iv }}
+        mkdir -p ${private_key_dir}
+
+        echo ${{ inputs.encoded_private_key_content }} | base64 -d > ${private_key_file_encoded}
+        openssl enc -nosalt -aes-256-cbc -d -in ${private_key_file_encoded} -out ${private_key_file} -base64 -K ${{ inputs.encode_raw_key }} -iv ${{ inputs.encode_iv }}
 
         ls -l ${RUNNER_TEMP}
         ls -l ${RUNNER_TEMP}/${{ inputs.alias }}
@@ -49,7 +55,7 @@ runs:
 
     - name: authorize org
       run: |
-        decoded_private_key_file=${{ steps.define-env.outputs.decoded_private_key_file }}
+        private_key_file=${{ steps.define-env.outputs.private_key_file }}
 
         declare option_instance_url
         if ${{ inputs.is-scratch }} ; then
@@ -65,7 +71,7 @@ runs:
         fi
         echo "option_set_default: ${option_set_default}"
 
-        sf auth jwt grant --client-id ${{ inputs.client_id }} --jwt-key-file ${decoded_private_key_file} --username ${{ inputs.username }} ${option_instance_url} ${option_set_default} --alias ${{ inputs.alias }} --json
+        sf auth jwt grant --client-id ${{ inputs.client_id }} --jwt-key-file ${private_key_file} --username ${{ inputs.username }} ${option_instance_url} ${option_set_default} --alias ${{ inputs.alias }} --json
       shell: bash
 
     - name: confirm org list
