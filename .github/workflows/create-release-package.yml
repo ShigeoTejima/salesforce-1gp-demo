@@ -1,0 +1,41 @@
+name: Create Release Package workflow
+
+on:
+  workflow_dispatch:
+    inputs:
+      package_version_name:
+        required: false
+        type: string
+      package_version_number:
+        required: false
+        type: string
+
+jobs:
+  create-release-package:
+    runs-on: ubuntu-latest
+    steps:
+    - name: checkout
+      uses: actions/checkout@v3
+
+    - name: setup salesforce cli
+      uses: ./.github/actions/setup-salesforce-cli
+
+    - name: authorize package org
+      uses: ./.github/actions/authorize-org
+      with:
+        encoded_private_key_content: ${{ secrets.package_org_encoded_private_key_content }}
+        encode_raw_key: ${{ secrets.package_org_encode_raw_key }}
+        encode_iv: ${{ secrets.package_org_encode_iv }}
+        client_id: ${{ secrets.package_org_client_id }}
+        username: ${{ secrets.package_org_username }}
+        alias: package
+        set-default: true
+
+    - name: create release package version
+      uses: ./.github/actions/create-package-version
+      with:
+        metadata_package_id: ${{ secrets.package_metadata_package_id }}
+        version_name: ${{ inputs.package_version_name }}
+        version_number: ${{ inputs.package_version_number }}
+        is-release: true
+        alias: package

@@ -6,6 +6,9 @@ inputs:
     required: true
   version_number:
     required: true
+  is-release:
+    reuired: false
+    default: false
   alias:
     required: true
   confirm-interval:
@@ -37,7 +40,12 @@ runs:
       run: |
         declare result_file=${RUNNER_TEMP}/create-package-version-result.json
 
-        sf package1 version create --package-id ${{ inputs.metadata_package_id }} --name ${{ inputs.version_name }} --version ${{ inputs.version_number }} -o ${{ inputs.alias }} --json | tee ${result_file}
+        declare option_managed_released
+        if ${{ inputs.is-release }} ; then
+          option_managed_released="--managed-released"
+        fi
+
+        sf package1 version create --package-id ${{ inputs.metadata_package_id }} --name ${{ inputs.version_name }} --version ${{ inputs.version_number }} ${option_managed_released} -o ${{ inputs.alias }} --json | tee ${result_file}
 
         declare request_id=$(cat ${result_file} | jq -r '.result.Id')
         echo "request_id=${request_id}" >> "$GITHUB_OUTPUT"

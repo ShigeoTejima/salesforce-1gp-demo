@@ -16,8 +16,8 @@ on:
         required: false
         type: string
       package_version_number:
-          required: false
-          type: string
+        required: false
+        type: string
 
 jobs:
   test:
