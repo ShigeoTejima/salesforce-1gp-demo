@@ -12,6 +12,8 @@ on:
 
 jobs:
   create-release-package:
+    environment:
+      name: release-package
     runs-on: ubuntu-latest
     steps:
     - name: checkout
