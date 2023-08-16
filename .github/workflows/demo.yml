@@ -1,0 +1,16 @@
+name: Demo workflow
+
+on: workflow_dispatch
+
+jobs:
+  e2e:
+    needs: demo
+    runs-on: ubuntu-latest
+    steps:
+    - name: checkout
+      uses: actions/checkout@v3
+
+    - name: configure .env-local
+      run: |
+        cd e2e
+        ./script/demo.sh foo bar
