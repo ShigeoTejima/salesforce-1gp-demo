@@ -17,3 +17,10 @@ Default definitions should be defined in `.env-default`.
 
 To run in a local environment,
 create `.env-local` and define your settings there.
+
+#### How to generate `.env-local`
+
+- `${TARGET_ORG}` is org to test.
+```shell
+./script/generate-env.sh ${TARGET_ORG} > .env-local
+```
