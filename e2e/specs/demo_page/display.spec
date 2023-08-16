@@ -1,4 +1,5 @@
 # Demo page - display page
+tags: assignPermissionSetOfDemo
 
 ## Display demo page
 

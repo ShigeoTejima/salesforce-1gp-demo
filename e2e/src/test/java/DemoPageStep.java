@@ -1,4 +1,5 @@
 import com.codeborne.selenide.CollectionCondition;
+import com.codeborne.selenide.Condition;
 import com.codeborne.selenide.ElementsCollection;
 import com.codeborne.selenide.SelenideElement;
 import com.codeborne.selenide.selector.ByShadow;
@@ -23,6 +24,16 @@ public class DemoPageStep {
                 "demo_ahd-demo_page",
                 "lightning-card"));
         assertEquals("Demo", header.innerText());
+    }
+
+    @Step("demo page - cannot open page.")
+    public void cannotOpenDemoPage() {
+        open("/lightning/n/demo_ahd__demo_page");
+
+        $(ByShadow.cssSelector("article h2.slds-card__header-title",
+                "demo_ahd-demo_page",
+                "lightning-card"))
+                .shouldBe(Condition.not(Condition.visible));
     }
 
     @Step("demo page - list of demo is empty.")

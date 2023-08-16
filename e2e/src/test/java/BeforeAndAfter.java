@@ -37,4 +37,14 @@ public class BeforeAndAfter {
     public void cleanDemo() {
         new SalesforceGateway().truncateDemo();
     }
+
+    @BeforeSpec(tags = { "assignPermissionSetOfDemo" })
+    public void assignPermissionSetOfDemo() {
+        new SalesforceGateway().assignPermissionSetOfDemo();
+    }
+
+    @BeforeSpec(tags = { "unAssignPermissionSetOfDemo" })
+    public void unAssignPermissionSetOfDemo() {
+        new SalesforceGateway().unAssignPermissionSetOfDemo();
+    }
 }

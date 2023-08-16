@@ -1,5 +1,5 @@
 # Demo page - list of demo
-tags: cleanDemo
+tags: cleanDemo, assignPermissionSetOfDemo
 
 ## List of demo is empty
 

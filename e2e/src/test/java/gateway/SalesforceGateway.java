@@ -39,4 +39,28 @@ public class SalesforceGateway {
         demos.stream()
              .forEach(demo -> this.repository.insertRecord(OBJECT_NAME_DEMO, gson.toJson(demo)));
     }
+
+    public void assignPermissionSetOfDemo() {
+        String userId = System.getProperty("test.userId");
+        String permissionSetId = System.getProperty("test.permissionSet.demo_ahd_demo.id");
+
+        FindRecordsResult permissionSetAssignment = this.repository.findPermissionSetAssignment(userId, permissionSetId);
+        if (permissionSetAssignment.totalSize == 0) {
+            this.repository.insertPermissionSetAssignment(userId, permissionSetId);
+        }
+    }
+
+    public void unAssignPermissionSetOfDemo() {
+        String userId = System.getProperty("test.userId");
+        String permissionSetId = System.getProperty("test.permissionSet.demo_ahd_demo.id");
+
+        FindRecordsResult permissionSetAssignment = this.repository.findPermissionSetAssignment(userId, permissionSetId);
+        if (permissionSetAssignment.totalSize > 0) {
+            List<String> recordIds = permissionSetAssignment.records.stream()
+                    .map(record -> record.id)
+                    .collect(Collectors.toList());
+
+            this.repository.deleteRecords(recordIds);
+        }
+    }
 }
