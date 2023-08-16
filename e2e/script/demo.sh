@@ -1,6 +1,6 @@
 #!/bin/sh
 
-function main() {
+function main () {
   echo "demo - $@"
 }
 
