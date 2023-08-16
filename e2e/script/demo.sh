@@ -1,6 +1,6 @@
 #!/bin/sh
 
-function foo() {
+foo() {
   echo "Foo"
 }
 
