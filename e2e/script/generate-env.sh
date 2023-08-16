@@ -1,5 +1,24 @@
 #!/bin/sh
 
+function main() {
+  local dir_self=$(dirname $0)
+  local dir_parent=$(cd ${dir_self}/.. && pwd)
+  TARGET_ORG="$1"
+  if [[ -z "${TARGET_ORG}" ]]; then
+    echo "function main: 1st argument required. please specify TARGET_ORG." 1>&2
+    exit 1
+  fi
+
+  DIR_TMP=$(mktemp -d ${dir_self}/tmp.XXXXXX) || exit 1
+  trap rm_dir_tmp EXIT
+  trap "trap - EXIT; rm_dir_tmp; exit -1" INT PIPE TERM
+
+  print_org_info
+  print_user_info
+  print_permissionSet_info
+
+}
+
 function print_org_info() {
   local file_org_info="${DIR_TMP}/org_info.json"
   sf org display -o "${TARGET_ORG}" --json > "${file_org_info}"
@@ -71,25 +90,6 @@ function print_permissionSet_info() {
 
 function rm_dir_tmp() {
   [[ -d "${DIR_TMP}" ]] && rm -fr "${DIR_TMP}"
-}
-
-function main() {
-  local dir_self=$(dirname $0)
-  local dir_parent=$(cd ${dir_self}/.. && pwd)
-  TARGET_ORG="$1"
-  if [[ -z "${TARGET_ORG}" ]]; then
-    echo "function main: 1st argument required. please specify TARGET_ORG." 1>&2
-    exit 1
-  fi
-
-  DIR_TMP=$(mktemp -d ${dir_self}/tmp.XXXXXX) || exit 1
-  trap rm_dir_tmp EXIT
-  trap "trap - EXIT; rm_dir_tmp; exit -1" INT PIPE TERM
-
-  print_org_info
-  print_user_info
-  print_permissionSet_info
-
 }
 
 main "$@"
