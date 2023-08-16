@@ -12,7 +12,6 @@ import java.util.stream.Collectors;
 
 import static com.codeborne.selenide.Selenide.$;
 import static com.codeborne.selenide.Selenide.open;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class DemoPageStep {
 
@@ -20,10 +19,10 @@ public class DemoPageStep {
     public void openDemoPage() {
         open("/lightning/n/demo_ahd__demo_page");
 
-        SelenideElement header = $(ByShadow.cssSelector("article h2.slds-card__header-title",
+        $(ByShadow.cssSelector("article h2.slds-card__header-title",
                 "demo_ahd-demo_page",
-                "lightning-card"));
-        assertEquals("Demo", header.innerText());
+                "lightning-card"))
+                .shouldBe(Condition.exactText("Demo"));
     }
 
     @Step("demo page - cannot open page.")
