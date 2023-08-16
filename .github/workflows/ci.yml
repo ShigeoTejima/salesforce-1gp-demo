@@ -7,6 +7,11 @@ on:
         description: 'when input, connected to username for scratch'
         required: false
         type: string
+      run_e2e:
+        description: 'True to run e2e'
+        required: true
+        default: false
+        type: boolean
       create_beta_package:
         description: 'True to create beta package'
         required: true
@@ -55,6 +60,7 @@ jobs:
         sf org create scratch --definition-file config/project-scratch-def.json --set-default --alias scratch --json
 
     - name: authorize scratch org
+      if: ${{ inputs.scratch_username != '' }}
       uses: ./.github/actions/authorize-org
       with:
         encoded_private_key_content: ${{ secrets.devhub_org_encoded_private_key_content }}
@@ -94,8 +100,69 @@ jobs:
         name: apex-test-results
         path: ${{ steps.archive-apex-test-results.outputs.archive_file }}
 
-  create-beta-package:
+  e2e:
     needs: test
+    if: ${{ inputs.run_e2e }}
+    runs-on: ubuntu-latest
+    steps:
+    - name: checkout
+      uses: actions/checkout@v3
+
+    - name: setup salesforce cli
+      uses: ./.github/actions/setup-salesforce-cli
+
+    - name: setup java
+      uses: actions/setup-java@v3
+      with:
+        distribution: 'temurin'
+        java-version: '17'
+        cache: 'maven'
+
+    - name: setup gauge
+      run: |
+        curl -SsL https://downloads.gauge.org/stable | sh
+        gauge --version
+
+        gauge install java
+        gauge --version
+
+    - name: authorize devhub org
+      uses: ./.github/actions/authorize-org
+      with:
+        encoded_private_key_content: ${{ secrets.devhub_org_encoded_private_key_content }}
+        encode_raw_key: ${{ secrets.devhub_org_encode_raw_key }}
+        encode_iv: ${{ secrets.devhub_org_encode_iv }}
+        client_id: ${{ secrets.devhub_org_client_id }}
+        username: ${{ secrets.devhub_org_username }}
+        alias: devhub
+        is-devhub: true
+        set-default: true
+
+    - name: authorize scratch org
+      if: ${{ inputs.scratch_username != '' }}
+      uses: ./.github/actions/authorize-org
+      with:
+        encoded_private_key_content: ${{ secrets.devhub_org_encoded_private_key_content }}
+        encode_raw_key: ${{ secrets.devhub_org_encode_raw_key }}
+        encode_iv: ${{ secrets.devhub_org_encode_iv }}
+        client_id: ${{ secrets.devhub_org_client_id }}
+        username: ${{ inputs.scratch_username }}
+        alias: scratch
+        is-scratch: true
+        set-default: true
+
+    - name: configure .env-local
+      run: |
+        cd e2e
+        ./script/generate-env.sh scratch > ./.env-local
+
+    - name: run e2e
+      run: |
+        ./mvnw clean test-compile
+        ./mvnw gauge:execute
+
+  create-beta-package:
+    needs: [test, e2e]
     if: ${{ inputs.create_beta_package }}
     runs-on: ubuntu-latest
     steps:
