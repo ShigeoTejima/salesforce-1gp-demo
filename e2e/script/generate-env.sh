@@ -1,4 +1,4 @@
-#!/bin/sh -e pipefail
+#!/bin/sh
 
 function print_org_info() {
   local file_org_info="${DIR_TMP}/org_info.json"
