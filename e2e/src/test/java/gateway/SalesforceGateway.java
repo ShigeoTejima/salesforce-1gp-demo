@@ -8,6 +8,9 @@ import repository.SalesforceRepository;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/* TODO: GatewayとRepositoryを用途に合わせて分けた方が良さそう.
+ * General | Demo | PermissionSet とか
+ */
 public class SalesforceGateway {
 
     private final static String OBJECT_NAME_DEMO = "demo_ahd__demo__c";
