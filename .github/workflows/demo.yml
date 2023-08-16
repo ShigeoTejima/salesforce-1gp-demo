@@ -12,4 +12,4 @@ jobs:
     - name: configure .env-local
       run: |
         cd e2e
-        ./script/demo.sh foo bar
+        sh ./script/demo.sh foo bar
