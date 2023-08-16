@@ -2,5 +2,5 @@
 
 ## Display demo page
 
-* login.
+* try login.
 * demo page - open page.

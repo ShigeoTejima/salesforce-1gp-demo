@@ -5,26 +5,47 @@ import org.openqa.selenium.By;
 
 import static com.codeborne.selenide.Selenide.$;
 import static com.codeborne.selenide.Selenide.open;
+import static org.junit.jupiter.api.Assertions.*;
 
-public class LoginStep {
+public class LoginPageStep {
 
-    @Step("login.")
-    public void loginStep() {
+    @Step("try login.")
+    public void tryLoginStep() {
+        String baseUrl = System.getProperty("selenide.baseUrl");
         String username = System.getProperty("test.username");
         String password = System.getProperty("test.password");
         String lastname = System.getProperty("test.lastname");
         String firstname = System.getProperty("test.firstname");
-        String baseUrl = System.getProperty("selenide.baseUrl");
 
-        // TODO: baseUrlにすると既にログイン済みの場合は、ログインページが表示されないので後続の処理が失敗する. 暫定でtest.salesforce.comでログインし直すようにする
-//        open(baseUrl);
-        open("https://test.salesforce.com");
+        open(baseUrl);
 
+        SelenideElement title = $("title");
+
+        // NOTE: ログインページが表示された
+        if (title.innerText().startsWith("ログイン ")) {
+            login(username, password);
+            notRegisterPhoneWhenFirstLogin();
+
+        // NOTE: ホームページが表示された
+        } else if (title.innerText().startsWith("ホーム ")) {
+            verifyUserProfile(lastname, firstname);
+
+        // NOTE: わからないページが表示された
+        } else {
+            fail("unexpected display page.");
+
+        }
+
+    }
+
+    private void login(String username, String password) {
         $("#username").val(username);
         $("#password").val(password);
 
         $("#Login").click();
+    }
 
+    private void notRegisterPhoneWhenFirstLogin() {
         // NOTE: 初回ログイン時に`携帯電話を登録`を確認されるので、`電話を登録しません`を選択する
         //       2回目ログイン以降はホーム画面に遷移する
         // NOTE: ここの判定が不安定. => セットアップ用のstepに切り出した方がよいかもしれない、と思ったが今のところ大丈夫なので様子見
@@ -35,9 +56,6 @@ public class LoginStep {
                 linkUnregisterPhone.click();
             }
         }
-
-        // NOTE: ユーザープロファイルに氏名が表示されたことで、ログインできたことを検証するとした
-        verifyUserProfile(lastname, firstname);
     }
 
     public void verifyUserProfile(String lastname, String firstname) {
