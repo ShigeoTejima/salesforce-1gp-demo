@@ -1,11 +1,13 @@
 import com.codeborne.selenide.Configuration;
+import com.thoughtworks.gauge.BeforeSpec;
 import com.thoughtworks.gauge.BeforeSuite;
+import gateway.SalesforceGateway;
 import io.github.cdimascio.dotenv.Dotenv;
 import org.openqa.selenium.chrome.ChromeOptions;
 
 import java.util.Optional;
 
-public class SetupAndTeardown {
+public class BeforeAndAfter {
 
     @BeforeSuite
     public void beforeSuite() {
@@ -28,5 +30,11 @@ public class SetupAndTeardown {
             chromeOptions.addArguments(arguments);
             Configuration.browserCapabilities = chromeOptions;
         });
+
+    }
+
+    @BeforeSpec(tags = { "cleanDemo" })
+    public void cleanDemo() {
+        new SalesforceGateway().truncateDemo();
     }
 }

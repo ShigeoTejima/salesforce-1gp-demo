@@ -14,7 +14,10 @@ public class LoginStep {
         String password = System.getProperty("test.password");
         String lastname = System.getProperty("test.lastname");
         String firstname = System.getProperty("test.firstname");
+        String baseUrl = System.getProperty("selenide.baseUrl");
 
+        // TODO: baseUrlにすると既にログイン済みの場合は、ログインページが表示されないので後続の処理が失敗する. 暫定でtest.salesforce.comでログインし直すようにする
+//        open(baseUrl);
         open("https://test.salesforce.com");
 
         $("#username").val(username);

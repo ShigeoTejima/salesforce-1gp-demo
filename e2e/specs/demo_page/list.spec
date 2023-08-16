@@ -1,6 +1,5 @@
 # Demo page - list of demo
-
-TODO: シナリオごとのデータセットアップ
+tags: cleanDemo
 
 ## List of demo is empty
 
@@ -10,6 +9,7 @@ TODO: シナリオごとのデータセットアップ
 
 ## List of demo has some records
 
+* salesforce data - insert demos for <table:fixtures/demo_page/has_some_records/setup/demo_ahd__demo__c.csv> .
 * login.
 * demo page - open page.
-* demo page - list of demo has records for <table:fixtures/demo_page/records_is_exists/expected_records.csv> .
+* demo page - list of demo has records for <table:fixtures/demo_page/has_some_records/expected/records.csv> .
