@@ -9,7 +9,7 @@ import static com.codeborne.selenide.Selenide.open;
 public class LoginStep {
 
     @Step("login.")
-    public void openLoginPageStep() {
+    public void loginStep() {
         String username = System.getProperty("test.username");
         String password = System.getProperty("test.password");
         String lastname = System.getProperty("test.lastname");
