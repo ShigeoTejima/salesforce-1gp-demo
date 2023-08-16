@@ -1,25 +1,6 @@
 #!/bin/sh
 
-function main() {
-  local dir_self=$(dirname $0)
-  local dir_parent=$(cd ${dir_self}/.. && pwd)
-  TARGET_ORG="$1"
-  if [[ -z "${TARGET_ORG}" ]]; then
-    echo "function main: 1st argument required. please specify TARGET_ORG." 1>&2
-    exit 1
-  fi
-
-  DIR_TMP=$(mktemp -d ${dir_self}/tmp.XXXXXX) || exit 1
-  trap rm_dir_tmp EXIT
-  trap "trap - EXIT; rm_dir_tmp; exit -1" INT PIPE TERM
-
-  print_org_info
-  print_user_info
-  print_permissionSet_info
-
-}
-
-function print_org_info() {
+print_org_info() {
   local file_org_info="${DIR_TMP}/org_info.json"
   sf org display -o "${TARGET_ORG}" --json > "${file_org_info}"
 
@@ -28,7 +9,7 @@ function print_org_info() {
   echo "test.instanceUrl=${instanceUrl}"
 }
 
-function print_user_info() {
+print_user_info() {
   local file_users_info="${DIR_TMP}/users_info.json"
   sf org list users -o "${TARGET_ORG}" --json > "${file_users_info}"
 
@@ -50,7 +31,7 @@ function print_user_info() {
   print_user_name "${username}"
 }
 
-function print_user_name() {
+print_user_name() {
   local username="$1"
   if [[ -z "${username}" ]]; then
     echo "function print_user_name: required username." 1>&2
@@ -72,7 +53,7 @@ function print_user_name() {
   echo "test.fullname=${fullname}"
 }
 
-function print_permissionSet_info() {
+print_permissionSet_info() {
   local file_org_info="${DIR_TMP}/org_info.json"
   sf org display -o "${TARGET_ORG}" --json > "${file_org_info}"
 
@@ -88,8 +69,27 @@ function print_permissionSet_info() {
 
 }
 
-function rm_dir_tmp() {
+rm_dir_tmp() {
   [[ -d "${DIR_TMP}" ]] && rm -fr "${DIR_TMP}"
+}
+
+main() {
+  local dir_self=$(dirname $0)
+  local dir_parent=$(cd ${dir_self}/.. && pwd)
+  TARGET_ORG="$1"
+  if [[ -z "${TARGET_ORG}" ]]; then
+    echo "function main: 1st argument required. please specify TARGET_ORG." 1>&2
+    exit 1
+  fi
+
+  DIR_TMP=$(mktemp -d ${dir_self}/tmp.XXXXXX) || exit 1
+  trap rm_dir_tmp EXIT
+  trap "trap - EXIT; rm_dir_tmp; exit -1" INT PIPE TERM
+
+  print_org_info
+  print_user_info
+  print_permissionSet_info
+
 }
 
 main "$@"
