@@ -14,8 +14,7 @@ public class LoginPageStep {
         String baseUrl = System.getProperty("selenide.baseUrl");
         String username = System.getProperty("test.username");
         String password = System.getProperty("test.password");
-        String lastname = System.getProperty("test.lastname");
-        String firstname = System.getProperty("test.firstname");
+        String fullname = System.getProperty("test.fullname");
 
         open(baseUrl);
 
@@ -28,7 +27,7 @@ public class LoginPageStep {
 
         // NOTE: ホームページが表示された
         } else if (title.innerText().startsWith("ホーム ")) {
-            verifyUserProfile(lastname, firstname);
+            verifyUserProfile(fullname);
 
         // NOTE: わからないページが表示された
         } else {
@@ -58,17 +57,15 @@ public class LoginPageStep {
         }
     }
 
-    private void verifyUserProfile(String lastname, String firstname) {
+    private void verifyUserProfile(String fullname) {
         $("button.branding-userProfile-button").click();
 
         // NOTE: Salesforce Platformのパフォーマンスによりデフォルトタイムアウトを超える場合あり、待機するタイムアウトを調整しても良さそう
         SelenideElement userProfileCard = $("div.oneUserProfileCard");
         userProfileCard.shouldBe(Condition.visible);
 
-        // NOTE: locale=jaの場合、姓名の並び
-        final String expectedProfileName = lastname + " " + firstname;
         userProfileCard.$(By.cssSelector("h1.profile-card-name"))
-                .shouldHave(Condition.exactText(expectedProfileName));
+                .shouldHave(Condition.exactText(fullname));
     }
 
 }
