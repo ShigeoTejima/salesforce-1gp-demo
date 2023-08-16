@@ -10,7 +10,7 @@ import static org.junit.jupiter.api.Assertions.*;
 public class LoginPageStep {
 
     @Step("try login.")
-    public void tryLoginStep() {
+    public void tryLogin() {
         String baseUrl = System.getProperty("selenide.baseUrl");
         String username = System.getProperty("test.username");
         String password = System.getProperty("test.password");
@@ -58,7 +58,7 @@ public class LoginPageStep {
         }
     }
 
-    public void verifyUserProfile(String lastname, String firstname) {
+    private void verifyUserProfile(String lastname, String firstname) {
         $("button.branding-userProfile-button").click();
 
         // NOTE: Salesforce Platformのパフォーマンスによりデフォルトタイムアウトを超える場合あり、待機するタイムアウトを調整しても良さそう

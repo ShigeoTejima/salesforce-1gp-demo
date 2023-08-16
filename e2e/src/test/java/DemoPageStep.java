@@ -16,7 +16,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class DemoPageStep {
 
     @Step("demo page - open page.")
-    public void openDemoPageStep() {
+    public void openDemoPage() {
         open("/lightning/n/demo_ahd__demo_page");
 
         SelenideElement header = $(ByShadow.cssSelector("article h2.slds-card__header-title",
@@ -26,13 +26,13 @@ public class DemoPageStep {
     }
 
     @Step("demo page - list of demo is empty.")
-    public void verifyDemoRecordsEmptyStep() {
+    public void verifyDemoRecordsEmpty() {
         SelenideElement datatable = getDemoDatatable();
         getDemoRows(datatable).shouldBe(CollectionCondition.empty);
     }
 
     @Step("demo page - list of demo has records for <records> .")
-    public void verifyDemoRecordsIsExistsStep(Table records) {
+    public void verifyDemoRecordsIsExists(Table records) {
         SelenideElement datatable = getDemoDatatable();
         getDemoRows(datatable).shouldBe(CollectionCondition.size(records.getTableRows().size()));
 
