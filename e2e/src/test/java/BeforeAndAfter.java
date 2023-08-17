@@ -1,15 +1,9 @@
-import com.codeborne.selenide.Configuration;
 import com.codeborne.selenide.Selenide;
 import com.thoughtworks.gauge.AfterScenario;
 import com.thoughtworks.gauge.BeforeSpec;
 import com.thoughtworks.gauge.BeforeSuite;
 import gateway.SalesforceGateway;
 import io.github.cdimascio.dotenv.Dotenv;
-import org.openqa.selenium.chrome.ChromeOptions;
-
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 
 public class BeforeAndAfter {
 
@@ -24,7 +18,6 @@ public class BeforeAndAfter {
         // NOTE: ローカルでの実行用の.env-localをロードして、システムプロパティに設定する. 設定があればデフォルトの設定値を上書きする
         loadSystemPropertiesFromDotenv(".env-local");
 
-        Configuration.fastSetValue = true;
     }
 
     @AfterScenario
