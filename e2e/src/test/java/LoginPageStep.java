@@ -20,7 +20,7 @@ public class LoginPageStep {
 
         SelenideElement title = $("title");
 
-        System.out.println(String.format("tryLogin - title: ", title.innerText()));
+        System.out.println(String.format("tryLogin - title: %s", title.innerText()));
 
         // NOTE: ログインページが表示された
         if (title.innerText().startsWith("ログイン ")) {
