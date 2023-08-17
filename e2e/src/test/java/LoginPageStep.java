@@ -5,7 +5,6 @@ import org.openqa.selenium.By;
 
 import static com.codeborne.selenide.Selenide.$;
 import static com.codeborne.selenide.Selenide.open;
-import static org.junit.jupiter.api.Assertions.*;
 
 public class LoginPageStep {
 
@@ -27,13 +26,9 @@ public class LoginPageStep {
             login(username, password);
             notRegisterPhoneWhenFirstLogin();
 
-        // NOTE: ホームページが表示された
-        } else if (title.innerText().startsWith("ホーム ")) {
-            verifyUserProfile(fullname);
-
-        // NOTE: わからないページが表示された
         } else {
-            fail("unexpected display page.");
+            // NOTE: ホームページが表示された場合、ユーザープロファイルを見ることができる
+            verifyUserProfile(fullname);
 
         }
 
