@@ -74,7 +74,7 @@ jobs:
         is-scratch: true
         set-default: true
 
-    - name: Define scratch username
+    - name: define scratch username
       id: define-scratch-username
       run: |
         declare scratch_username=$(sf org display -o scratch --json | jq -r '.result.username')
@@ -158,7 +158,6 @@ jobs:
         set-default: true
 
     - name: authorize scratch org
-      if: ${{ inputs.scratch_username != '' }}
       uses: ./.github/actions/authorize-org
       with:
         encoded_private_key_content: ${{ secrets.devhub_org_encoded_private_key_content }}
