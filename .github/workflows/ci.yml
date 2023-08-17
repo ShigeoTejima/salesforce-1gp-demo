@@ -153,6 +153,10 @@ jobs:
         is-scratch: true
         set-default: true
 
+    - name: generate password for test admin user
+      run: |
+        sf org generate password -o scratch
+
     - name: configure .env-local
       run: |
         cd e2e
