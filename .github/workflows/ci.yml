@@ -112,11 +112,6 @@ jobs:
         sudo fc-cache -fv
         sudo fc-list | grep -i ipa
 
-    - name: set locale ja_JP.UTF-8
-      run: |
-        sudo locale-gen ja_JP.UTF-8
-        sudo update-locale LANG=ja_JP.UTF-8
-
     - name: checkout
       uses: actions/checkout@v3
 
