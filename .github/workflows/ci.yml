@@ -27,6 +27,8 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+    outputs:
+      scratch-username: ${{ steps.define-scratch-username.outputs.scratch-username }}
     steps:
     - name: checkout
       uses: actions/checkout@v3
@@ -72,6 +74,12 @@ jobs:
         is-scratch: true
         set-default: true
 
+    - name: Define scratch username
+      id: define-scratch-username
+      run: |
+        declare scratch_username=$(sf org display -o scratch --json | jq -r '.result.username')
+        echo "scratch-username=${scratch_username}" >> "$GITHUB_OUTPUT"
+
     - name: deploy to scratch org
       run: sf project deploy start --ignore-conflicts
 
@@ -104,6 +112,8 @@ jobs:
     needs: test
     if: ${{ inputs.run_e2e }}
     runs-on: ubuntu-latest
+    env:
+      scratch_username: ${{needs.test.outputs.scratch-username}}
     steps:
     - name: Setup japanese fonts
       run: |
@@ -155,7 +165,7 @@ jobs:
         encode_raw_key: ${{ secrets.devhub_org_encode_raw_key }}
         encode_iv: ${{ secrets.devhub_org_encode_iv }}
         client_id: ${{ secrets.devhub_org_client_id }}
-        username: ${{ inputs.scratch_username }}
+        username: ${scratch_username}
         alias: scratch
         is-scratch: true
         set-default: true
