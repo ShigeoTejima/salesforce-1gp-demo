@@ -28,8 +28,6 @@ public class BeforeAndAfter {
         Optional.ofNullable(System.getProperty("chromeOptions.addArguments")).ifPresent(arguments -> {
             ChromeOptions chromeOptions = new ChromeOptions();
             List.of(arguments.split(" ")).stream().forEach(argument -> chromeOptions.addArguments(argument));
-            Map<String, String> prefs = Map.of("intl.accept_languages", "ja");
-            chromeOptions.setExperimentalOption("prefs", prefs);
             Configuration.browserCapabilities = chromeOptions;
         });
 
