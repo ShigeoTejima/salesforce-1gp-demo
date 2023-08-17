@@ -37,7 +37,6 @@ public class SalesforceRepository {
     public void deleteRecords(List<String> recordIds) {
         String paramIds = recordIds.stream().collect(Collectors.joining(","));
         String url = String.format("%s/services/data/v%s/composite/sobjects?ids=%s", instanceUrl, apiVersion, paramIds);
-        System.out.println(url);
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(url))
                 .header("Authorization", "Bearer " + accessToken)

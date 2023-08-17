@@ -17,8 +17,6 @@ public class LoginPageStep {
 
         open(baseUrl);
 
-        SelenideElement title = $("title");
-
         // NOTE: ログインページが表示された
         if (isLoginPage()) {
             login(username, password);
