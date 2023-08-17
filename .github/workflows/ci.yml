@@ -161,6 +161,7 @@ jobs:
       run: |
         cd e2e
         ./script/generate-env.sh scratch > ./.env-local
+        cat ./.env-local
 
     - name: compile e2e
       run: |
