@@ -156,10 +156,14 @@ jobs:
         cd e2e
         ./script/generate-env.sh scratch > ./.env-local
 
-    - name: run e2e
+    - name: compile e2e
       run: |
         cd e2e
         ./mvnw clean test-compile
+
+    - name: run e2e
+      run: |
+        cd e2e
         ./mvnw gauge:execute
 
   create-beta-package:

@@ -50,4 +50,5 @@ build/
 .DS_Store
 
 ### for local
+.env-local-default
 .env-local
