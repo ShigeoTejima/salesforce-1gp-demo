@@ -24,13 +24,6 @@ public class BeforeAndAfter {
         // NOTE: ローカルでの実行用の.env-localをロードして、システムプロパティに設定する. 設定があればデフォルトの設定値を上書きする
         loadSystemPropertiesFromDotenv(".env-local");
 
-        // NOTE: Chromeのみで検証しているため、Chromeに対する設定があれば設定している
-        Optional.ofNullable(System.getProperty("chromeOptions.addArguments")).ifPresent(arguments -> {
-            ChromeOptions chromeOptions = new ChromeOptions();
-            List.of(arguments.split(" ")).stream().forEach(argument -> chromeOptions.addArguments(argument));
-            Configuration.browserCapabilities = chromeOptions;
-        });
-
         Configuration.fastSetValue = true;
     }
 
