@@ -19,10 +19,8 @@ public class LoginPageStep {
 
         SelenideElement title = $("title");
 
-        System.out.println(String.format("tryLogin - title: %s", title.innerText()));
-
         // NOTE: ログインページが表示された
-        if (title.innerText().startsWith("ログイン ")) {
+        if (isLoginPage()) {
             login(username, password);
             notRegisterPhoneWhenFirstLogin();
 
@@ -34,11 +32,20 @@ public class LoginPageStep {
 
     }
 
+    private SelenideElement getLoginElement() {
+        return $("#Login");
+    }
+
+    private boolean isLoginPage() {
+        // NOTE: ログインページが表示された場合、ログインボタンが表示されている
+        return getLoginElement().isDisplayed();
+    }
+
     private void login(String username, String password) {
         $("#username").val(username);
         $("#password").val(password);
 
-        $("#Login").click();
+        getLoginElement().click();
     }
 
     private void notRegisterPhoneWhenFirstLogin() {
