@@ -191,6 +191,13 @@ jobs:
         name: e2e-reports
         path: ${{ steps.archive-e2e-reports.outputs.archive_file }}
 
+    - name: upload e2e/.env-local
+      if: ${{ always() }}
+      uses: actions/upload-artifact@v3
+      with:
+        name: e2e-env-local
+        path: e2e/.env-local
+
   create-beta-package:
     needs: [test, e2e]
     if: ${{ inputs.create_beta_package }}
