@@ -158,6 +158,7 @@ jobs:
 
     - name: run e2e
       run: |
+        cd e2e
         ./mvnw clean test-compile
         ./mvnw gauge:execute
 
