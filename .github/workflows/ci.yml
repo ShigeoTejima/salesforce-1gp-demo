@@ -105,6 +105,13 @@ jobs:
     if: ${{ inputs.run_e2e }}
     runs-on: ubuntu-latest
     steps:
+    - name: Setup japanese fonts
+      run: |
+        sudo apt-get -y update
+        sudo apt-get -y install fonts-ipafont fonts-ipaexfont
+        sudo fc-cache -fv
+        sudo fc-list | grep -i ipa
+
     - name: set locale ja_JP.UTF-8
       run: |
         sudo locale-gen ja_JP.UTF-8
