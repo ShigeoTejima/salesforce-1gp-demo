@@ -1,4 +1,5 @@
 import com.codeborne.selenide.Configuration;
+import com.codeborne.selenide.Selenide;
 import com.thoughtworks.gauge.BeforeSpec;
 import com.thoughtworks.gauge.BeforeSuite;
 import gateway.SalesforceGateway;
@@ -28,6 +29,7 @@ public class BeforeAndAfter {
             Configuration.browserCapabilities = chromeOptions;
         });
 
+        Configuration.fastSetValue = true;
     }
 
     private void loadSystemPropertiesFromDotenv(String filename) {
