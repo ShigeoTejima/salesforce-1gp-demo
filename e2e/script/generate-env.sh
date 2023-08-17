@@ -33,7 +33,7 @@ print_user_info() {
 
 print_user_name() {
   local username="$1"
-  if [[ -z "${username}" ]]; then
+  if [ -z "${username}" ]; then
     echo "function print_user_name: required username." 1>&2
     exit 1
   fi
@@ -70,14 +70,14 @@ print_permissionSet_info() {
 }
 
 rm_dir_tmp() {
-  [[ -d "${DIR_TMP}" ]] && rm -fr "${DIR_TMP}"
+  [ -d "${DIR_TMP}" ] && rm -fr "${DIR_TMP}"
 }
 
 main() {
   local dir_self=$(dirname $0)
   local dir_parent=$(cd ${dir_self}/.. && pwd)
   TARGET_ORG="$1"
-  if [[ -z "${TARGET_ORG}" ]]; then
+  if [ -z "${TARGET_ORG}" ]; then
     echo "function main: 1st argument required. please specify TARGET_ORG." 1>&2
     exit 1
   fi
