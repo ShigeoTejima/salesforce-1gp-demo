@@ -124,6 +124,8 @@ jobs:
         gauge --version
 
         gauge install java
+        gauge install html-report
+        gauge install screenshot
         gauge --version
 
     - name: authorize devhub org
@@ -165,6 +167,22 @@ jobs:
       run: |
         cd e2e
         ./mvnw gauge:execute
+
+    - name: archive e2e reports
+      id: archive-e2e-reports
+      run: |
+        declare archive_file=${RUNNER_TEMP}/e2e-reports.zip
+
+        cd e2e
+        zip -r ${archive_file} reports
+
+        echo "archive_file=${archive_file}" >> "$GITHUB_OUTPUT"
+
+    - name: upload e2e reports
+      uses: actions/upload-artifact@v3
+      with:
+        name: e2e-reports
+        path: ${{ steps.archive-e2e-reports.outputs.archive_file }}
 
   create-beta-package:
     needs: [test, e2e]
