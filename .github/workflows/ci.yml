@@ -180,6 +180,7 @@ jobs:
         cat ./.env-local
 
     - name: compile e2e
+      id: compile-e2e
       run: |
         cd e2e
         ./mvnw clean test-compile
@@ -190,7 +191,7 @@ jobs:
         ./mvnw gauge:execute
 
     - name: archive e2e reports
-      if: ${{ always() }}
+      if: ${{ always() && steps.compile-e2e.conclusion == 'success' }}
       id: archive-e2e-reports
       run: |
         declare archive_file=${RUNNER_TEMP}/e2e-reports.zip
@@ -201,7 +202,7 @@ jobs:
         echo "archive_file=${archive_file}" >> "$GITHUB_OUTPUT"
 
     - name: upload e2e reports
-      if: ${{ always() }}
+      if: ${{ always() && steps.archive-e2e-reports.conclusion == 'success' }}
       uses: actions/upload-artifact@v3
       with:
         name: e2e-reports

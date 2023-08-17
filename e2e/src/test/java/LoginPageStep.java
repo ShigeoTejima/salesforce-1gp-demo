@@ -21,6 +21,7 @@ public class LoginPageStep {
         if (isLoginPage()) {
             login(username, password);
             notRegisterPhoneWhenFirstLogin();
+            verifyUserProfile(fullname);
 
         } else {
             // NOTE: ホームページが表示された場合、ユーザープロファイルを見ることができる
