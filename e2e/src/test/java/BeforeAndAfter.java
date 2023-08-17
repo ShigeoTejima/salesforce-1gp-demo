@@ -1,5 +1,6 @@
 import com.codeborne.selenide.Configuration;
 import com.codeborne.selenide.Selenide;
+import com.thoughtworks.gauge.AfterScenario;
 import com.thoughtworks.gauge.BeforeSpec;
 import com.thoughtworks.gauge.BeforeSuite;
 import gateway.SalesforceGateway;
@@ -33,6 +34,12 @@ public class BeforeAndAfter {
         });
 
         Configuration.fastSetValue = true;
+    }
+
+    @AfterScenario
+    public void afterScenario() {
+        Selenide.clearBrowserLocalStorage();
+        Selenide.clearBrowserCookies();
     }
 
     private void loadSystemPropertiesFromDotenv(String filename) {
