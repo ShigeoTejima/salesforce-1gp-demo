@@ -52,4 +52,4 @@ jobs:
         alias: scratch
         profile: Standard
         start-address: 0.0.0.0
-        end-addres: 255.255.255.255
+        end-address: 255.255.255.255

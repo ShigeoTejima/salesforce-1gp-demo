@@ -38,14 +38,14 @@ runs:
         package_xml_file=${{ steps.define-env.outputs.package_xml_file }}
 
         cat <<EOS > ${package_xml_file}
-          <?xml version="1.0" encoding="UTF-8"?>
-          <Package xmlns="http://soap.sforce.com/2006/04/metadata">
-            <types>
-              <members>${{ inputs.profile }}</members>
-              <name>Profile</name>
-            </types>
-            <version>58.0</version>
-          </Package>
+        <?xml version="1.0" encoding="UTF-8"?>
+        <Package xmlns="http://soap.sforce.com/2006/04/metadata">
+          <types>
+            <members>${{ inputs.profile }}</members>
+            <name>Profile</name>
+          </types>
+          <version>58.0</version>
+        </Package>
         EOS
         
         cat ${package_xml_file}
