@@ -1,8 +1,10 @@
+package org.example;
+
 import com.google.gson.Gson;
 import com.google.gson.annotations.SerializedName;
 import io.github.cdimascio.dotenv.Dotenv;
 import org.junit.jupiter.api.Test;
-import repository.InsertRecordResult;
+import org.example.repository.InsertRecordResult;
 
 import java.io.IOException;
 import java.net.URI;

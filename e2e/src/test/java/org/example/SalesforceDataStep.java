@@ -1,7 +1,9 @@
+package org.example;
+
 import com.thoughtworks.gauge.Step;
 import com.thoughtworks.gauge.Table;
-import gateway.SalesforceGateway;
-import model.Demo;
+import org.example.gateway.SalesforceGateway;
+import org.example.model.Demo;
 
 import java.util.List;
 import java.util.stream.Collectors;

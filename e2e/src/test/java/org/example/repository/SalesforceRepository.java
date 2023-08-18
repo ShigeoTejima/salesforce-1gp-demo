@@ -1,6 +1,7 @@
-package repository;
+package org.example.repository;
 
 import com.google.gson.Gson;
+import org.example.Configuration;
 
 import java.io.IOException;
 import java.net.URI;
@@ -14,21 +15,23 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-public class SalesforceRepository {
-
-    private static final String apiVersion = "58.0";
+public class SalesforceRepository implements Configuration {
 
     private final String instanceUrl;
+    private final String apiVersion;
     private final String accessToken;
     private final HttpClient httpClient;
 
     public SalesforceRepository() {
-        String instanceUrl = System.getProperty("test.instanceUrl");
-        String accessToken = System.getProperty("test.accessToken");
-        Objects.requireNonNull(instanceUrl, "required system property 'test.instanceUrl'");
-        Objects.requireNonNull(accessToken, "required system property 'test.accessToken'");
+        String instanceUrl = getInstanceUrl();
+        String accessToken = getAccessToken();
+        String apiVersion = getApiVersion();
+        Objects.requireNonNull(instanceUrl, "required instanceUrl");
+        Objects.requireNonNull(accessToken, "required accessToken");
+        Objects.requireNonNull(apiVersion, "required apiVersion");
 
         this.instanceUrl = instanceUrl;
+        this.apiVersion = apiVersion;
         this.accessToken = accessToken;
         this.httpClient = HttpClient.newHttpClient();
 

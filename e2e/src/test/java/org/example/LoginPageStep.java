@@ -1,3 +1,5 @@
+package org.example;
+
 import com.codeborne.selenide.Condition;
 import com.codeborne.selenide.SelenideElement;
 import com.thoughtworks.gauge.Step;
@@ -6,14 +8,14 @@ import org.openqa.selenium.By;
 import static com.codeborne.selenide.Selenide.$;
 import static com.codeborne.selenide.Selenide.open;
 
-public class LoginPageStep {
+public class LoginPageStep implements Configuration {
 
     @Step("try login.")
     public void tryLogin() {
-        String baseUrl = System.getProperty("selenide.baseUrl");
-        String username = System.getProperty("test.username");
-        String password = System.getProperty("test.password");
-        String fullname = System.getProperty("test.fullname");
+        String baseUrl = getBaseUrl();
+        String username = getUsername();
+        String password = getPassword();
+        String fullname = getFullname();
 
         open(baseUrl);
 

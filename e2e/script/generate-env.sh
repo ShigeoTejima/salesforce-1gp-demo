@@ -5,8 +5,10 @@ print_org_info() {
   sf org display -o "${TARGET_ORG}" --json > "${file_org_info}"
 
   local instanceUrl=$(cat "${file_org_info}" | jq -r '.result.instanceUrl')
+  local apiVersion=$(cat "${file_org_info}" | jq -r '.result.apiVersion')
   echo "selenide.baseUrl=${instanceUrl}"
   echo "test.instanceUrl=${instanceUrl}"
+  echo "test.apiVersion=${apiVersion}"
 }
 
 print_user_info() {

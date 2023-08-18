@@ -1,4 +1,4 @@
-package repository;
+package org.example.repository;
 
 import com.google.gson.annotations.SerializedName;
 

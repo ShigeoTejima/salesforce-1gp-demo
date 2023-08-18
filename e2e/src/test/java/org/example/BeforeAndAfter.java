@@ -1,8 +1,10 @@
+package org.example;
+
 import com.codeborne.selenide.Selenide;
 import com.thoughtworks.gauge.AfterScenario;
 import com.thoughtworks.gauge.BeforeSpec;
 import com.thoughtworks.gauge.BeforeSuite;
-import gateway.SalesforceGateway;
+import org.example.gateway.SalesforceGateway;
 import io.github.cdimascio.dotenv.Dotenv;
 
 import java.util.List;

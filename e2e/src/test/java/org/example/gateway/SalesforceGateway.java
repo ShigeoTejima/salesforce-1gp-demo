@@ -1,9 +1,10 @@
-package gateway;
+package org.example.gateway;
 
 import com.google.gson.Gson;
-import model.Demo;
-import repository.FindRecordsResult;
-import repository.SalesforceRepository;
+import org.example.Configuration;
+import org.example.model.Demo;
+import org.example.repository.FindRecordsResult;
+import org.example.repository.SalesforceRepository;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -11,7 +12,7 @@ import java.util.stream.Collectors;
 /* TODO: GatewayとRepositoryを用途に合わせて分けた方が良さそう.
  * General | Demo | PermissionSet とか
  */
-public class SalesforceGateway {
+public class SalesforceGateway implements Configuration {
 
     private final static String OBJECT_NAME_DEMO = "demo_ahd__demo__c";
 
@@ -44,8 +45,8 @@ public class SalesforceGateway {
     }
 
     public void assignPermissionSetOfDemo() {
-        String userId = System.getProperty("test.userId");
-        String permissionSetId = System.getProperty("test.permissionSet.demo_ahd_demo.id");
+        String userId = getUserId();
+        String permissionSetId = getPermissionSetDemoId();
 
         FindRecordsResult permissionSetAssignment = this.repository.findPermissionSetAssignment(userId, permissionSetId);
         if (permissionSetAssignment.totalSize == 0) {
@@ -54,8 +55,8 @@ public class SalesforceGateway {
     }
 
     public void unAssignPermissionSetOfDemo() {
-        String userId = System.getProperty("test.userId");
-        String permissionSetId = System.getProperty("test.permissionSet.demo_ahd_demo.id");
+        String userId = getUserId();
+        String permissionSetId = getPermissionSetDemoId();
 
         FindRecordsResult permissionSetAssignment = this.repository.findPermissionSetAssignment(userId, permissionSetId);
         if (permissionSetAssignment.totalSize > 0) {
