@@ -5,18 +5,21 @@ import com.thoughtworks.gauge.BeforeSuite;
 import gateway.SalesforceGateway;
 import io.github.cdimascio.dotenv.Dotenv;
 
+import java.util.List;
+
 public class BeforeAndAfter {
 
     @BeforeSuite
     public void beforeSuite() {
-        // NOTE: デフォルトの.env-defaultをロードして、システムプロパティに設定する
-        loadSystemPropertiesFromDotenv(".env-default");
-
-        // NOTE: ローカルでの実行用の.env-local-defaultをロードして、システムプロパティに設定する. 設定があればデフォルトの設定値を上書きする
-        loadSystemPropertiesFromDotenv(".env-local-default");
-
-        // NOTE: ローカルでの実行用の.env-localをロードして、システムプロパティに設定する. 設定があればデフォルトの設定値を上書きする
-        loadSystemPropertiesFromDotenv(".env-local");
+        /*
+         * NOTE: 以下の順番にロードして、システムプロパティに設定する.
+         *       後続に同じプロパティ名の設定があれば上書きする.
+         */
+        List.of(
+            ".env-default",
+            ".env-local-default",
+            ".env-local"
+        ).stream().forEach(env -> loadSystemPropertiesFromDotenv(env));
 
     }
 
@@ -24,14 +27,6 @@ public class BeforeAndAfter {
     public void afterScenario() {
         Selenide.clearBrowserLocalStorage();
         Selenide.clearBrowserCookies();
-    }
-
-    private void loadSystemPropertiesFromDotenv(String filename) {
-        Dotenv.configure()
-                .filename(filename)
-                .ignoreIfMissing()
-                .systemProperties()
-                .load();
     }
 
     @BeforeSpec(tags = { "cleanDemo" })
@@ -48,4 +43,13 @@ public class BeforeAndAfter {
     public void unAssignPermissionSetOfDemo() {
         new SalesforceGateway().unAssignPermissionSetOfDemo();
     }
+
+    private void loadSystemPropertiesFromDotenv(String filename) {
+        Dotenv.configure()
+                .filename(filename)
+                .ignoreIfMissing()
+                .systemProperties()
+                .load();
+    }
+
 }
