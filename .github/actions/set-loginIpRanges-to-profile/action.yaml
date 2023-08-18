@@ -81,5 +81,5 @@ runs:
       run: |
         metadata_dir=${{ steps.define-env.outputs.metadata_dir }}
 
-        sf project deploy start --metadata-dir=${metadata_dir} -o ${{ inputs.alias }}
+        sf project deploy start --metadata-dir=${metadata_dir}/unpackaged -o ${{ inputs.alias }}
       shell: bash
