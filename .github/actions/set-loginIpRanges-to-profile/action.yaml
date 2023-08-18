@@ -72,7 +72,7 @@ runs:
 
         NODE_PATH="$(npm root -g):$NODE_PATH" node ${script_file} --src=${src_file} --dst=${dst_file} --start-address=${{ inputs.start-address }} --end-address=${{ inputs.end-address }}
 
-        diff ${src_file} ${dst_file} | cat
+        diff ${src_file} ${dst_file} | tee
 
         mv -f ${dst_file} ${src_file}
       shell: bash
