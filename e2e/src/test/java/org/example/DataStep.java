@@ -2,22 +2,22 @@ package org.example;
 
 import com.thoughtworks.gauge.Step;
 import com.thoughtworks.gauge.Table;
-import org.example.gateway.SalesforceGateway;
+import org.example.gateway.DemoGateway;
 import org.example.model.Demo;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class SalesforceDataStep {
+public class DataStep {
 
-    private final SalesforceGateway salesforceGateway;
+    private final DemoGateway demoGateway;
 
-    public SalesforceDataStep() {
-        this.salesforceGateway = new SalesforceGateway();
+    public DataStep() {
+        this.demoGateway = new DemoGateway();
     }
 
-    @Step("salesforce data - insert demos for <records> .")
-    public void insertDemos(Table records) {
+    @Step("salesforce data - add demos for <records> .")
+    public void addDemos(Table records) {
         List<Demo> demos = records.getTableRows().stream()
                 .map(tableRow -> new Demo(
                     tableRow.getCell("Name"),
@@ -26,7 +26,7 @@ public class SalesforceDataStep {
                 .collect(Collectors.toList());
 
         if (!demos.isEmpty()) {
-            salesforceGateway.insertDemos(demos);
+            demoGateway.add(demos);
         }
     }
 }

@@ -15,14 +15,14 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-public class SalesforceRepository implements Configuration {
+public class PermissionSetRepository implements Configuration {
 
     private final String instanceUrl;
     private final String apiVersion;
     private final String accessToken;
     private final HttpClient httpClient;
 
-    public SalesforceRepository() {
+    public PermissionSetRepository() {
         String instanceUrl = getInstanceUrl();
         String accessToken = getAccessToken();
         String apiVersion = getApiVersion();
@@ -59,58 +59,6 @@ public class SalesforceRepository implements Configuration {
         } catch (IOException | InterruptedException e) {
             throw new RuntimeException(e);
         }
-    }
-
-    public FindRecordsResult findRecords(String objectName) {
-        String query = String.format("SELECT Id FROM %s", objectName);
-        String url = String.format("%s/services/data/v%s/query?q=%s", instanceUrl, apiVersion, URLEncoder.encode(query, StandardCharsets.UTF_8));
-
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(url))
-                .header("Authorization", "Bearer " + accessToken)
-                .build();
-        try {
-            HttpResponse<FindRecordsResult> response = httpClient.send(request, responseInfo ->
-                    HttpResponse.BodySubscribers.mapping(
-                            HttpResponse.BodySubscribers.ofString(StandardCharsets.UTF_8),
-                            (body) -> new Gson().fromJson(body, FindRecordsResult.class)
-                    ));
-
-            if (response.statusCode() == 200) {
-                return response.body();
-            } else {
-                throw new RuntimeException(String.format("failed to get records of %s", objectName));
-            }
-
-        } catch (IOException | InterruptedException e) {
-            throw new RuntimeException(e);
-        }
-
-    }
-
-    public InsertRecordResult insertRecord(String objectName, String fieldsJson) {
-        String url = String.format("%s/services/data/v%s/sobjects/%s/", instanceUrl, apiVersion, objectName);
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(url))
-                .header("Authorization", "Bearer " + accessToken)
-                .header("Content-Type", "application/json")
-                .POST(HttpRequest.BodyPublishers.ofString(fieldsJson))
-                .build();
-        try {
-            HttpResponse<InsertRecordResult> response = httpClient.send(request, responseInfo ->
-                    HttpResponse.BodySubscribers.mapping(
-                            HttpResponse.BodySubscribers.ofString(StandardCharsets.UTF_8),
-                            (body) -> new Gson().fromJson(body, InsertRecordResult.class)
-                    ));
-            if (response.statusCode() == 201) {
-                return response.body();
-            } else {
-                throw new RuntimeException(String.format("failed to insert into %s", objectName));
-            }
-        } catch (IOException | InterruptedException e) {
-            throw new RuntimeException(e);
-        }
-
     }
 
     public FindRecordsResult findPermissionSetAssignment(String userId, String permissionSetId) {
