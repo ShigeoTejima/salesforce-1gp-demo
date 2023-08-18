@@ -82,7 +82,7 @@ public class GenericRepository implements Configuration {
             if (response.statusCode() == 200) {
                 return response.body();
             } else {
-                throw new RuntimeException(String.format("failed to get records of %s", objectName));
+                throw new RuntimeException(String.format("failed to get records of %s. query: %s", objectName, query));
             }
 
         } catch (IOException | InterruptedException e) {
