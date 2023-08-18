@@ -1,0 +1,85 @@
+name: 'Set loginIpRange to profile'
+inputs:
+  alias:
+    required: true
+  profile:
+    required: true
+  start-address:
+    required: true
+  end-address:
+    required: true
+runs:
+  using: 'composite'
+  steps:
+    - name: setup dependency npm
+      run: |
+        npm install -g fast-xml-parser
+        npm list -g
+      shell: bash
+
+    - name: define env in this action
+      id: define-env
+      run: |
+        this_action_dir=${RUNNER_TEMP}/set-loginIpRange-to-profile
+        mkdir -p ${this_action_dir}
+
+        this_tmp_dir=$(mktemp -d ${this_action_dir}/tmp.XXXXXX) || exit 1
+
+        package_xml_file=${this_tmp_dir}/package.xml
+        metadata_dir=${this_tmp_dir}/metadata
+
+        echo "this_tmp_dir=${this_tmp_dir}" >> $GITHUB_OUTPUT
+        echo "package_xml_file=${package_xml_file}" >> $GITHUB_OUTPUT
+        echo "metadata_dir=${metadata_dir}" >> $GITHUB_OUTPUT
+      shell: bash
+
+    - name: generate package.xml for retrieve
+      run: |
+        package_xml_file=${{ steps.define-env.outputs.package_xml_file }}
+
+        cat <<EOS > ${package_xml_file}
+          <?xml version="1.0" encoding="UTF-8"?>
+          <Package xmlns="http://soap.sforce.com/2006/04/metadata">
+            <types>
+              <members>${{ inputs.profile }}</members>
+              <name>Profile</name>
+            </types>
+            <version>58.0</version>
+          </Package>
+        EOS
+        
+        cat ${package_xml_file}
+      shell: bash
+
+    - name: retrieve metadata for profile
+      run: |
+        package_xml_file=${{ steps.define-env.outputs.package_xml_file }}
+        metadata_dir=${{ steps.define-env.outputs.metadata_dir }}
+
+        sf project retrieve start -x ${package_xml_file} -t ${metadata_dir} -z -o ${{ inputs.alias }}
+
+        ls -lR ${metadata_dir}
+      shell: bash
+
+    - name: set loginIpRange to profile
+      run: |
+        this_tmp_dir=${{ steps.define-env.outputs.this_tmp_dir }}
+        metadata_dir=${{ steps.define-env.outputs.metadata_dir }}
+        src_file=${metadata_dir}/unpackaged/profiles/${{ inputs.profile }}.profile
+        dst_file=${this_tmp_dir}/${{ inputs.profile }}.profile.new
+        
+        script_file=${{ github.action_path }}/script/index.js
+
+        NODE_PATH="$(npm root -g):$NODE_PATH" node ${script_file} --src=${src_file} --dst=${dst_file} --start-address=${{ inputs.start-address }} --end-address=${{ inputs.end-address }}
+
+        diff ${src_file} ${dst_file}
+
+        mv -f ${dst_file} ${src_file}
+      shell: bash
+
+    - name: deploy metadata for profile
+      run: |
+        metadata_dir=${{ steps.define-env.outputs.metadata_dir }}
+
+        sf project deploy start --metadata-dir=${metadata_dir} -o ${{ inputs.alias }}
+      shell: bash
