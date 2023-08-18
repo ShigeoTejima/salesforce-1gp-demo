@@ -46,9 +46,8 @@ print_user_name() {
   local instanceUrl=$(cat "${file_org_info}" | jq -r '.result.instanceUrl')
 
   local file_user_info="${DIR_TMP}/user_info.json"
-  curl "${instanceUrl}/services/data/v${apiVersion}/query?q=SELECT+Id%2C+Username%2C+Name%2C+FirstName%2C+LastName+FROM+User+WHERE+Username='${username}'" -H "Authorization: Bearer ${accessToken}" > "${file_user_info}"
-
-  local fullname=$(cat "${file_user_info}" | jq -r '.records[] | select(.Username == "'${username}'").Name')
+  sf data query --query "SELECT Id, Username, Name, FirstName, LastName FROM User WHERE Username='${username}'" -o "${TARGET_ORG}" --json > "${file_user_info}"
+  local fullname=$(cat "${file_user_info}" | jq -r '.result.records[] | select(.Username == "'${username}'").Name')
 
   echo "test.fullname=${fullname}"
 }
@@ -62,8 +61,8 @@ print_permissionSet_info() {
   local instanceUrl=$(cat "${file_org_info}" | jq -r '.result.instanceUrl')
 
   local file_permissionSet_info="${DIR_TMP}/permissionSet_info.json"
-  curl "${instanceUrl}/services/data/v${apiVersion}/query?q=SELECT+Id%2C+Name%2C+NamespacePrefix%2C+Label+FROM+PermissionSet+WHERE+Name='demo'" -H "Authorization: Bearer ${accessToken}" > "${file_permissionSet_info}"
-  local permissionSet_demo_Id=$(cat "${file_permissionSet_info}" | jq -r '.records[] | select(.Name == "demo" and .NamespacePrefix == "demo_ahd").Id')
+  sf data query --query "SELECT Id, Name, NamespacePrefix, Label FROM PermissionSet WHERE Name='demo'" -o "${TARGET_ORG}" --json > "${file_permissionSet_info}"
+  local permissionSet_demo_Id=$(cat "${file_permissionSet_info}" | jq -r '.result.records[] | select(.Name == "demo" and .NamespacePrefix == "demo_ahd").Id')
 
   echo "test.permissionSet.demo_ahd_demo.id=${permissionSet_demo_Id}"
 
