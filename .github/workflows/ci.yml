@@ -173,6 +173,14 @@ jobs:
       run: |
         sf org generate password -o scratch
 
+    - name: set loginIpRange to admin profile
+      uses: ./.github/actions/set-loginIpRanges-to-profile
+      with:
+        alias: scratch
+        profile: Admin
+        start-address: 0.0.0.0
+        end-address: 255.255.255.255
+
     - name: configure .env-local
       run: |
         cd e2e
