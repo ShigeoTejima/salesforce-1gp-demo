@@ -1,28 +1,25 @@
 package org.example.gateway;
 
-import com.google.gson.Gson;
 import org.example.Configuration;
 import org.example.model.Demo;
+import org.example.repository.DemoRepository;
 import org.example.repository.FindRecordsResult;
-import org.example.repository.GenericRepository;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 public class DemoGateway implements Configuration {
 
-    private final static String OBJECT_NAME_DEMO = "demo_ahd__demo__c";
-
-    private final GenericRepository repository;
+    private final DemoRepository repository;
 
     public DemoGateway() {
-        this.repository = new GenericRepository();
+        this.repository = new DemoRepository();
     }
 
     public void truncate() {
         boolean running = true;
         while (running) {
-            FindRecordsResult findRecordsDto = this.repository.findRecords(OBJECT_NAME_DEMO);
+            FindRecordsResult findRecordsDto = this.repository.findRecords();
             if (findRecordsDto.totalSize > 0) {
                 List<String> recordIds = findRecordsDto.records.stream()
                         .map(record -> record.id)
@@ -36,9 +33,7 @@ public class DemoGateway implements Configuration {
     }
 
     public void add(List<Demo> demos) {
-        Gson gson = new Gson();
-        demos.stream()
-             .forEach(demo -> this.repository.insertRecord(OBJECT_NAME_DEMO, gson.toJson(demo)));
+        demos.stream().forEach(demo -> this.repository.insert(demo));
     }
 
 }

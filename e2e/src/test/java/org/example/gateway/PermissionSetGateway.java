@@ -1,6 +1,7 @@
 package org.example.gateway;
 
 import org.example.Configuration;
+import org.example.model.PermissionSetAssignment;
 import org.example.repository.FindRecordsResult;
 import org.example.repository.PermissionSetRepository;
 
@@ -21,7 +22,7 @@ public class PermissionSetGateway implements Configuration {
 
         FindRecordsResult permissionSetAssignment = this.repository.findPermissionSetAssignment(userId, permissionSetId);
         if (permissionSetAssignment.totalSize == 0) {
-            this.repository.insertPermissionSetAssignment(userId, permissionSetId);
+            this.repository.insertPermissionSetAssignment(new PermissionSetAssignment(userId, permissionSetId));
         }
     }
 
