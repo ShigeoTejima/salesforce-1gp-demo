@@ -56,7 +56,7 @@ runs:
         package_xml_file=${{ steps.define-env.outputs.package_xml_file }}
         metadata_dir=${{ steps.define-env.outputs.metadata_dir }}
 
-        sf project retrieve start -x ${package_xml_file} -t ${metadata_dir} -z -o ${{ inputs.alias }}
+        sf project retrieve start -x ${package_xml_file} -t ${metadata_dir} -z --single-package -o ${{ inputs.alias }}
 
         ls -lR ${metadata_dir}
       shell: bash
