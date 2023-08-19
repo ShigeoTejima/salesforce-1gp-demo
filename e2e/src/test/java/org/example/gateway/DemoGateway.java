@@ -18,7 +18,7 @@ public class DemoGateway implements Configuration {
     public void truncate() {
         boolean running = true;
         while (running) {
-            Result<FindRecordsResult, List<ErrorResult>> findResult = this.repository.findRecords();
+            Result<FindRecordsResult, ErrorsResult> findResult = this.repository.findRecords();
 
             // NOTE: Change to switch and pattern matching in the future
             if (findResult instanceof Result.Failure) {
@@ -31,7 +31,7 @@ public class DemoGateway implements Configuration {
                     .map(record -> record.id())
                     .collect(Collectors.toList());
 
-                Result<List<DeleteRecordResult>, List<ErrorResult>> deleteResult = this.repository.deleteRecords(recordIds);
+                Result<DeleteRecordsResult, ErrorsResult> deleteResult = this.repository.deleteRecords(recordIds);
                 if (deleteResult instanceof Result.Failure) {
                     throw new RuntimeException(((Result.Failure) deleteResult).value().toString());
                 }
@@ -43,7 +43,7 @@ public class DemoGateway implements Configuration {
 
     public void add(List<Demo> demos) {
         demos.stream().forEach(demo -> {
-            Result<InsertRecordResult, List<ErrorResult>> insertResult = this.repository.insert(demo);
+            Result<InsertRecordResult, ErrorsResult> insertResult = this.repository.insert(demo);
             if (insertResult instanceof Result.Failure) {
                 throw new RuntimeException(((Result.Failure) insertResult).value().toString());
             }

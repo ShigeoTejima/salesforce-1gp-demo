@@ -13,11 +13,11 @@ public class DemoRepository extends GenericRepository implements Configuration {
         super();
     }
 
-    public Result<FindRecordsResult, List<ErrorResult>> findRecords() {
+    public Result<FindRecordsResult, ErrorsResult> findRecords() {
         return findRecords(OBJECT_NAME);
     }
 
-    public Result<InsertRecordResult, List<ErrorResult>> insert(Demo demo) {
+    public Result<InsertRecordResult, ErrorsResult> insert(Demo demo) {
         return insertRecord(OBJECT_NAME, demo);
     }
 }

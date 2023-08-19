@@ -37,7 +37,7 @@ public class GenericRepository implements Configuration {
 
     }
 
-    public Result<List<DeleteRecordResult>, List<ErrorResult>> deleteRecords(List<String> recordIds) {
+    public Result<DeleteRecordsResult, ErrorsResult> deleteRecords(List<String> recordIds) {
         String paramIds = recordIds.stream().collect(Collectors.joining(","));
         String url = String.format("%s/services/data/v%s/composite/sobjects?ids=%s", instanceUrl, apiVersion, paramIds);
         HttpRequest request = HttpRequest.newBuilder()
@@ -47,17 +47,17 @@ public class GenericRepository implements Configuration {
                 .build();
         try {
             Gson gson = new Gson();
-            HttpResponse<Result<List<DeleteRecordResult>, List<ErrorResult>>> response = httpClient.send(request, responseInfo ->
+            HttpResponse<Result<DeleteRecordsResult, ErrorsResult>> response = httpClient.send(request, responseInfo ->
                 switch (responseInfo.statusCode()) {
                     case 200 ->
                         HttpResponse.BodySubscribers.mapping(
                             HttpResponse.BodySubscribers.ofString(StandardCharsets.UTF_8),
-                            (body) -> new Result.Success<>(gson.fromJson(body, new TypeToken<List<DeleteRecordResult>>() {}.getType()))
+                            (body) -> new Result.Success<>(new DeleteRecordsResult(gson.fromJson(body, new TypeToken<List<DeleteRecordResult>>() {}.getType())))
                         );
                     default ->
                         HttpResponse.BodySubscribers.mapping(
                             HttpResponse.BodySubscribers.ofString(StandardCharsets.UTF_8),
-                            (body) -> new Result.Failure<>(gson.fromJson(body, new TypeToken<List<ErrorResult>>() {}.getType()))
+                            (body) -> new Result.Failure<>(new ErrorsResult(gson.fromJson(body, new TypeToken<List<ErrorResult>>() {}.getType())))
                         );
                 }
             );
@@ -68,11 +68,11 @@ public class GenericRepository implements Configuration {
         }
     }
 
-    public Result<FindRecordsResult, List<ErrorResult>> findRecords(String objectName) {
+    public Result<FindRecordsResult, ErrorsResult> findRecords(String objectName) {
         String query = String.format("SELECT Id FROM %s", objectName);
         return findRecords(objectName, query);
     }
-    public Result<FindRecordsResult, List<ErrorResult>> findRecords(String objectName, String query) {
+    public Result<FindRecordsResult, ErrorsResult> findRecords(String objectName, String query) {
         String url = String.format("%s/services/data/v%s/query?q=%s", instanceUrl, apiVersion, URLEncoder.encode(query, StandardCharsets.UTF_8));
 
         HttpRequest request = HttpRequest.newBuilder()
@@ -81,7 +81,7 @@ public class GenericRepository implements Configuration {
                 .build();
         try {
             Gson gson = new Gson();
-            HttpResponse<Result<FindRecordsResult, List<ErrorResult>>> response = httpClient.send(request, responseInfo ->
+            HttpResponse<Result<FindRecordsResult, ErrorsResult>> response = httpClient.send(request, responseInfo ->
                 switch (responseInfo.statusCode()) {
                     case 200 ->
                         HttpResponse.BodySubscribers.mapping(
@@ -92,7 +92,7 @@ public class GenericRepository implements Configuration {
                     default ->
                         HttpResponse.BodySubscribers.mapping(
                             HttpResponse.BodySubscribers.ofString(StandardCharsets.UTF_8),
-                            (body) -> new Result.Failure<>(gson.fromJson(body, new TypeToken<List<ErrorResult>>() {}.getType()))
+                            (body) -> new Result.Failure<>(new ErrorsResult(gson.fromJson(body, new TypeToken<List<ErrorResult>>() {}.getType())))
                         );
                 });
 
@@ -103,7 +103,7 @@ public class GenericRepository implements Configuration {
 
     }
 
-    public <T> Result<InsertRecordResult, List<ErrorResult>> insertRecord(String objectName, T record) {
+    public <T> Result<InsertRecordResult, ErrorsResult> insertRecord(String objectName, T record) {
         String url = String.format("%s/services/data/v%s/sobjects/%s/", instanceUrl, apiVersion, objectName);
         String bodyJson = new Gson().toJson(record);
         HttpRequest request = HttpRequest.newBuilder()
@@ -114,7 +114,7 @@ public class GenericRepository implements Configuration {
                 .build();
         try {
             Gson gson = new Gson();
-            HttpResponse<Result<InsertRecordResult, List<ErrorResult>>> response = httpClient.send(request, responseInfo ->
+            HttpResponse<Result<InsertRecordResult, ErrorsResult>> response = httpClient.send(request, responseInfo ->
                 switch (responseInfo.statusCode()) {
                     case 201 ->
                         HttpResponse.BodySubscribers.mapping(
@@ -125,7 +125,7 @@ public class GenericRepository implements Configuration {
                     default ->
                         HttpResponse.BodySubscribers.mapping(
                             HttpResponse.BodySubscribers.ofString(StandardCharsets.UTF_8),
-                            (body) -> new Result.Failure<>(gson.fromJson(body, new TypeToken<List<ErrorResult>>() {}.getType()))
+                            (body) -> new Result.Failure<>(new ErrorsResult(gson.fromJson(body, new TypeToken<List<ErrorResult>>() {}.getType())))
                         );
                 });
 

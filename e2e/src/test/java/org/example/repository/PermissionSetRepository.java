@@ -11,12 +11,12 @@ public class PermissionSetRepository extends GenericRepository implements Config
         super();
     }
 
-    public Result<FindRecordsResult, List<ErrorResult>> findPermissionSetAssignment(String userId, String permissionSetId) {
+    public Result<FindRecordsResult, ErrorsResult> findPermissionSetAssignment(String userId, String permissionSetId) {
         String query = String.format("SELECT Id FROM PermissionSetAssignment WHERE AssigneeId='%s' AND PermissionSetId='%s'", userId, permissionSetId);
         return findRecords("PermissionSetAssignment", query);
     }
 
-    public Result<InsertRecordResult, List<ErrorResult>> insertPermissionSetAssignment(PermissionSetAssignment permissionSetAssignment) {
+    public Result<InsertRecordResult, ErrorsResult> insertPermissionSetAssignment(PermissionSetAssignment permissionSetAssignment) {
         return insertRecord("PermissionSetAssignment", permissionSetAssignment);
     }
 
