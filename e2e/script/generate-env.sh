@@ -15,26 +15,56 @@ print_user_info() {
   local file_users_info="${DIR_TMP}/users_info.json"
   sf org list users -o "${TARGET_ORG}" --json > "${file_users_info}"
 
-  local file_admin_user_info="${DIR_TMP}/admin_user_info.json"
-  cat "${file_users_info}" | jq '.result[] | select(.profileName == "システム管理者")' > "${file_admin_user_info}"
-  local userId=$(cat "${file_admin_user_info}" | jq -r '.userId')
-  local username=$(cat "${file_admin_user_info}" | jq -r '.username')
+  print_user_info_by_profile "test.admin-user" "システム管理者" "${file_users_info}"
+  print_user_info_by_profile "test.standard-user" "標準ユーザ" "${file_users_info}"
+}
 
-  local file_admin_org_info="${DIR_TMP}/admin_org_info.json"
-  sf org display -o "${username}" --json > "${file_admin_org_info}"
-  local accessToken=$(cat "${file_admin_org_info}" | jq -r '.result.accessToken')
-  local password=$(cat "${file_admin_org_info}" | jq -r '.result.password')
+print_user_info_by_profile() {
+  local property_prefix="$1"
+  if [ -z "${property_prefix}" ]; then
+    echo "function print_user_info_by_profile: required property_prefix." 1>&2
+    exit 1
+  fi
 
-  echo "test.userId=${userId}"
-  echo "test.username=${username}"
-  echo "test.password=${password}"
-  echo "test.accessToken=${accessToken}"
+  local profile="$2"
+  if [ -z "${profile}" ]; then
+    echo "function print_user_info_by_profile: required profile." 1>&2
+    exit 1
+  fi
 
-  print_user_name "${username}"
+  local file_users_info="$3"
+  if [ -z "${file_users_info}" -o ! -r "${file_users_info}" ]; then
+    echo "function print_user_info_by_profile: required file_users_info." 1>&2
+    exit 1
+  fi
+
+  local file_user_info="${DIR_TMP}/user_info.json"
+  cat "${file_users_info}" | jq '.result[] | select(.profileName == "'${profile}'")' > "${file_user_info}"
+  local userId=$(cat "${file_user_info}" | jq -r '.userId')
+  local username=$(cat "${file_user_info}" | jq -r '.username')
+
+  local file_org_user_info="${DIR_TMP}/org_user_info.json"
+  sf org display user -o "${username}" --json > "${file_org_user_info}"
+  local accessToken=$(cat "${file_org_user_info}" | jq -r '.result.accessToken')
+  local password=$(cat "${file_org_user_info}" | jq -r '.result.password')
+
+  echo "${property_prefix}.userId=${userId}"
+  echo "${property_prefix}.username=${username}"
+  echo "${property_prefix}.password=${password}"
+  echo "${property_prefix}.accessToken=${accessToken}"
+
+  print_user_name "${property_prefix}" "${username}"
+
 }
 
 print_user_name() {
-  local username="$1"
+  local property_prefix="$1"
+  if [ -z "${property_prefix}" ]; then
+    echo "function print_user_name: required property_prefix." 1>&2
+    exit 1
+  fi
+
+  local username="$2"
   if [ -z "${username}" ]; then
     echo "function print_user_name: required username." 1>&2
     exit 1
@@ -51,7 +81,7 @@ print_user_name() {
   sf data query --query "SELECT Id, Username, Name, FirstName, LastName FROM User WHERE Username='${username}'" -o "${TARGET_ORG}" --json > "${file_user_info}"
   local fullname=$(cat "${file_user_info}" | jq -r '.result.records[] | select(.Username == "'${username}'").Name')
 
-  echo "test.fullname=${fullname}"
+  echo "${property_prefix}.fullname=${fullname}"
 }
 
 print_permissionSet_info() {

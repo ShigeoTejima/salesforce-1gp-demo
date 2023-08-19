@@ -16,3 +16,6 @@ package.xml
 
 # Connected App
 **/connectedApps
+
+# settings
+**/settings/Security.*

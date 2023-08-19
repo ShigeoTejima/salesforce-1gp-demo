@@ -16,7 +16,7 @@ public class PermissionSetGateway implements Configuration {
     }
 
     public void assignToDemo() {
-        String userId = getUserId();
+        String userId = getStandardUserUserId();
         String permissionSetId = getPermissionSetDemoId();
 
         Result<FindRecordsResult, ErrorsResult> findResult = this.repository.findPermissionSetAssignment(userId, permissionSetId);
@@ -35,7 +35,7 @@ public class PermissionSetGateway implements Configuration {
     }
 
     public void unAssignFromDemo() {
-        String userId = getUserId();
+        String userId = getStandardUserUserId();
         String permissionSetId = getPermissionSetDemoId();
 
         Result<FindRecordsResult, ErrorsResult> findResult = this.repository.findPermissionSetAssignment(userId, permissionSetId);

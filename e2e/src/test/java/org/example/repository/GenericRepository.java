@@ -24,7 +24,7 @@ public class GenericRepository implements Configuration {
 
     public GenericRepository() {
         String instanceUrl = getInstanceUrl();
-        String accessToken = getAccessToken();
+        String accessToken = getAdminUserAccessToken();
         String apiVersion = getApiVersion();
         Objects.requireNonNull(instanceUrl, "required instanceUrl");
         Objects.requireNonNull(accessToken, "required accessToken");

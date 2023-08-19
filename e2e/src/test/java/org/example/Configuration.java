@@ -12,24 +12,24 @@ public interface Configuration {
         return System.getProperty("test.apiVersion");
     }
 
-    default String getAccessToken() {
-        return System.getProperty("test.accessToken");
+    default String getAdminUserAccessToken() {
+        return System.getProperty("test.admin-user.accessToken");
     }
 
-    default String getUsername() {
-        return System.getProperty("test.username");
+    default String getStandardUserUsername() {
+        return System.getProperty("test.standard-user.username");
     }
 
-    default String getPassword() {
-        return System.getProperty("test.password");
+    default String getStandardUserPassword() {
+        return System.getProperty("test.standard-user.password");
     }
 
-    default String getFullname() {
-        return System.getProperty("test.fullname");
+    default String getStandardUserFullname() {
+        return System.getProperty("test.standard-user.fullname");
     }
 
-    default String getUserId() {
-        return System.getProperty("test.userId");
+    default String getStandardUserUserId() {
+        return System.getProperty("test.standard-user.userId");
     }
 
     default String getPermissionSetDemoId() {

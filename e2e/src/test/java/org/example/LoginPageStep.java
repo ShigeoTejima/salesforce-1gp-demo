@@ -13,9 +13,9 @@ public class LoginPageStep implements Configuration {
     @Step("try login.")
     public void tryLogin() {
         String baseUrl = getBaseUrl();
-        String username = getUsername();
-        String password = getPassword();
-        String fullname = getFullname();
+        String username = getStandardUserUsername();
+        String password = getStandardUserPassword();
+        String fullname = getStandardUserFullname();
 
         open(baseUrl);
 
@@ -23,6 +23,7 @@ public class LoginPageStep implements Configuration {
         if (isLoginPage()) {
             login(username, password);
             notRegisterPhoneWhenFirstLogin();
+            cancelChangePasswordWhenForcedPasswordChange();
             verifyUserProfile(fullname);
 
         } else {
@@ -62,10 +63,21 @@ public class LoginPageStep implements Configuration {
         }
     }
 
+    private void cancelChangePasswordWhenForcedPasswordChange() {
+        SelenideElement changePassword = $("div.setup.change-password");
+        // NOTE: 強制パスワード変更画面が表示された場合、キャンセルしてホーム画面に遷移させる
+        if (changePassword.isDisplayed()) {
+            $("#cancel-button").click();
+        }
+    }
+
     private void verifyUserProfile(String fullname) {
         $("button.branding-userProfile-button").click();
 
-        // NOTE: Salesforce Platformのパフォーマンスによりデフォルトタイムアウトを超える場合あり、待機するタイムアウトを調整しても良さそう
+        /*
+         * NOTE: Salesforce Platformのパフォーマンスによりデフォルトタイムアウトを超える場合あり、待機するタイムアウトを調整しても良さそう
+         *       => 6 sec に設定
+         */
         SelenideElement userProfileCard = $("div.oneUserProfileCard");
         userProfileCard.shouldBe(Condition.visible);
 
