@@ -26,9 +26,9 @@ public class DemoGateway implements Configuration {
             }
 
             Result.Success<FindRecordsResult> successResult = (Result.Success<FindRecordsResult>) findResult;
-            if (successResult.value().totalSize > 0) {
-                List<String> recordIds = successResult.value().records.stream()
-                    .map(record -> record.id)
+            if (successResult.value().totalSize() > 0) {
+                List<String> recordIds = successResult.value().records().stream()
+                    .map(record -> record.id())
                     .collect(Collectors.toList());
 
                 Result<List<DeleteRecordResult>, List<ErrorResult>> deleteResult = this.repository.deleteRecords(recordIds);

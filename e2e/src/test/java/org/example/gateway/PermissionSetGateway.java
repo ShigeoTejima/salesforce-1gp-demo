@@ -25,7 +25,7 @@ public class PermissionSetGateway implements Configuration {
         }
 
         Result.Success<FindRecordsResult> successResult = (Result.Success<FindRecordsResult>) findResult;
-        if (successResult.value().totalSize == 0) {
+        if (successResult.value().totalSize() == 0) {
             Result<InsertRecordResult, List<ErrorResult>> insertResult = this.repository.insertPermissionSetAssignment(new PermissionSetAssignment(userId, permissionSetId));
             if (insertResult instanceof Result.Failure) {
                 throw new RuntimeException(((Result.Failure) insertResult).value().toString());
@@ -44,9 +44,9 @@ public class PermissionSetGateway implements Configuration {
         }
 
         Result.Success<FindRecordsResult> successResult = (Result.Success<FindRecordsResult>) findResult;
-        if (successResult.value().totalSize > 0) {
-            List<String> recordIds = successResult.value().records.stream()
-                .map(record -> record.id)
+        if (successResult.value().totalSize() > 0) {
+            List<String> recordIds = successResult.value().records().stream()
+                .map(record -> record.id())
                 .collect(Collectors.toList());
 
             Result<List<DeleteRecordResult>, List<ErrorResult>> deleteResult = this.repository.deleteRecords(recordIds);
