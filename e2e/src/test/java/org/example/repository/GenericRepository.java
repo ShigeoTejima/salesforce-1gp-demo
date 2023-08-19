@@ -54,11 +54,7 @@ public class GenericRepository implements Configuration {
                             HttpResponse.BodySubscribers.ofString(StandardCharsets.UTF_8),
                             (body) -> new Result.Success<>(new DeleteRecordsResult(gson.fromJson(body, new TypeToken<List<DeleteRecordResult>>() {}.getType())))
                         );
-                    default ->
-                        HttpResponse.BodySubscribers.mapping(
-                            HttpResponse.BodySubscribers.ofString(StandardCharsets.UTF_8),
-                            (body) -> new Result.Failure<>(new ErrorsResult(gson.fromJson(body, new TypeToken<List<ErrorResult>>() {}.getType())))
-                        );
+                    default -> mappingErrorsResult();
                 }
             );
 
@@ -89,11 +85,7 @@ public class GenericRepository implements Configuration {
                             (body) -> new Result.Success<>(gson.fromJson(body, FindRecordsResult.class))
                         );
 
-                    default ->
-                        HttpResponse.BodySubscribers.mapping(
-                            HttpResponse.BodySubscribers.ofString(StandardCharsets.UTF_8),
-                            (body) -> new Result.Failure<>(new ErrorsResult(gson.fromJson(body, new TypeToken<List<ErrorResult>>() {}.getType())))
-                        );
+                    default -> mappingErrorsResult();
                 });
 
             return response.body();
@@ -122,11 +114,7 @@ public class GenericRepository implements Configuration {
                             (body) -> new Result.Success<>(gson.fromJson(body, InsertRecordResult.class))
                         );
 
-                    default ->
-                        HttpResponse.BodySubscribers.mapping(
-                            HttpResponse.BodySubscribers.ofString(StandardCharsets.UTF_8),
-                            (body) -> new Result.Failure<>(new ErrorsResult(gson.fromJson(body, new TypeToken<List<ErrorResult>>() {}.getType())))
-                        );
+                    default -> mappingErrorsResult();
                 });
 
             return response.body();
@@ -135,4 +123,12 @@ public class GenericRepository implements Configuration {
         }
 
     }
+
+    private <T> HttpResponse.BodySubscriber<Result<T, ErrorsResult>> mappingErrorsResult() {
+        return HttpResponse.BodySubscribers.mapping(
+                HttpResponse.BodySubscribers.ofString(StandardCharsets.UTF_8),
+                (body) -> new Result.Failure<>(new ErrorsResult(new Gson().fromJson(body, new TypeToken<List<ErrorResult>>() {}.getType())))
+        );
+    }
+
 }
