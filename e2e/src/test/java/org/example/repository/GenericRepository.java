@@ -1,6 +1,7 @@
 package org.example.repository;
 
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import org.example.Configuration;
 
 import java.io.IOException;
@@ -36,7 +37,7 @@ public class GenericRepository implements Configuration {
 
     }
 
-    public void deleteRecords(List<String> recordIds) {
+    public Result<List<DeleteRecordResult>, List<ErrorResult>> deleteRecords(List<String> recordIds) {
         String paramIds = recordIds.stream().collect(Collectors.joining(","));
         String url = String.format("%s/services/data/v%s/composite/sobjects?ids=%s", instanceUrl, apiVersion, paramIds);
         HttpRequest request = HttpRequest.newBuilder()
@@ -45,27 +46,33 @@ public class GenericRepository implements Configuration {
                 .DELETE()
                 .build();
         try {
-            HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-            /*
-             * example:
-             *   status: 200
-             *   response.body: [{"id":"a005D000009uyaOQAQ","success":true,"errors":[]},{"id":"a005D000009uyaTQAQ","success":true,"errors":[]},{"id":"a005D000009uyaYQAQ","success":true,"errors":[]},{"id":"a005D000009uyadQAA","success":true,"errors":[]}]
-             */
-            if (response.statusCode() != 200) {
-                throw new RuntimeException(String.format("failed to delete records. %s", recordIds));
-            }
+            Gson gson = new Gson();
+            HttpResponse<Result<List<DeleteRecordResult>, List<ErrorResult>>> response = httpClient.send(request, responseInfo ->
+                switch (responseInfo.statusCode()) {
+                    case 200 ->
+                        HttpResponse.BodySubscribers.mapping(
+                            HttpResponse.BodySubscribers.ofString(StandardCharsets.UTF_8),
+                            (body) -> new Result.Success<>(gson.fromJson(body, new TypeToken<List<DeleteRecordResult>>() {}.getType()))
+                        );
+                    default ->
+                        HttpResponse.BodySubscribers.mapping(
+                            HttpResponse.BodySubscribers.ofString(StandardCharsets.UTF_8),
+                            (body) -> new Result.Failure<>(gson.fromJson(body, new TypeToken<List<ErrorResult>>() {}.getType()))
+                        );
+                }
+            );
 
+            return response.body();
         } catch (IOException | InterruptedException e) {
             throw new RuntimeException(e);
         }
     }
 
-    public FindRecordsResult findRecords(String objectName) {
+    public Result<FindRecordsResult, List<ErrorResult>> findRecords(String objectName) {
         String query = String.format("SELECT Id FROM %s", objectName);
         return findRecords(objectName, query);
     }
-
-    public FindRecordsResult findRecords(String objectName, String query) {
+    public Result<FindRecordsResult, List<ErrorResult>> findRecords(String objectName, String query) {
         String url = String.format("%s/services/data/v%s/query?q=%s", instanceUrl, apiVersion, URLEncoder.encode(query, StandardCharsets.UTF_8));
 
         HttpRequest request = HttpRequest.newBuilder()
@@ -73,25 +80,30 @@ public class GenericRepository implements Configuration {
                 .header("Authorization", "Bearer " + accessToken)
                 .build();
         try {
-            HttpResponse<FindRecordsResult> response = httpClient.send(request, responseInfo ->
-                    HttpResponse.BodySubscribers.mapping(
+            Gson gson = new Gson();
+            HttpResponse<Result<FindRecordsResult, List<ErrorResult>>> response = httpClient.send(request, responseInfo ->
+                switch (responseInfo.statusCode()) {
+                    case 200 ->
+                        HttpResponse.BodySubscribers.mapping(
                             HttpResponse.BodySubscribers.ofString(StandardCharsets.UTF_8),
-                            (body) -> new Gson().fromJson(body, FindRecordsResult.class)
-                    ));
+                            (body) -> new Result.Success<>(gson.fromJson(body, FindRecordsResult.class))
+                        );
 
-            if (response.statusCode() == 200) {
-                return response.body();
-            } else {
-                throw new RuntimeException(String.format("failed to get records of %s. query: %s", objectName, query));
-            }
+                    default ->
+                        HttpResponse.BodySubscribers.mapping(
+                            HttpResponse.BodySubscribers.ofString(StandardCharsets.UTF_8),
+                            (body) -> new Result.Failure<>(gson.fromJson(body, new TypeToken<List<ErrorResult>>() {}.getType()))
+                        );
+                });
 
+            return response.body();
         } catch (IOException | InterruptedException e) {
             throw new RuntimeException(e);
         }
 
     }
 
-    public <T> InsertRecordResult insertRecord(String objectName, T record) {
+    public <T> Result<InsertRecordResult, List<ErrorResult>> insertRecord(String objectName, T record) {
         String url = String.format("%s/services/data/v%s/sobjects/%s/", instanceUrl, apiVersion, objectName);
         String bodyJson = new Gson().toJson(record);
         HttpRequest request = HttpRequest.newBuilder()
@@ -101,20 +113,26 @@ public class GenericRepository implements Configuration {
                 .POST(HttpRequest.BodyPublishers.ofString(bodyJson))
                 .build();
         try {
-            HttpResponse<InsertRecordResult> response = httpClient.send(request, responseInfo ->
-                    HttpResponse.BodySubscribers.mapping(
+            Gson gson = new Gson();
+            HttpResponse<Result<InsertRecordResult, List<ErrorResult>>> response = httpClient.send(request, responseInfo ->
+                switch (responseInfo.statusCode()) {
+                    case 201 ->
+                        HttpResponse.BodySubscribers.mapping(
                             HttpResponse.BodySubscribers.ofString(StandardCharsets.UTF_8),
-                            (body) -> new Gson().fromJson(body, InsertRecordResult.class)
-                    ));
-            if (response.statusCode() == 201) {
-                return response.body();
-            } else {
-                throw new RuntimeException(String.format("failed to insert into %s", objectName));
-            }
+                            (body) -> new Result.Success<>(gson.fromJson(body, InsertRecordResult.class))
+                        );
+
+                    default ->
+                        HttpResponse.BodySubscribers.mapping(
+                            HttpResponse.BodySubscribers.ofString(StandardCharsets.UTF_8),
+                            (body) -> new Result.Failure<>(gson.fromJson(body, new TypeToken<List<ErrorResult>>() {}.getType()))
+                        );
+                });
+
+            return response.body();
         } catch (IOException | InterruptedException e) {
             throw new RuntimeException(e);
         }
 
     }
-
 }
