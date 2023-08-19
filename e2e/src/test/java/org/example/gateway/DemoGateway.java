@@ -5,6 +5,7 @@ import org.example.model.Demo;
 import org.example.repository.*;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class DemoGateway implements Configuration {
@@ -22,18 +23,18 @@ public class DemoGateway implements Configuration {
 
             // NOTE: Change to switch and pattern matching in the future
             if (findResult instanceof Result.Failure) {
-                throw new RuntimeException(((Result.Failure) findResult).value().toString());
+                throw new RuntimeException(((Result.Failure<?>) findResult).value().toString());
             }
 
             Result.Success<FindRecordsResult> successResult = (Result.Success<FindRecordsResult>) findResult;
             if (successResult.value().totalSize() > 0) {
                 List<String> recordIds = successResult.value().records().stream()
-                    .map(record -> record.id())
+                    .map(FindRecordsResult.Record::id)
                     .collect(Collectors.toList());
 
                 Result<DeleteRecordsResult, ErrorsResult> deleteResult = this.repository.deleteRecords(recordIds);
                 if (deleteResult instanceof Result.Failure) {
-                    throw new RuntimeException(((Result.Failure) deleteResult).value().toString());
+                    throw new RuntimeException(((Result.Failure<?>) deleteResult).value().toString());
                 }
             } else {
                 running = false;
@@ -42,10 +43,12 @@ public class DemoGateway implements Configuration {
     }
 
     public void add(List<Demo> demos) {
-        demos.stream().forEach(demo -> {
+        Objects.requireNonNull(demos, "demos must be non-null.");
+
+        demos.forEach(demo -> {
             Result<InsertRecordResult, ErrorsResult> insertResult = this.repository.insert(demo);
             if (insertResult instanceof Result.Failure) {
-                throw new RuntimeException(((Result.Failure) insertResult).value().toString());
+                throw new RuntimeException(((Result.Failure<?>) insertResult).value().toString());
             }
         });
     }

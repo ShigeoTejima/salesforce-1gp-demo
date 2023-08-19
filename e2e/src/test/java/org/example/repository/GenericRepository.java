@@ -38,6 +38,8 @@ public class GenericRepository implements Configuration {
     }
 
     public Result<DeleteRecordsResult, ErrorsResult> deleteRecords(List<String> recordIds) {
+        Objects.requireNonNull(recordIds, "recordIds must be non-null.");
+
         String paramIds = recordIds.stream().collect(Collectors.joining(","));
         String url = String.format("%s/services/data/v%s/composite/sobjects?ids=%s", instanceUrl, apiVersion, paramIds);
         HttpRequest request = HttpRequest.newBuilder()
