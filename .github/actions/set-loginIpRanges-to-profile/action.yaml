@@ -28,14 +28,18 @@ runs:
         package_xml_file=${this_tmp_dir}/package.xml
         metadata_dir=${this_tmp_dir}/metadata
 
+        api_version=$(sf org display -o ${{ inputs.alias }} --json | jq -r '.result.apiVersion')
+
         echo "this_tmp_dir=${this_tmp_dir}" >> $GITHUB_OUTPUT
         echo "package_xml_file=${package_xml_file}" >> $GITHUB_OUTPUT
         echo "metadata_dir=${metadata_dir}" >> $GITHUB_OUTPUT
+        echo "api_version=${api_version}" >> $GITHUB_OUTPUT
       shell: bash
 
     - name: generate package.xml for retrieve
       run: |
         package_xml_file=${{ steps.define-env.outputs.package_xml_file }}
+        api_version=${{ steps.define-env.outputs.api_version }}
 
         cat <<EOS > ${package_xml_file}
         <?xml version="1.0" encoding="UTF-8"?>
@@ -44,7 +48,7 @@ runs:
             <members>${{ inputs.profile }}</members>
             <name>Profile</name>
           </types>
-          <version>58.0</version>
+          <version>${api_version}</version>
         </Package>
         EOS
         
