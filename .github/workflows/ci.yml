@@ -248,7 +248,7 @@ jobs:
 
         env_local_file=./.env-local
 
-        ./script/generate-env-org.sh demo-app > "${env_local_file}"
+        ./script/generate-env-org.sh scratch > "${env_local_file}"
         ./script/generate-env-user.sh scratch test.admin-user >> "${env_local_file}"
         ./script/generate-env-user.sh scratch-standard test.standard-user >> "${env_local_file}"
 
