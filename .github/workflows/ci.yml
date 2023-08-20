@@ -59,7 +59,7 @@ jobs:
     - name: create scratch org
       if: ${{ inputs.scratch_username == '' }}
       run: |
-        sf org create scratch --definition-file config/project-scratch-def.json　--name="ci org" --set-default --alias scratch --json
+        sf org create scratch --definition-file config/project-scratch-def.json --name="ci org" --set-default --alias scratch --json
 
     - name: authorize scratch org
       if: ${{ inputs.scratch_username != '' }}
