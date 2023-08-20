@@ -42,3 +42,8 @@ create `.env-local` and define your settings there.
 ```shell
 ./script/generate-env-user.sh ${STANDARD_USER_ORG} test.standard-user >> .env-local
 ```
+
+**NOTE:**
+
+After some time, `test.admin-user.accessToken` will become invalid and the test will fail.
+In that case, you can run `sf org display -o ${ADMIN_USER_ORG}` and replace it with the contents of `Access Token`.
