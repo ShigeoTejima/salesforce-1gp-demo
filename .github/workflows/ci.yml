@@ -192,13 +192,12 @@ jobs:
     - name: create standard user for test
       run: |
         users_file=${RUNNER_TEMP}/users.json
-        profile="標準ユーザ"
 
         sf org list users -o scratch --json > "${users_file}"
-        user_id=$(cat "${users_file}" | jq '.result[] | select (.profileName == "'${profile}'").userId')
+        user_id=$(cat "${users_file}" | jq '.result[] | select (.profileName == "標準ユーザ").userId')
         
         if [[ -z "${user_id}" ]]; then
-          sf org create user profileName="${profile}" firstName=Standard --set-unique-username generatepassword=true --set-alias=scratch-standard -o scratch --json
+          sf org create user profileName="標準ユーザ" firstName=Standard --set-unique-username generatepassword=true --set-alias=scratch-standard -o scratch --json
         fi
 
     - name: assign permissionSet to admin user
