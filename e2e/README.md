@@ -25,6 +25,8 @@ for example, by changing chromeOptions.
 To run in a local environment,
 create `.env-local` and define your settings there.
 
+see `.env-example`.
+
 #### How to generate `.env-local`
 
 - `${ADMIN_USER_ORG}` is org to test for admin user.
