@@ -181,7 +181,7 @@ jobs:
         start-address: 0.0.0.0
         end-address: 255.255.255.255
 
-    - name: set loginIpRange to admin profile
+    - name: set loginIpRange to standard profile
       uses: ./.github/actions/set-loginIpRanges-to-profile
       with:
         alias: scratch
@@ -194,7 +194,7 @@ jobs:
         users_file=${RUNNER_TEMP}/user.json
         profile="標準ユーザ"
 
-        sf org list users -o demo-app --json > "${users_file}"
+        sf org list users -o scratch --json > "${users_file}"
         user_id=(cat users.json | jq '.result[] | select (.profileName == "'${profile}'").userId')
         
         if [[ -z "${user_id}" ]]; then
