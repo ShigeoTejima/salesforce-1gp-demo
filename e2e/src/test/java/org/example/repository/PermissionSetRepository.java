@@ -11,6 +11,11 @@ public class PermissionSetRepository extends GenericRepository implements Config
         super();
     }
 
+    public Result<FindRecordsResult, ErrorsResult> findPermissionSet(String namespacePrefix, String name) {
+        String query = String.format("SELECT Id FROM PermissionSet WHERE NamespacePrefix='%s' AND Name='%s'", namespacePrefix, name);
+        return findRecords("PermissionSet", query);
+    }
+
     public Result<FindRecordsResult, ErrorsResult> findPermissionSetAssignment(String userId, String permissionSetId) {
         String query = String.format("SELECT Id FROM PermissionSetAssignment WHERE AssigneeId='%s' AND PermissionSetId='%s'", userId, permissionSetId);
         return findRecords("PermissionSetAssignment", query);

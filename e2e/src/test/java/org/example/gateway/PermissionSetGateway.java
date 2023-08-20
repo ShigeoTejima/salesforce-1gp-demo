@@ -1,10 +1,12 @@
 package org.example.gateway;
 
 import org.example.Configuration;
+import org.example.metadta.PermissionSet;
 import org.example.model.PermissionSetAssignment;
 import org.example.repository.*;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class PermissionSetGateway implements Configuration {
@@ -17,7 +19,8 @@ public class PermissionSetGateway implements Configuration {
 
     public void assignToDemo() {
         String userId = getStandardUserUserId();
-        String permissionSetId = getPermissionSetDemoId();
+        String permissionSetId = getPermissionSetId(getNamespacePrefix(), PermissionSet.Demo.getName())
+                .orElseThrow(() -> new RuntimeException(String.format("not found permissionSet. namespacePrefix=%s , name=%s", getNamespacePrefix(), PermissionSet.Demo.getName())));
 
         Result<FindRecordsResult, ErrorsResult> findResult = this.repository.findPermissionSetAssignment(userId, permissionSetId);
         if (findResult instanceof Result.Failure) {
@@ -36,7 +39,8 @@ public class PermissionSetGateway implements Configuration {
 
     public void unAssignFromDemo() {
         String userId = getStandardUserUserId();
-        String permissionSetId = getPermissionSetDemoId();
+        String permissionSetId = getPermissionSetId(getNamespacePrefix(), PermissionSet.Demo.getName())
+                .orElseThrow(() -> new RuntimeException(String.format("not found permissionSet. namespacePrefix=%s , name=%s", getNamespacePrefix(), PermissionSet.Demo.getName())));
 
         Result<FindRecordsResult, ErrorsResult> findResult = this.repository.findPermissionSetAssignment(userId, permissionSetId);
         if (findResult instanceof Result.Failure) {
@@ -55,5 +59,21 @@ public class PermissionSetGateway implements Configuration {
             }
         }
 
+    }
+
+    private Optional<String> getPermissionSetId(String namespacePrefix, String name) {
+        Result<FindRecordsResult, ErrorsResult> findResult = this.repository.findPermissionSet(namespacePrefix, name);
+        if (findResult instanceof Result.Failure) {
+            throw new RuntimeException(((Result.Failure) findResult).value().toString());
+        }
+
+        Result.Success<FindRecordsResult> successResult = (Result.Success<FindRecordsResult>) findResult;
+        if (successResult.value().totalSize() > 1) {
+            throw new IllegalStateException(String.format("found permissionSet does not one. detail=%s", successResult.toString()));
+        }
+
+        return successResult.value().records().stream()
+                .map(FindRecordsResult.Record::id)
+                .findFirst();
     }
 }

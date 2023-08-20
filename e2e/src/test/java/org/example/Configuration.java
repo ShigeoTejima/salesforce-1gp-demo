@@ -32,8 +32,7 @@ public interface Configuration {
         return System.getProperty("test.standard-user.userId");
     }
 
-    default String getPermissionSetDemoId() {
-        return System.getProperty("test.permissionSet.demo_ahd_demo.id");
+    default String getNamespacePrefix() {
+        return "demo_ahd";
     }
-
 }

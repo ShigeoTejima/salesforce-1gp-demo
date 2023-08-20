@@ -84,22 +84,6 @@ print_user_name() {
   echo "${property_prefix}.fullname=${fullname}"
 }
 
-print_permissionSet_info() {
-  local file_org_info="${DIR_TMP}/org_info.json"
-  sf org display -o "${TARGET_ORG}" --json > "${file_org_info}"
-
-  local apiVersion=$(cat "${file_org_info}" | jq -r '.result.apiVersion')
-  local accessToken=$(cat "${file_org_info}" | jq -r '.result.accessToken')
-  local instanceUrl=$(cat "${file_org_info}" | jq -r '.result.instanceUrl')
-
-  local file_permissionSet_info="${DIR_TMP}/permissionSet_info.json"
-  sf data query --query "SELECT Id, Name, NamespacePrefix, Label FROM PermissionSet WHERE Name='demo'" -o "${TARGET_ORG}" --json > "${file_permissionSet_info}"
-  local permissionSet_demo_Id=$(cat "${file_permissionSet_info}" | jq -r '.result.records[] | select(.Name == "demo" and .NamespacePrefix == "demo_ahd").Id')
-
-  echo "test.permissionSet.demo_ahd_demo.id=${permissionSet_demo_Id}"
-
-}
-
 rm_dir_tmp() {
   [ -d "${DIR_TMP}" ] && rm -fr "${DIR_TMP}"
 }
@@ -119,7 +103,6 @@ main() {
 
   print_org_info
   print_user_info
-  print_permissionSet_info
 
 }
 

@@ -181,6 +181,33 @@ jobs:
         start-address: 0.0.0.0
         end-address: 255.255.255.255
 
+    - name: set loginIpRange to admin profile
+      uses: ./.github/actions/set-loginIpRanges-to-profile
+      with:
+        alias: scratch
+        profile: Standard
+        start-address: 0.0.0.0
+        end-address: 255.255.255.255
+
+    - name: create standard user for test
+      run: |
+        sf org create user profileName='標準ユーザ' firstName=Standard --set-unique-username generatepassword=true --set-alias=scratch-standard -o scratch --json
+
+    - name: assign permissionSet to admin user
+      run: |
+        user_file=${RUNNER_TEMP}/user.json
+        permissionSet_assignment_file=${RUNNER_TEMP}/permissionSet_assignment.json
+
+        sf org display user -o scratch --json > "${user_file}"
+        user_id=$(cat user.json | jq -r '.result.id')
+
+        sf data query --query "SELECT Id, PermissionSetId, PermissionSet.NamespacePrefix, PermissionSet.Name FROM PermissionSetAssignment WHERE AssigneeId='${user_id}' AND PermissionSet.NamespacePrefix='demo_ahd' AND PermissionSet.Name='demo'" -o scratch --json > "${permissionSet_assignment_file}"
+        permissionSet_assignment_id=$(cat "${permissionSet_assignment_file}" | jq -r '.result.records[].Id')
+
+        if [[ -z "${permissionSet_assignment_id}" ]]; then
+          sf org assign permset --name demo_ahd__demo -o scratch --json
+        fi
+
     - name: configure .env-local
       run: |
         cd e2e
