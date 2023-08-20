@@ -195,7 +195,7 @@ jobs:
         profile="標準ユーザ"
 
         sf org list users -o scratch --json > "${users_file}"
-        user_id=(cat users.json | jq '.result[] | select (.profileName == "'${profile}'").userId')
+        user_id=$(cat users.json | jq '.result[] | select (.profileName == "'${profile}'").userId')
         
         if [[ -z "${user_id}" ]]; then
           sf org create user profileName='${profile}' firstName=Standard --set-unique-username generatepassword=true --set-alias=scratch-standard -o scratch --json
