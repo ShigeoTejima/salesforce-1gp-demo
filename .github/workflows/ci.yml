@@ -196,26 +196,26 @@ jobs:
         sf data query --query "SELECT Id, IsActive, Username, ProfileId, Profile.Name FROM User WHERE Profile.Name='標準ユーザ' AND IsActive=true" -o scratch --json > "${users_file}"
         cat "${users_file}"
 
-        user_id=$(cat "${users_file}" | jq -r '.result.records[].Id')
-        echo "${user_id}"
+        username=$(cat "${users_file}" | jq -r '.result.records[].Username')
+        echo "${username}"
 
-        echo "user_id=${user_id}" >> "$GITHUB_OUTPUT"
+        echo "username=${username}" >> "$GITHUB_OUTPUT"
 
     - name: authorize scratch org for standard user
-      if: ${{ steps.find-current-standard-user.outputs.user_id != '' }}
+      if: ${{ steps.find-current-standard-user.outputs.username != '' }}
       uses: ./.github/actions/authorize-org
       with:
         encoded_private_key_content: ${{ secrets.devhub_org_encoded_private_key_content }}
         encode_raw_key: ${{ secrets.devhub_org_encode_raw_key }}
         encode_iv: ${{ secrets.devhub_org_encode_iv }}
         client_id: ${{ secrets.devhub_org_client_id }}
-        username: ${{ steps.find-current-standard-user.outputs.user_id }}
+        username: ${{ steps.find-current-standard-user.outputs.username }}
         alias: scratch-standard
         is-scratch: true
         set-default: false
 
     - name: create standard user for test
-      if: ${{ steps.find-current-standard-user.outputs.user_id == '' }}
+      if: ${{ steps.find-current-standard-user.outputs.username == '' }}
       run: |
         sf org create user profileName="標準ユーザ" firstName=Standard --set-unique-username generatepassword=true --set-alias=scratch-standard -o scratch --json
 
