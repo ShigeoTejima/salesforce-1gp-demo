@@ -196,7 +196,7 @@ jobs:
         sf data query --query "SELECT Id, IsActive, Username, ProfileId, Profile.Name FROM User WHERE Profile.Name='標準ユーザ' AND IsActive=true" -o scratch --json > "${users_file}"
         cat "${users_file}"
 
-        user_id=$(cat standard_user.json | jq -r '.result.records[].Id')
+        user_id=$(cat "${users_file}" | jq -r '.result.records[].Id')
         echo "${user_id}"
 
         echo "user_id=${user_id}" >> "$GITHUB_OUTPUT"
