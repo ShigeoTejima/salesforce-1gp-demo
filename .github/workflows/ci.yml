@@ -217,7 +217,15 @@ jobs:
     - name: create standard user for test
       if: ${{ steps.find-current-standard-user.outputs.username == '' }}
       run: |
-        sf org create user profileName="標準ユーザ" firstName=Standard --set-unique-username generatepassword=true --set-alias=scratch-standard -o scratch --json
+        sf org create user profileName="標準ユーザ" firstName=Standard --set-unique-username --set-alias=scratch-standard -o scratch --json
+
+    - name: show list auth
+      run: |
+        sf org list auth
+
+    - name: generate password for test standard user
+      run: |
+        sf org generate password -o scratch-standard
 
     - name: assign permissionSet to admin user
       run: |
@@ -237,8 +245,14 @@ jobs:
     - name: configure .env-local
       run: |
         cd e2e
-        ./script/generate-env.sh scratch > ./.env-local
-        cat ./.env-local
+
+        env_local_file=./.env-local
+
+        ./script/generate-env-org.sh demo-app > "${env_local_file}"
+        ./script/generate-env-user.sh scratch test.admin-user >> "${env_local_file}"
+        ./script/generate-env-user.sh scratch-standard test.standard-user >> "${env_local_file}"
+
+        cat "${env_local_file}"
 
     - name: compile e2e
       id: compile-e2e
