@@ -1,0 +1,11 @@
+name: 'Setup japanese fonts'
+runs:
+  using: 'composite'
+  steps:
+    - name: install japanese fonts
+      run: |
+        sudo apt-get -y update
+        sudo apt-get -y install fonts-ipafont fonts-ipaexfont
+        sudo fc-cache -fv
+        sudo fc-list | grep -i ipa
+      shell: bash

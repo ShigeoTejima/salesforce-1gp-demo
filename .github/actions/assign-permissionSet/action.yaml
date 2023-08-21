@@ -1,0 +1,42 @@
+name: 'Assign permissionSet'
+inputs:
+  alias:
+    required: true
+  permissionSet-namespacePrefix:
+    required: true
+  permissionSet-name:
+    required: true
+runs:
+  using: 'composite'
+  steps:
+    - name: define env in this action
+      id: define-env
+      run: |
+        this_action_dir=${RUNNER_TEMP}/find-user-by-profile
+        mkdir -p ${this_action_dir}
+
+        this_tmp_dir=$(mktemp -d ${this_action_dir}/tmp.XXXXXX) || exit 1
+        user_file=${this_tmp_dir}/user.json
+        permissionSet_assignment_file=${this_tmp_dir}/permissionSet_assignment.json
+
+        echo "this_tmp_dir=${this_tmp_dir}" >> $GITHUB_OUTPUT
+        echo "user_file=${user_file}" >> $GITHUB_OUTPUT
+        echo "permissionSet_assignment_file=${permissionSet_assignment_file}" >> $GITHUB_OUTPUT
+      shell: bash
+
+    - name: assign permissionSet
+      run: |
+        user_file=${{ steps.define-env.outputs.user_file }}
+        permissionSet_assignment_file=${{ steps.define-env.outputs.permissionSet_assignment_file }}
+
+        sf org display user -o ${{ inputs.alias }} --json > "${user_file}"
+        user_id=$(cat "${user_file}" | jq -r '.result.id')
+
+        sf data query --query "SELECT Id, PermissionSetId, PermissionSet.NamespacePrefix, PermissionSet.Name FROM PermissionSetAssignment WHERE AssigneeId='${user_id}' AND PermissionSet.NamespacePrefix='${{ inputs.permissionSet-namespacePrefix }}' AND PermissionSet.Name='${{ inputs.permissionSet-name }}'" -o ${{ inputs.alias }} --json > "${permissionSet_assignment_file}"
+        permissionSet_assignment_id=$(cat "${permissionSet_assignment_file}" | jq -r '.result.records[].Id')
+
+        if [[ -z "${permissionSet_assignment_id}" ]]; then
+          sf org assign permset --name ${{ inputs.permissionSet-namespacePrefix }}__${{ inputs.permissionSet-name }} -o ${{ inputs.alias }} --json
+        fi
+
+      shell: bash

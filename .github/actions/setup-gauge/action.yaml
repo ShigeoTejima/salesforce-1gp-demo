@@ -1,0 +1,14 @@
+name: 'Setup gauge'
+runs:
+  using: 'composite'
+  steps:
+    - name: install gauge
+      run: |
+        curl -SsL https://downloads.gauge.org/stable | sh
+        gauge --version
+
+        gauge install java
+        gauge install html-report
+        gauge install screenshot
+        gauge --version
+      shell: bash

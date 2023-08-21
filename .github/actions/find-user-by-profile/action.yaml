@@ -1,0 +1,39 @@
+name: 'Find user by profile'
+inputs:
+  alias:
+    required: true
+  profile:
+    required: true
+outputs:
+  username:
+    description: 'found username'
+    value: ${{ steps.find-user.outputs.username }}
+runs:
+  using: 'composite'
+  steps:
+    - name: define env in this action
+      id: define-env
+      run: |
+        this_action_dir=${RUNNER_TEMP}/find-user-by-profile
+        mkdir -p ${this_action_dir}
+
+        this_tmp_dir=$(mktemp -d ${this_action_dir}/tmp.XXXXXX) || exit 1
+        users_file=${this_tmp_dir}/users.json
+
+        echo "this_tmp_dir=${this_tmp_dir}" >> $GITHUB_OUTPUT
+        echo "users_file=${users_file}" >> $GITHUB_OUTPUT
+      shell: bash
+
+    - name: find user
+      id: find-user
+      run: |
+        users_file=${{ steps.define-env.outputs.users_file }}
+
+        sf data query --query "SELECT Id, IsActive, Username, ProfileId, Profile.Name FROM User WHERE Profile.Name='${{ inputs.profile }}' AND IsActive=true" -o ${{ inputs.alias }} --json > "${users_file}"
+        cat "${users_file}"
+
+        username=$(cat "${users_file}" | jq -r '.result.records[].Username')
+        echo "${username}"
+
+        echo "username=${username}" >> "$GITHUB_OUTPUT"
+      shell: bash
