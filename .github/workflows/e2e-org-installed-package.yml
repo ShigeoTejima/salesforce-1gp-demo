@@ -12,89 +12,6 @@ on:
         type: string
 
 jobs:
-  test:
-    runs-on: ubuntu-latest
-    outputs:
-      scratch-username: ${{ steps.define-scratch-username.outputs.scratch-username }}
-    steps:
-    - name: checkout
-      uses: actions/checkout@v3
-
-    - name: setup salesforce cli
-      uses: ./.github/actions/setup-salesforce-cli
-
-    - name: install sfdx-lwc-jest by npm
-      run: |
-        npm install
-    
-    - name: run jest
-      run: |
-        sf force lightning lwc test run
-
-    - name: authorize devhub org
-      uses: ./.github/actions/authorize-org
-      with:
-        encoded_private_key_content: ${{ secrets.devhub_org_encoded_private_key_content }}
-        encode_raw_key: ${{ secrets.devhub_org_encode_raw_key }}
-        encode_iv: ${{ secrets.devhub_org_encode_iv }}
-        client_id: ${{ secrets.devhub_org_client_id }}
-        username: ${{ secrets.devhub_org_username }}
-        alias: devhub
-        is-devhub: true
-        set-default: true
-    
-    - name: create scratch org
-      if: ${{ inputs.scratch_username == '' }}
-      run: |
-        sf org create scratch --definition-file config/project-scratch-def.json --name="ci org" --set-default --alias scratch --json
-
-    - name: authorize scratch org
-      if: ${{ inputs.scratch_username != '' }}
-      uses: ./.github/actions/authorize-org
-      with:
-        encoded_private_key_content: ${{ secrets.devhub_org_encoded_private_key_content }}
-        encode_raw_key: ${{ secrets.devhub_org_encode_raw_key }}
-        encode_iv: ${{ secrets.devhub_org_encode_iv }}
-        client_id: ${{ secrets.devhub_org_client_id }}
-        username: ${{ inputs.scratch_username }}
-        alias: scratch
-        is-scratch: true
-        set-default: true
-
-    - name: define scratch username
-      id: define-scratch-username
-      run: |
-        declare scratch_username=$(sf org display -o scratch --json | jq -r '.result.username')
-        echo "scratch-username=${scratch_username}" >> "$GITHUB_OUTPUT"
-
-    - name: deploy to scratch org
-      run: sf project deploy start --ignore-conflicts
-
-    - name: run apex test 
-      id: run-apex-test
-      run: |
-        apex_test_results_dir=${RUNNER_TEMP}/build/apex-test-results
-        sf apex run test --code-coverage --synchronous --result-format json --output-dir ${apex_test_results_dir}
-
-        echo "apex_test_results_dir=${apex_test_results_dir}" >> "$GITHUB_OUTPUT"
-
-    - name: archive apex test results
-      id: archive-apex-test-results
-      run: |
-        declare apex_test_results_dir=${{ steps.run-apex-test.outputs.apex_test_results_dir }}
-        declare archive_file=${RUNNER_TEMP}/$(basename ${apex_test_results_dir}).zip
-
-        cd $(dirname ${apex_test_results_dir})
-        zip -r ${archive_file} $(basename ${apex_test_results_dir})
-
-        echo "archive_file=${archive_file}" >> "$GITHUB_OUTPUT"
-
-    - name: upload apex test results
-      uses: actions/upload-artifact@v3
-      with:
-        name: apex-test-results
-        path: ${{ steps.archive-apex-test-results.outputs.archive_file }}
-
   e2e:
     runs-on: ubuntu-latest
     steps:
@@ -146,6 +63,23 @@ jobs:
         alias: scratch
         is-scratch: true
         set-default: true
+
+    - name: confirm package installed
+      run: |
+        package_installed_file=${RUNNER_TEMP}/package_installed.json
+
+        sf package installed list -o scratch --json > "${package_installed_file}"
+
+        subscriberPackageVersionId=$(cat "${package_installed_file}" | jq -r '.result[] | select(.SubscriberPackageNamespace == "demo_ahd" and .SubscriberPackageName == "demo1stpkg").SubscriberPackageVersionId')
+
+        if [[ -n "${subscriberPackageVersionId}" ]]; then
+          echo "The package is already installed. The first generation management package can only be uninstalled via the user interface."
+          exit 1
+        fi
+
+    - name: install package
+      run: |
+        sf package install -p ${{ inputs.package_version_id }} -o scratch -w 10 -b 10 --json
 
     - name: generate password for test admin user
       run: |
