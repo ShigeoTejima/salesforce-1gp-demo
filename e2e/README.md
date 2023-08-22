@@ -42,13 +42,7 @@ see `.env-example`.
     - `sf org list users -o ${ADMIN_USER_ORG}`
     - `sf org list auth`
 ```shell
-./script/generate-env-org.sh ${ADMIN_USER_ORG} > .env-local
-```
-```shell
-./script/generate-env-user.sh ${ADMIN_USER_ORG} test.admin-user >> .env-local
-```
-```shell
-./script/generate-env-user.sh ${STANDARD_USER_ORG} test.standard-user >> .env-local
+./script/generate-env.sh ${ADMIN_USER_ORG} ${STANDARD_USER_ORG} > .env-local
 ```
 
 **NOTE:**
