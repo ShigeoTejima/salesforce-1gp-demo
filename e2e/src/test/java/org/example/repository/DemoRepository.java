@@ -7,7 +7,7 @@ import java.util.List;
 
 public class DemoRepository extends GenericRepository implements Configuration {
 
-    private final static String OBJECT_NAME = "demo_ahd__demo__c";
+    private final static String OBJECT_NAME = "demo_aho__demo__c";
 
     public DemoRepository() {
         super();

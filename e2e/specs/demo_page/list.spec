@@ -9,7 +9,7 @@ tags: cleanDemo, assignPermissionSetOfDemo
 
 ## List of demo has some records
 
-* salesforce data - add demos for <table:fixtures/demo_page/has_some_records/setup/demo_ahd__demo__c.csv> .
+* salesforce data - add demos for <table:fixtures/demo_page/has_some_records/setup/demo_aho__demo__c.csv> .
 * try login.
 * demo page - open page.
 * demo page - list of demo has records for <table:fixtures/demo_page/has_some_records/expected/records.csv> .

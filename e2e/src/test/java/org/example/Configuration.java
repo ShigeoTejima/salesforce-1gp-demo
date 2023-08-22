@@ -33,6 +33,6 @@ public interface Configuration {
     }
 
     default String getNamespacePrefix() {
-        return "demo_ahd";
+        return "demo_aho";
     }
 }

@@ -1,5 +1,15 @@
 #!/bin/sh
 
+is_print() {
+  local property="$1"
+  if [ -z "${property}" ]; then
+    echo "function is_print: required property." 1>&2
+    exit 1
+  fi
+
+  grep ^${property}$ ${DIR_SELF}/${VAR_PREFIX}_property.list > /dev/null
+}
+
 print_user_info() {
   local file_user_info="${DIR_TMP}/user_info.json"
   sf org display user -o "${TARGET_ORG}" --json > "${file_user_info}"
@@ -8,9 +18,9 @@ print_user_info() {
   local username=$(cat "${file_user_info}" | jq -r '.result.username')
   local accessToken=$(cat "${file_user_info}" | jq -r '.result.accessToken')
 
-  echo "${VAR_PREFIX}.userId=${userId}"
-  echo "${VAR_PREFIX}.username=${username}"
-  echo "${VAR_PREFIX}.accessToken=${accessToken}"
+  is_print "userId"      && echo "${VAR_PREFIX}.userId=${userId}"
+  is_print "username"    && echo "${VAR_PREFIX}.username=${username}"
+  is_print "accessToken" && echo "${VAR_PREFIX}.accessToken=${accessToken}"
 
   print_user_name_and_password "${username}"
 
@@ -22,6 +32,8 @@ print_user_name_and_password() {
     echo "function print_user_name: required username." 1>&2
     exit 1
   fi
+
+  is_print "fullname" || is_print "password" || return
 
   local file_org_info="${DIR_TMP}/org_info.json"
   sf org display -o "${TARGET_ORG}" --json > "${file_org_info}"
@@ -35,8 +47,8 @@ print_user_name_and_password() {
   sf data query --query "SELECT Id, Username, Name, FirstName, LastName FROM User WHERE Username='${username}'" -o "${TARGET_ORG}" --json > "${file_user_info}"
   local fullname=$(cat "${file_user_info}" | jq -r '.result.records[] | select(.Username == "'${username}'").Name')
 
-  echo "${VAR_PREFIX}.fullname=${fullname}"
-  echo "${VAR_PREFIX}.password=${password}"
+  is_print "fullname" && echo "${VAR_PREFIX}.fullname=${fullname}"
+  is_print "password" && echo "${VAR_PREFIX}.password=${password}"
 }
 
 rm_dir_tmp() {
@@ -44,8 +56,7 @@ rm_dir_tmp() {
 }
 
 main() {
-  local dir_self=$(dirname $0)
-  local dir_parent=$(cd ${dir_self}/.. && pwd)
+  DIR_SELF=$(dirname $0)
 
   TARGET_ORG="$1"
   if [ -z "${TARGET_ORG}" ]; then
@@ -59,7 +70,7 @@ main() {
     exit 1
   fi
 
-  DIR_TMP=$(mktemp -d ${dir_self}/tmp.XXXXXX) || exit 1
+  DIR_TMP=$(mktemp -d ${DIR_SELF}/tmp.XXXXXX) || exit 1
   trap rm_dir_tmp EXIT
   trap "trap - EXIT; rm_dir_tmp; exit -1" INT PIPE TERM
 

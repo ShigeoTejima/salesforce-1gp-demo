@@ -19,20 +19,20 @@ public class DemoPageStep {
 
     @Step("demo page - open page.")
     public void openDemoPage() {
-        open("/lightning/n/demo_ahd__demo_page");
+        open("/lightning/n/demo_aho__demo_page");
 
         $(ByShadow.cssSelector("article h2.slds-card__header-title",
-                "demo_ahd-demo_page",
+                "demo_aho-demo_page",
                 "lightning-card"))
                 .shouldBe(Condition.exactText("Demo"));
     }
 
     @Step("demo page - cannot open page.")
     public void cannotOpenDemoPage() {
-        open("/lightning/n/demo_ahd__demo_page");
+        open("/lightning/n/demo_aho__demo_page");
 
         $(ByShadow.cssSelector("article h2.slds-card__header-title",
-                "demo_ahd-demo_page",
+                "demo_aho-demo_page",
                 "lightning-card"))
                 .shouldBe(Condition.not(Condition.visible));
     }
@@ -64,7 +64,7 @@ public class DemoPageStep {
 
     private SelenideElement getDemoDatatable() {
         return $(ByShadow.cssSelector("lightning-card lightning-datatable",
-                "demo_ahd-demo_page"));
+                "demo_aho-demo_page"));
     }
 
     private SelenideElement getDemoDatatableBody(SelenideElement datatable) {

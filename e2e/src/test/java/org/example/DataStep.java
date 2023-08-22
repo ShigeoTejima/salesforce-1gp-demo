@@ -21,7 +21,7 @@ public class DataStep {
         List<Demo> demos = records.getTableRows().stream()
                 .map(tableRow -> new Demo(
                     tableRow.getCell("Name"),
-                    tableRow.getCell("demo_ahd__description__c")
+                    tableRow.getCell("demo_aho__description__c")
                 ))
                 .collect(Collectors.toList());
 
