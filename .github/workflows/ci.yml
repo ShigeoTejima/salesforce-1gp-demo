@@ -235,11 +235,11 @@ jobs:
         sf org display user -o scratch --json > "${user_file}"
         user_id=$(cat "${user_file}" | jq -r '.result.id')
 
-        sf data query --query "SELECT Id, PermissionSetId, PermissionSet.NamespacePrefix, PermissionSet.Name FROM PermissionSetAssignment WHERE AssigneeId='${user_id}' AND PermissionSet.NamespacePrefix='demo_ahd' AND PermissionSet.Name='demo'" -o scratch --json > "${permissionSet_assignment_file}"
+        sf data query --query "SELECT Id, PermissionSetId, PermissionSet.NamespacePrefix, PermissionSet.Name FROM PermissionSetAssignment WHERE AssigneeId='${user_id}' AND PermissionSet.NamespacePrefix='demo_aho' AND PermissionSet.Name='demo'" -o scratch --json > "${permissionSet_assignment_file}"
         permissionSet_assignment_id=$(cat "${permissionSet_assignment_file}" | jq -r '.result.records[].Id')
 
         if [[ -z "${permissionSet_assignment_id}" ]]; then
-          sf org assign permset --name demo_ahd__demo -o scratch --json
+          sf org assign permset --name demo_aho__demo -o scratch --json
         fi
 
     - name: configure .env-local
@@ -248,9 +248,7 @@ jobs:
 
         env_local_file=./.env-local
 
-        ./script/generate-env-org.sh scratch > "${env_local_file}"
-        ./script/generate-env-user.sh scratch test.admin-user >> "${env_local_file}"
-        ./script/generate-env-user.sh scratch-standard test.standard-user >> "${env_local_file}"
+        ./script/generate-env.sh scratch scratch-standard > "${env_local_file}"
 
         cat "${env_local_file}"
 
