@@ -115,15 +115,11 @@ jobs:
     env:
       scratch_username: ${{needs.test.outputs.scratch-username}}
     steps:
-    - name: Setup japanese fonts
-      run: |
-        sudo apt-get -y update
-        sudo apt-get -y install fonts-ipafont fonts-ipaexfont
-        sudo fc-cache -fv
-        sudo fc-list | grep -i ipa
-
     - name: checkout
       uses: actions/checkout@v3
+
+    - name: setup japanese fonts
+      uses: ./.github/actions/setup-japanese-fonts
 
     - name: setup salesforce cli
       uses: ./.github/actions/setup-salesforce-cli
@@ -136,14 +132,7 @@ jobs:
         cache: 'maven'
 
     - name: setup gauge
-      run: |
-        curl -SsL https://downloads.gauge.org/stable | sh
-        gauge --version
-
-        gauge install java
-        gauge install html-report
-        gauge install screenshot
-        gauge --version
+      uses: ./.github/actions/setup-gauge
 
     - name: authorize devhub org
       uses: ./.github/actions/authorize-org
@@ -191,15 +180,10 @@ jobs:
 
     - name: find current standard user
       id: find-current-standard-user
-      run: |
-        users_file=${RUNNER_TEMP}/users.json
-        sf data query --query "SELECT Id, IsActive, Username, ProfileId, Profile.Name FROM User WHERE Profile.Name='標準ユーザ' AND IsActive=true" -o scratch --json > "${users_file}"
-        cat "${users_file}"
-
-        username=$(cat "${users_file}" | jq -r '.result.records[].Username')
-        echo "${username}"
-
-        echo "username=${username}" >> "$GITHUB_OUTPUT"
+      uses: ./.github/actions/find-user-by-profile
+      with:
+        alias: scratch
+        profile: '標準ユーザ'
 
     - name: authorize scratch org for standard user
       if: ${{ steps.find-current-standard-user.outputs.username != '' }}
@@ -228,19 +212,11 @@ jobs:
         sf org generate password -o scratch-standard
 
     - name: assign permissionSet to admin user
-      run: |
-        user_file=${RUNNER_TEMP}/user.json
-        permissionSet_assignment_file=${RUNNER_TEMP}/permissionSet_assignment.json
-
-        sf org display user -o scratch --json > "${user_file}"
-        user_id=$(cat "${user_file}" | jq -r '.result.id')
-
-        sf data query --query "SELECT Id, PermissionSetId, PermissionSet.NamespacePrefix, PermissionSet.Name FROM PermissionSetAssignment WHERE AssigneeId='${user_id}' AND PermissionSet.NamespacePrefix='demo_aho' AND PermissionSet.Name='demo'" -o scratch --json > "${permissionSet_assignment_file}"
-        permissionSet_assignment_id=$(cat "${permissionSet_assignment_file}" | jq -r '.result.records[].Id')
-
-        if [[ -z "${permissionSet_assignment_id}" ]]; then
-          sf org assign permset --name demo_aho__demo -o scratch --json
-        fi
+      uses: ./.github/actions/assign-permissionSet
+      with:
+        alias: scratch
+        permissionSet-namespacePrefix: demo_aho
+        permissionSet-name: demo
 
     - name: configure .env-local
       run: |
