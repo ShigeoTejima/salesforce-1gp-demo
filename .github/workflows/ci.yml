@@ -270,9 +270,23 @@ jobs:
 
     - name: convert source to metadata
       run: |
-        sf project convert source --output-dir metadata --json
+        sf project convert source --output-dir metadata --package-name demo1stpkg --json
         ls -lR metadata
         cat metadata/package.xml
+
+    - name: set postInstallClass and uninstallClass to metadata/package.xml
+      run: |
+        npm install -g fast-xml-parser
+        npm list -g
+
+        script_file=./.github/script/set-config-to-packagexml/index.js
+        src_file=metadata/package.xml
+        dst_file=${RUNNER_TEMP}/package.xml.new
+        NODE_PATH="$(npm root -g):$NODE_PATH" node ${script_file} --src=${src_file} --dst=${dst_file} --post-install-class=PostInstallScript --uninstall-class=UninstallScript
+
+        diff ${src_file} ${dst_file} || echo
+
+        mv -f ${dst_file} ${src_file}
 
     - name: authorize package org
       uses: ./.github/actions/authorize-org
