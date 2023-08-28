@@ -1,25 +1,33 @@
 @IsTest
 global class MockHttpResponseGenerator implements HttpCalloutMock {
+  private String endpoint;
+  private String requestMethod;
+  private Integer statusCode;
+  private String responseContentType;
+  private String responseBody;
 
-    private String endpoint;
+  global MockHttpResponseGenerator(
+    String endpoint,
+    String requestMethod,
+    Integer statusCode,
+    String responseContentType,
+    String responseBody
+  ) {
+    this.endpoint = endpoint;
+    this.requestMethod = requestMethod;
+    this.statusCode = statusCode;
+    this.responseContentType = responseContentType;
+    this.responseBody = responseBody;
+  }
 
-    global MockHttpResponseGenerator(String endpoint) {
-        this.endpoint = endpoint;
-    }
+  global HTTPResponse respond(HTTPRequest request) {
+    System.assertEquals(this.endpoint, request.getEndpoint());
+    System.assertEquals(this.requestMethod, request.getMethod());
 
-    global HTTPResponse respond(HTTPRequest request) {
-        System.debug('MockHttpResponseGenerator');
-        System.debug(request.getEndpoint());
-        System.debug(request.getMethod());
-
-        System.assertEquals(this.endpoint, request.getEndpoint());
-        System.assertEquals('POST', request.getMethod());
-
-        HttpResponse response = new HttpResponse();
-        response.setStatusCode(200);
-        response.setHeader('Content-Type', 'text/plain');
-        response.setBody('accepted');
-        return response;
-    }
-
+    HttpResponse response = new HttpResponse();
+    response.setStatusCode(this.statusCode);
+    response.setHeader('Content-Type', this.responseContentType);
+    response.setBody(this.responseBody);
+    return response;
+  }
 }

@@ -1,7 +1,11 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <ExternalServiceRegistration xmlns="http://soap.sforce.com/2006/04/metadata">
     <label>DemoApi</label>
     <namedCredentialReference>demo_api</namedCredentialReference>
+    <operations>
+        <active>true</active>
+        <name>getcontractbyauth</name>
+    </operations>
     <operations>
         <active>true</active>
         <name>installed</name>
@@ -18,7 +22,7 @@
     &quot;version&quot; : &quot;v0&quot;
   },
   &quot;servers&quot; : [ {
-    &quot;url&quot; : &quot;https://demo-api.example.com&quot;,
+    &quot;url&quot; : &quot;http://localhost:8080&quot;,
     &quot;description&quot; : &quot;Generated server url&quot;
   } ],
   &quot;paths&quot; : {
@@ -75,6 +79,27 @@
           }
         }
       }
+    },
+    &quot;/contract&quot; : {
+      &quot;get&quot; : {
+        &quot;tags&quot; : [ &quot;contract-handler&quot; ],
+        &quot;operationId&quot; : &quot;getContractByAuth&quot;,
+        &quot;responses&quot; : {
+          &quot;200&quot; : {
+            &quot;description&quot; : &quot;OK&quot;,
+            &quot;content&quot; : {
+              &quot;application/json&quot; : {
+                &quot;schema&quot; : {
+                  &quot;$ref&quot; : &quot;#/components/schemas/Contract&quot;
+                }
+              }
+            }
+          },
+          &quot;401&quot; : {
+            &quot;description&quot; : &quot;Unauthorized&quot;
+          }
+        }
+      }
     }
   },
   &quot;components&quot; : {
@@ -109,6 +134,17 @@
             &quot;type&quot; : &quot;string&quot;
           }
         }
+      },
+      &quot;Contract&quot; : {
+        &quot;type&quot; : &quot;object&quot;,
+        &quot;properties&quot; : {
+          &quot;id&quot; : {
+            &quot;type&quot; : &quot;string&quot;
+          },
+          &quot;name&quot; : {
+            &quot;type&quot; : &quot;string&quot;
+          }
+        }
       }
     }
   }
@@ -116,7 +152,8 @@
     <schemaType>OpenApi3</schemaType>
     <schemaUploadFileExtension>json</schemaUploadFileExtension>
     <schemaUploadFileName>openapi</schemaUploadFileName>
-    <serviceBinding>{&quot;host&quot;:&quot;demo-api.example.com&quot;,&quot;basePath&quot;:&quot;&quot;,&quot;allowedSchemes&quot;:[&quot;HTTPS&quot;],&quot;requestMediaTypes&quot;:[],&quot;responseMediaTypes&quot;:[],&quot;compatibleMediaTypes&quot;:{}}</serviceBinding>
+    <serviceBinding
+  >{&quot;host&quot;:&quot;localhost&quot;,&quot;basePath&quot;:&quot;&quot;,&quot;allowedSchemes&quot;:[&quot;HTTP&quot;],&quot;requestMediaTypes&quot;:[],&quot;responseMediaTypes&quot;:[],&quot;compatibleMediaTypes&quot;:{}}</serviceBinding>
     <status>Complete</status>
     <systemVersion>4</systemVersion>
 </ExternalServiceRegistration>
