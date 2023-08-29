@@ -2,20 +2,9 @@
 private class ContractControllerTest {
   @IsTest
   static void getContract() {
-    Profile p = [
-      SELECT Id, Name
-      FROM Profile
-      WHERE Name IN ('Standard User', '標準ユーザ')
-    ];
-
-    User u = demoUser(p);
-    insert u;
-
-    PermissionSet ps = [SELECT Id FROM PermissionSet WHERE Name = 'demo'];
-    insert new PermissionSetAssignment(
-      AssigneeId = u.Id,
-      PermissionSetId = ps.Id
-    );
+    Profile p = TestUtility.getStandardProfile();
+    User u = TestUtility.createDemoUser(p);
+    TestUtility.assignPermission(u, 'contract');
 
     System.runAs(u) {
       Test.setMock(
@@ -39,20 +28,9 @@ private class ContractControllerTest {
 
   @IsTest
   static void getContractWhenUnauthorizedError() {
-    Profile p = [
-      SELECT Id, Name
-      FROM Profile
-      WHERE Name IN ('Standard User', '標準ユーザ')
-    ];
-
-    User u = demoUser(p);
-    insert u;
-
-    PermissionSet ps = [SELECT Id FROM PermissionSet WHERE Name = 'demo'];
-    insert new PermissionSetAssignment(
-      AssigneeId = u.Id,
-      PermissionSetId = ps.Id
-    );
+    Profile p = TestUtility.getStandardProfile();
+    User u = TestUtility.createDemoUser(p);
+    TestUtility.assignPermission(u, 'contract');
 
     System.runAs(u) {
       Test.setMock(
@@ -79,20 +57,9 @@ private class ContractControllerTest {
 
   @IsTest
   static void getContractWhenUnexpectedError() {
-    Profile p = [
-      SELECT Id, Name
-      FROM Profile
-      WHERE Name IN ('Standard User', '標準ユーザ')
-    ];
-
-    User u = demoUser(p);
-    insert u;
-
-    PermissionSet ps = [SELECT Id FROM PermissionSet WHERE Name = 'demo'];
-    insert new PermissionSetAssignment(
-      AssigneeId = u.Id,
-      PermissionSetId = ps.Id
-    );
+    Profile p = TestUtility.getStandardProfile();
+    User u = TestUtility.createDemoUser(p);
+    TestUtility.assignPermission(u, 'contract');
 
     System.runAs(u) {
       Test.setMock(
@@ -115,23 +82,5 @@ private class ContractControllerTest {
       }
     }
 
-  }
-
-  private static User demoUser(Profile p) {
-    String baseUsername = UserInfo.getUserName();
-    List<String> partsOfUsername = baseUsername.split('@');
-    String demoUsername = String.format('{0}-demo@{1}', partsOfUsername);
-
-    return new User(
-      UserName = demoUsername,
-      Email = demoUsername,
-      LastName = 'demo',
-      Alias = 'demo',
-      TimeZoneSidKey = 'asia/tokyo',
-      LocaleSidKey = 'ja_JP',
-      EmailEncodingKey = 'UTF-8',
-      LanguageLocaleKey = 'ja',
-      ProfileId = p.Id
-    );
   }
 }
