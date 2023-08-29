@@ -15,7 +15,11 @@ export default class Contract_page extends LightningElement {
   }
 
   get contractsData() {
-    return this.existsContracts ? [this.contracts.data] : null;
+    return this.existsContracts ? [this.contracts.data] : [];
+  }
+
+  get noContract() {
+    return this.contractsData.length === 0;
   }
 
   @wire(getContract)
@@ -23,18 +27,29 @@ export default class Contract_page extends LightningElement {
     this.contracts = value;
     const { data, error } = value;
     if (error) {
-      this.dispatchErrorToast();
+      if (
+        error.body &&
+        error.body.exceptionType === "demo_aho.UnauthorizedException"
+      ) {
+        this.dispatchErrorToast(
+          "failed to retrieve the contract due to an authorization error"
+        );
+      } else {
+        this.dispatchErrorToast();
+      }
     } else if (data) {
       // nop
     }
   }
 
   // Helper
-  dispatchErrorToast() {
+  dispatchErrorToast(
+    message = "failed to retrieve contract due to unexpected error"
+  ) {
     this.dispatchEvent(
       new ShowToastEvent({
-        title: "Error loading Demo",
-        message: "fail to fetch records of contracts",
+        title: "Error loading Contract",
+        message: message,
         variant: "error"
       })
     );

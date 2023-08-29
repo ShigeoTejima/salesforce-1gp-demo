@@ -26,8 +26,12 @@ global class MockHttpResponseGenerator implements HttpCalloutMock {
 
     HttpResponse response = new HttpResponse();
     response.setStatusCode(this.statusCode);
-    response.setHeader('Content-Type', this.responseContentType);
-    response.setBody(this.responseBody);
+    if (this.responseContentType != null) {
+      response.setHeader('Content-Type', this.responseContentType);
+    }
+    if (this.responseBody != null) {
+      response.setBody(this.responseBody);
+    }
     return response;
   }
 }

@@ -44,9 +44,12 @@ describe("c-contract-page", () => {
       const datatableElement = element.shadowRoot.querySelector(
         "lightning-datatable"
       );
-
       expect(datatableElement.data.length).toBe(1);
       expect(datatableElement.data).toEqual([{ id: 1, name: "Foo" }]);
+
+      const noContractElement =
+        element.shadowRoot.querySelector("span.no-contract");
+      expect(noContractElement).toBe(null);
     });
 
     it("when data is empty", async () => {
@@ -62,15 +65,52 @@ describe("c-contract-page", () => {
       const datatableElement = element.shadowRoot.querySelector(
         "lightning-datatable"
       );
+      expect(datatableElement.data.length).toBe(0);
+      expect(datatableElement.data).toEqual([]);
 
-      expect(datatableElement).toBe(null);
-
-      // TODO
-      throw new Error("not yet impl. display message for no contracts.");
+      const noContractElement =
+        element.shadowRoot.querySelector("span.no-contract");
+      expect(noContractElement.textContent).toEqual("no contract.");
     });
+
     it("when returned unauthorizded error to get data", async () => {
-      // TODO
-      throw new Error("not yet impl. display message for no contracts.");
+      const element = createElement("c-contract-page", {
+        is: Contract_page
+      });
+      document.body.appendChild(element);
+
+      // Mock handler for toast event
+      const toastHandler = jest.fn();
+      element.addEventListener(ShowToastEventName, toastHandler);
+
+      const unauthorized_error = {
+        exceptionType: "demo_aho.UnauthorizedException",
+        isUserDefinedException: true,
+        message: "Script-thrown exception",
+        stackTrace: "here is stacktrace"
+      };
+      getContract.error(unauthorized_error);
+
+      await flushPromises();
+
+      const datatableElement = element.shadowRoot.querySelector(
+        "lightning-datatable"
+      );
+      expect(datatableElement.data.length).toBe(0);
+      expect(datatableElement.data).toEqual([]);
+
+      const noContractElement =
+        element.shadowRoot.querySelector("span.no-contract");
+      expect(noContractElement.textContent).toEqual("no contract.");
+
+      expect(toastHandler).toHaveBeenCalled();
+      expect(toastHandler).toHaveBeenCalledTimes(1);
+      expect(toastHandler.mock.calls[0][0].detail).toEqual({
+        title: "Error loading Contract",
+        message:
+          "failed to retrieve the contract due to an authorization error",
+        variant: "error"
+      });
     });
 
     it("when returned error to get data", async () => {
@@ -90,11 +130,20 @@ describe("c-contract-page", () => {
       const datatableElement = element.shadowRoot.querySelector(
         "lightning-datatable"
       );
+      expect(datatableElement.data.length).toBe(0);
+      expect(datatableElement.data).toEqual([]);
 
-      expect(datatableElement).toBe(null);
+      const noContractElement =
+        element.shadowRoot.querySelector("span.no-contract");
+      expect(noContractElement.textContent).toEqual("no contract.");
 
       expect(toastHandler).toHaveBeenCalled();
       expect(toastHandler).toHaveBeenCalledTimes(1);
+      expect(toastHandler.mock.calls[0][0].detail).toEqual({
+        title: "Error loading Contract",
+        message: "failed to retrieve contract due to unexpected error",
+        variant: "error"
+      });
     });
   });
 });

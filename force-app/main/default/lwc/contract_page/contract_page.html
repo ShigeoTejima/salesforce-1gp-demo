@@ -1,14 +1,15 @@
 <template>
   <lightning-card title="Contract">
     <div class="slds-m-around_medium">
-      <template if:true={existsContracts}>
-        <lightning-datatable
-          key-field="id"
-          data={contractsData}
-          columns={contracts_columns}
-          hide-checkbox-column="true"
-        >
-        </lightning-datatable>
+      <lightning-datatable
+        key-field="id"
+        data={contractsData}
+        columns={contracts_columns}
+        hide-checkbox-column="true"
+      >
+      </lightning-datatable>
+      <template if:true={noContract}>
+        <span class="no-contract">no contract.</span>
       </template>
     </div>
   </lightning-card>
