@@ -1,4 +1,4 @@
-package org.example;
+package org.example.step;
 
 import com.codeborne.selenide.CollectionCondition;
 import com.codeborne.selenide.Condition;

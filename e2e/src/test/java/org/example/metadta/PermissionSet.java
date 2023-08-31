@@ -1,7 +1,8 @@
 package org.example.metadta;
 
 public enum PermissionSet {
-    Demo("demo");
+    Demo("demo"),
+    Contract("contract");
 
     private final String name;
     PermissionSet(String name) {

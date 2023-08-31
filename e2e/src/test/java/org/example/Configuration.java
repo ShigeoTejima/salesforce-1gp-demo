@@ -11,6 +11,9 @@ public interface Configuration {
     default String getApiVersion() {
         return System.getProperty("test.apiVersion");
     }
+    default String getOrganizationId() {
+        return System.getProperty("test.organizationId");
+    }
 
     default String getAdminUserAccessToken() {
         return System.getProperty("test.admin-user.accessToken");
@@ -35,4 +38,9 @@ public interface Configuration {
     default String getNamespacePrefix() {
         return "demo_aho";
     }
+
+    default String getMockDemoApiEndpoint() {
+        return System.getProperty("test.mock.demo-api.host");
+    }
+
 }

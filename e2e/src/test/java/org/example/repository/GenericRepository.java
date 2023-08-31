@@ -126,6 +126,38 @@ public class GenericRepository implements Configuration {
 
     }
 
+    public <T> Result<InsertRecordResult, ErrorsResult> updateRecord(String objectName, String recordId, T updateContent) {
+        String url = String.format("%s/services/data/v%s/sobjects/%s/%s", instanceUrl, apiVersion, objectName, recordId);
+        String bodyJson = new Gson().toJson(updateContent);
+        System.out.println("*****");
+        System.out.println(bodyJson);
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(url))
+                .header("Authorization", "Bearer " + accessToken)
+                .header("Content-Type", "application/json")
+                .method("PATCH", HttpRequest.BodyPublishers.ofString(bodyJson))
+                .build();
+        try {
+            Gson gson = new Gson();
+            HttpResponse<Result<InsertRecordResult, ErrorsResult>> response = httpClient.send(request, responseInfo -> {
+                    System.out.println("response.statusCode: " + responseInfo.statusCode());
+                    return switch (responseInfo.statusCode()) {
+                        case 204 ->
+                                HttpResponse.BodySubscribers.mapping(
+                                        HttpResponse.BodySubscribers.ofString(StandardCharsets.UTF_8),
+                                        (body) -> new Result.Success<>(gson.fromJson(body, InsertRecordResult.class))
+                                );
+
+                        default -> mappingErrorsResult();
+                    };});
+
+            return response.body();
+        } catch (IOException | InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+
+    }
+
     private <T> HttpResponse.BodySubscriber<Result<T, ErrorsResult>> mappingErrorsResult() {
         return HttpResponse.BodySubscribers.mapping(
                 HttpResponse.BodySubscribers.ofString(StandardCharsets.UTF_8),

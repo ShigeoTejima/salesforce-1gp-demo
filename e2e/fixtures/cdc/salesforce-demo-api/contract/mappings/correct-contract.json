@@ -1,0 +1,27 @@
+{
+  "request": {
+    "method": "GET",
+    "urlPath": "/contract",
+    "headers": {
+      "Accept": {
+        "equalTo": "application/json"
+      },
+      "api-key": {
+        "equalTo": "correct-api-key"
+      },
+      "organization-id": {
+        "matches": "\\S+"
+      }
+    }
+  },
+  "response": {
+    "status": 200,
+    "jsonBody": {
+      "id": "123",
+      "name": "Demo Contract"
+    },
+    "headers": {
+      "Content-Type": "application/json"
+    }
+  }
+}

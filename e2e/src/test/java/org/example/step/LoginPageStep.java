@@ -1,8 +1,9 @@
-package org.example;
+package org.example.step;
 
 import com.codeborne.selenide.Condition;
 import com.codeborne.selenide.SelenideElement;
 import com.thoughtworks.gauge.Step;
+import org.example.Configuration;
 import org.openqa.selenium.By;
 
 import static com.codeborne.selenide.Selenide.$;

@@ -2,8 +2,10 @@ package org.example;
 
 import com.codeborne.selenide.Selenide;
 import com.thoughtworks.gauge.AfterScenario;
+import com.thoughtworks.gauge.BeforeScenario;
 import com.thoughtworks.gauge.BeforeSpec;
 import com.thoughtworks.gauge.BeforeSuite;
+import org.example.gateway.DemoApiSettingGateway;
 import org.example.gateway.DemoGateway;
 import org.example.gateway.PermissionSetGateway;
 import io.github.cdimascio.dotenv.Dotenv;
@@ -42,9 +44,29 @@ public class BeforeAndAfter {
         new PermissionSetGateway().assignToDemo();
     }
 
+    @BeforeSpec(tags = { "assignPermissionSetOfContract" })
+    public void assignPermissionSetOfContract() {
+        new PermissionSetGateway().assignToContract();
+    }
+
     @BeforeSpec(tags = { "unAssignPermissionSetOfDemo" })
     public void unAssignPermissionSetOfDemo() {
         new PermissionSetGateway().unAssignFromDemo();
+    }
+
+    @BeforeSpec(tags = { "unAssignPermissionSetOfContract" })
+    public void unAssignPermissionSetOfContract() {
+        new PermissionSetGateway().unAssignFromContract();
+    }
+
+    @BeforeScenario(tags = { "correctApiKy" })
+    public void setCorrectApiKy() {
+        new DemoApiSettingGateway().setApiKey("correct-api-key");
+    }
+
+    @BeforeScenario(tags = { "wrongApiKy" })
+    public void setWrongApiKy() {
+        new DemoApiSettingGateway().setApiKey("wrong-api-key");
     }
 
     private void loadSystemPropertiesFromDotenv(String filename) {

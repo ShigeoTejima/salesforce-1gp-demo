@@ -1,0 +1,20 @@
+{
+  "request": {
+    "method": "GET",
+    "urlPath": "/contract",
+    "headers": {
+      "Accept": {
+        "equalTo": "application/json"
+      },
+      "api-key": {
+        "equalTo": "wrong-api-key"
+      },
+      "organization-id": {
+        "matches": "\\S+"
+      }
+    }
+  },
+  "response": {
+    "status": 401
+  }
+}
