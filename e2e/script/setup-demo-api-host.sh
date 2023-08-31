@@ -1,7 +1,7 @@
 #!/bin/sh
 
 ready_metadata() {
-  local metadata_src_dir=${DIR_SELF}/demo_api/metadata
+  local metadata_src_dir=${DIR_SELF}/demo-api/metadata
   local metadata_dir=${DIR_TMP}/metadata
 
   cp -r ${metadata_src_dir} ${metadata_dir}
