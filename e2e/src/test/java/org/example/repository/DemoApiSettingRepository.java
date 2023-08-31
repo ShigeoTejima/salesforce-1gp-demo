@@ -27,6 +27,6 @@ public class DemoApiSettingRepository extends GenericRepository implements Confi
     }
 
     private String getObjectName() {
-        return String.format("%s__demo_api_setting__c", getNamespacePrefix());
+        return String.format("%s__demo_api_setting__c", namespacePrefix());
     }
 }

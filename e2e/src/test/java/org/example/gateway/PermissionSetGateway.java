@@ -19,9 +19,9 @@ public class PermissionSetGateway implements Configuration {
     }
 
     public void assignToDemo() {
-        String userId = getStandardUserUserId();
-        String permissionSetId = getPermissionSetId(getNamespacePrefix(), PermissionSet.Demo.getName())
-                .orElseThrow(() -> new RuntimeException(String.format("not found permissionSet. namespacePrefix=%s , name=%s", getNamespacePrefix(), PermissionSet.Demo.getName())));
+        String userId = StandardUser.userId();
+        String permissionSetId = getPermissionSetId(namespacePrefix(), PermissionSet.Demo.getName())
+                .orElseThrow(() -> new RuntimeException(String.format("not found permissionSet. namespacePrefix=%s , name=%s", namespacePrefix(), PermissionSet.Demo.getName())));
 
         Result<FindRecordsResult, ErrorsResult> findResult = this.repository.findPermissionSetAssignment(userId, permissionSetId);
         if (findResult instanceof Result.Failure) {
@@ -39,9 +39,9 @@ public class PermissionSetGateway implements Configuration {
     }
 
     public void assignToContract() {
-        String userId = getStandardUserUserId();
-        String permissionSetId = getPermissionSetId(getNamespacePrefix(), PermissionSet.Contract.getName())
-                .orElseThrow(() -> new RuntimeException(String.format("not found permissionSet. namespacePrefix=%s , name=%s", getNamespacePrefix(), PermissionSet.Contract.getName())));
+        String userId = StandardUser.userId();
+        String permissionSetId = getPermissionSetId(namespacePrefix(), PermissionSet.Contract.getName())
+                .orElseThrow(() -> new RuntimeException(String.format("not found permissionSet. namespacePrefix=%s , name=%s", namespacePrefix(), PermissionSet.Contract.getName())));
 
         Result<FindRecordsResult, ErrorsResult> findResult = this.repository.findPermissionSetAssignment(userId, permissionSetId);
         if (findResult instanceof Result.Failure) {
@@ -59,9 +59,9 @@ public class PermissionSetGateway implements Configuration {
     }
 
     public void unAssignFromDemo() {
-        String userId = getStandardUserUserId();
-        String permissionSetId = getPermissionSetId(getNamespacePrefix(), PermissionSet.Demo.getName())
-                .orElseThrow(() -> new RuntimeException(String.format("not found permissionSet. namespacePrefix=%s , name=%s", getNamespacePrefix(), PermissionSet.Demo.getName())));
+        String userId = StandardUser.userId();
+        String permissionSetId = getPermissionSetId(namespacePrefix(), PermissionSet.Demo.getName())
+                .orElseThrow(() -> new RuntimeException(String.format("not found permissionSet. namespacePrefix=%s , name=%s", namespacePrefix(), PermissionSet.Demo.getName())));
 
         Result<FindRecordsResult, ErrorsResult> findResult = this.repository.findPermissionSetAssignment(userId, permissionSetId);
         if (findResult instanceof Result.Failure) {
@@ -83,9 +83,9 @@ public class PermissionSetGateway implements Configuration {
     }
 
     public void unAssignFromContract() {
-        String userId = getStandardUserUserId();
-        String permissionSetId = getPermissionSetId(getNamespacePrefix(), PermissionSet.Contract.getName())
-                .orElseThrow(() -> new RuntimeException(String.format("not found permissionSet. namespacePrefix=%s , name=%s", getNamespacePrefix(), PermissionSet.Demo.getName())));
+        String userId = StandardUser.userId();
+        String permissionSetId = getPermissionSetId(namespacePrefix(), PermissionSet.Contract.getName())
+                .orElseThrow(() -> new RuntimeException(String.format("not found permissionSet. namespacePrefix=%s , name=%s", namespacePrefix(), PermissionSet.Demo.getName())));
 
         Result<FindRecordsResult, ErrorsResult> findResult = this.repository.findPermissionSetAssignment(userId, permissionSetId);
         if (findResult instanceof Result.Failure) {

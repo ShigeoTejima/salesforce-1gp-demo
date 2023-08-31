@@ -17,7 +17,7 @@ public class DemoApiSettingGateway implements Configuration {
     }
 
     public void setApiKey(String apiKey) {
-        String setupOwnerId = getOrganizationId();
+        String setupOwnerId = Organization.id();
         Result<FindRecordsResult, ErrorsResult> findResult = this.repository.find(setupOwnerId);
         if (findResult instanceof Result.Failure) {
             throw new RuntimeException(((Result.Failure) findResult).value().toString());

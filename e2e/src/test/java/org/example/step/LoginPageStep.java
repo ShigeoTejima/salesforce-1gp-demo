@@ -13,10 +13,10 @@ public class LoginPageStep implements Configuration {
 
     @Step("try login.")
     public void tryLogin() {
-        String baseUrl = getBaseUrl();
-        String username = getStandardUserUsername();
-        String password = getStandardUserPassword();
-        String fullname = getStandardUserFullname();
+        String baseUrl = baseUrl();
+        String username = StandardUser.username();
+        String password = StandardUser.password();
+        String fullname = StandardUser.fullname();
 
         open(baseUrl);
 

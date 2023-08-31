@@ -10,7 +10,7 @@ public class DemoApiGateway implements Configuration {
     private final WireMock wireMock;
 
     public DemoApiGateway() {
-        URI wireMockUri = URI.create(getMockDemoApiEndpoint());
+        URI wireMockUri = URI.create(MockDemoApi.host());
         this.wireMock = new WireMock(wireMockUri.getScheme(), wireMockUri.getHost(), wireMockUri.getPort());
     }
 

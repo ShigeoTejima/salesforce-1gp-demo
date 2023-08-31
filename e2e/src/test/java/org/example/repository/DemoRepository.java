@@ -21,6 +21,6 @@ public class DemoRepository extends GenericRepository implements Configuration {
     }
 
     private String getObjectName() {
-        return String.format("%s__demo__c", getNamespacePrefix());
+        return String.format("%s__demo__c", namespacePrefix());
     }
 }

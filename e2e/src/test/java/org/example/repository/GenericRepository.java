@@ -1,5 +1,6 @@
 package org.example.repository;
 
+import com.github.tomakehurst.wiremock.core.Admin;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import org.example.Configuration;
@@ -24,12 +25,12 @@ public class GenericRepository implements Configuration {
     private final HttpClient httpClient;
 
     public GenericRepository() {
-        String instanceUrl = getInstanceUrl();
-        String accessToken = getAdminUserAccessToken();
-        String apiVersion = getApiVersion();
+        String instanceUrl = Organization.instanceUrl();
+        String apiVersion = Organization.apiVersion();
+        String accessToken = AdminUser.accessToken();
         Objects.requireNonNull(instanceUrl, "required instanceUrl");
-        Objects.requireNonNull(accessToken, "required accessToken");
         Objects.requireNonNull(apiVersion, "required apiVersion");
+        Objects.requireNonNull(accessToken, "required accessToken");
 
         this.instanceUrl = instanceUrl;
         this.apiVersion = apiVersion;
