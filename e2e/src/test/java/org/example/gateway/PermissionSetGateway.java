@@ -4,6 +4,7 @@ import org.example.Configuration;
 import org.example.metadta.PermissionSet;
 import org.example.model.PermissionSetAssignment;
 import org.example.repository.*;
+import org.example.repository.result.*;
 
 import java.util.List;
 import java.util.Optional;

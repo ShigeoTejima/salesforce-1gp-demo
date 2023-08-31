@@ -1,7 +1,7 @@
 # contract page - list of contract
 tags: assignPermissionSetOfContract
 
-* salesforce-demo-api - setup mappings by "fixtures/cdc/salesforce-demo-api/contract" .
+* demo-api - setup mappings by "fixtures/cdc/demo-api/contract" .
 
 ## List of contract is empty by unauthorized
 tags: wrongApiKy

@@ -2,22 +2,25 @@ package org.example.repository;
 
 import org.example.Configuration;
 import org.example.model.Demo;
-
-import java.util.List;
+import org.example.repository.result.ErrorsResult;
+import org.example.repository.result.FindRecordsResult;
+import org.example.repository.result.InsertRecordResult;
 
 public class DemoRepository extends GenericRepository implements Configuration {
-
-    private final static String OBJECT_NAME = "demo_aho__demo__c";
 
     public DemoRepository() {
         super();
     }
 
     public Result<FindRecordsResult, ErrorsResult> findRecords() {
-        return findRecords(OBJECT_NAME);
+        return findRecords(getObjectName());
     }
 
     public Result<InsertRecordResult, ErrorsResult> insert(Demo demo) {
-        return insertRecord(OBJECT_NAME, demo);
+        return insertRecord(getObjectName(), demo);
+    }
+
+    private String getObjectName() {
+        return String.format("%s__demo__c", getNamespacePrefix());
     }
 }

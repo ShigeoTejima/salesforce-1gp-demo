@@ -3,6 +3,7 @@ package org.example.gateway;
 import org.example.Configuration;
 import org.example.model.Demo;
 import org.example.repository.*;
+import org.example.repository.result.*;
 
 import java.util.List;
 import java.util.Objects;

@@ -17,24 +17,20 @@ import static com.codeborne.selenide.Selenide.open;
 
 public class DemoPageStep {
 
+    private static final String PATH_PAGE = "/lightning/n/demo_aho__demo_page";
+
     @Step("demo page - open page.")
     public void openDemoPage() {
-        open("/lightning/n/demo_aho__demo_page");
+        open(PATH_PAGE);
 
-        $(ByShadow.cssSelector("article h2.slds-card__header-title",
-                "demo_aho-demo_page",
-                "lightning-card"))
-                .shouldBe(Condition.exactText("Demo"));
+        getTitle().shouldBe(Condition.exactText("Demo"));
     }
 
     @Step("demo page - cannot open page.")
     public void cannotOpenDemoPage() {
-        open("/lightning/n/demo_aho__demo_page");
+        open(PATH_PAGE);
 
-        $(ByShadow.cssSelector("article h2.slds-card__header-title",
-                "demo_aho-demo_page",
-                "lightning-card"))
-                .shouldBe(Condition.not(Condition.visible));
+        getTitle().shouldBe(Condition.not(Condition.visible));
     }
 
     @Step("demo page - list of demo is empty.")
@@ -60,6 +56,12 @@ public class DemoPageStep {
                 .collect(Collectors.toList());
         tbody.$$("tr td[data-label=Description]")
                 .shouldBe(CollectionCondition.exactTexts(expectedDescription));
+    }
+
+    private SelenideElement getTitle() {
+        return $(ByShadow.cssSelector("article h2.slds-card__header-title",
+                "demo_aho-demo_page",
+                "lightning-card"));
     }
 
     private SelenideElement getDemoDatatable() {

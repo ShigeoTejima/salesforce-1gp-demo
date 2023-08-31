@@ -3,6 +3,10 @@ package org.example.gateway;
 import org.example.Configuration;
 import org.example.model.DemoApiSetting;
 import org.example.repository.*;
+import org.example.repository.result.ErrorsResult;
+import org.example.repository.result.FindRecordsResult;
+import org.example.repository.result.InsertRecordResult;
+import org.example.repository.Result;
 
 public class DemoApiSettingGateway implements Configuration {
 

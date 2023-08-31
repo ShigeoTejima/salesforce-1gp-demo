@@ -3,6 +3,7 @@ package org.example.repository;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import org.example.Configuration;
+import org.example.repository.result.*;
 
 import java.io.IOException;
 import java.net.URI;
@@ -129,8 +130,6 @@ public class GenericRepository implements Configuration {
     public <T> Result<InsertRecordResult, ErrorsResult> updateRecord(String objectName, String recordId, T updateContent) {
         String url = String.format("%s/services/data/v%s/sobjects/%s/%s", instanceUrl, apiVersion, objectName, recordId);
         String bodyJson = new Gson().toJson(updateContent);
-        System.out.println("*****");
-        System.out.println(bodyJson);
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(url))
                 .header("Authorization", "Bearer " + accessToken)
@@ -139,17 +138,16 @@ public class GenericRepository implements Configuration {
                 .build();
         try {
             Gson gson = new Gson();
-            HttpResponse<Result<InsertRecordResult, ErrorsResult>> response = httpClient.send(request, responseInfo -> {
-                    System.out.println("response.statusCode: " + responseInfo.statusCode());
-                    return switch (responseInfo.statusCode()) {
-                        case 204 ->
-                                HttpResponse.BodySubscribers.mapping(
-                                        HttpResponse.BodySubscribers.ofString(StandardCharsets.UTF_8),
-                                        (body) -> new Result.Success<>(gson.fromJson(body, InsertRecordResult.class))
-                                );
+            HttpResponse<Result<InsertRecordResult, ErrorsResult>> response = httpClient.send(request, responseInfo ->
+                switch (responseInfo.statusCode()) {
+                    case 204 ->
+                        HttpResponse.BodySubscribers.mapping(
+                            HttpResponse.BodySubscribers.ofString(StandardCharsets.UTF_8),
+                            (body) -> new Result.Success<>(gson.fromJson(body, InsertRecordResult.class))
+                        );
 
-                        default -> mappingErrorsResult();
-                    };});
+                    default -> mappingErrorsResult();
+                });
 
             return response.body();
         } catch (IOException | InterruptedException e) {

@@ -1,4 +1,4 @@
-package org.example.repository;
+package org.example.repository.result;
 
 import com.google.gson.annotations.SerializedName;
 

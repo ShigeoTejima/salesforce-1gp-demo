@@ -17,24 +17,20 @@ import static com.codeborne.selenide.Selenide.open;
 
 public class ContractPageStep {
 
+    private static final String PATH_PAGE = "/lightning/n/demo_aho__contract_page";
+
     @Step("contract page - open page.")
     public void openPage() {
-        open("/lightning/n/demo_aho__contract_page");
+        open(PATH_PAGE);
 
-        $(ByShadow.cssSelector("article h2.slds-card__header-title",
-                "demo_aho-contract_page",
-                "lightning-card"))
-                .shouldBe(Condition.exactText("Contract"));
+        getTitle().shouldBe(Condition.exactText("Contract"));
     }
 
     @Step("contract page - cannot open page.")
     public void cannotOpenPage() {
-        open("/lightning/n/demo_aho__contract_page");
+        open(PATH_PAGE);
 
-        $(ByShadow.cssSelector("article h2.slds-card__header-title",
-                "demo_aho-contract_page",
-                "lightning-card"))
-                .shouldBe(Condition.not(Condition.visible));
+        getTitle().shouldBe(Condition.not(Condition.visible));
     }
 
     @Step("contract page - list of contract is empty.")
@@ -60,6 +56,12 @@ public class ContractPageStep {
                 .collect(Collectors.toList());
         tbody.$$("tr td[data-label=Name]")
                 .shouldBe(CollectionCondition.exactTexts(expectedNames));
+    }
+
+    private SelenideElement getTitle() {
+        return $(ByShadow.cssSelector("article h2.slds-card__header-title",
+                "demo_aho-contract_page",
+                "lightning-card"));
     }
 
     private SelenideElement getContractDatatable() {

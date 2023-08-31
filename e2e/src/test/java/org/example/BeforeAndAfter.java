@@ -5,6 +5,7 @@ import com.thoughtworks.gauge.AfterScenario;
 import com.thoughtworks.gauge.BeforeScenario;
 import com.thoughtworks.gauge.BeforeSpec;
 import com.thoughtworks.gauge.BeforeSuite;
+import org.example.gateway.DemoApiGateway;
 import org.example.gateway.DemoApiSettingGateway;
 import org.example.gateway.DemoGateway;
 import org.example.gateway.PermissionSetGateway;
@@ -26,6 +27,11 @@ public class BeforeAndAfter {
             ".env-local"
         ).stream().forEach(env -> loadSystemPropertiesFromDotenv(env));
 
+    }
+
+    @BeforeScenario
+    public void beforeScenario() {
+        new DemoApiGateway().resetAll();
     }
 
     @AfterScenario
