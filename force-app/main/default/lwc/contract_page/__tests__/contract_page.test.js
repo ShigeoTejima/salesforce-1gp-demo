@@ -73,6 +73,45 @@ describe("c-contract-page", () => {
       expect(noContractElement.textContent).toEqual("no contract.");
     });
 
+    it("when returned not-set-apiKey error to get data", async () => {
+      const element = createElement("c-contract-page", {
+        is: Contract_page
+      });
+      document.body.appendChild(element);
+
+      // Mock handler for toast event
+      const toastHandler = jest.fn();
+      element.addEventListener(ShowToastEventName, toastHandler);
+
+      const not_set_apiKey_error = {
+        exceptionType: "demo_aho.UnauthorizedException.NotSetApiKeyException",
+        isUserDefinedException: true,
+        message: "Script-thrown exception",
+        stackTrace: "here is stacktrace"
+      };
+      getContract.error(not_set_apiKey_error);
+
+      await flushPromises();
+
+      const datatableElement = element.shadowRoot.querySelector(
+        "lightning-datatable"
+      );
+      expect(datatableElement.data.length).toBe(0);
+      expect(datatableElement.data).toEqual([]);
+
+      const noContractElement =
+        element.shadowRoot.querySelector("span.no-contract");
+      expect(noContractElement.textContent).toEqual("no contract.");
+
+      expect(toastHandler).toHaveBeenCalled();
+      expect(toastHandler).toHaveBeenCalledTimes(1);
+      expect(toastHandler.mock.calls[0][0].detail).toEqual({
+        title: "Error loading Contract",
+        message: "failed to retrieve the contract due to apikey is not set",
+        variant: "error"
+      });
+    });
+
     it("when returned unauthorizded error to get data", async () => {
       const element = createElement("c-contract-page", {
         is: Contract_page
@@ -113,7 +152,7 @@ describe("c-contract-page", () => {
       });
     });
 
-    it("when returned error to get data", async () => {
+    it("when returned unexpected error to get data", async () => {
       const element = createElement("c-contract-page", {
         is: Contract_page
       });

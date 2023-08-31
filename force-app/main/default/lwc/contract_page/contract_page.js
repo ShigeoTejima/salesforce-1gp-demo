@@ -27,25 +27,28 @@ export default class Contract_page extends LightningElement {
     this.contracts = value;
     const { data, error } = value;
     if (error) {
-      if (
-        error.body &&
-        error.body.exceptionType === "demo_aho.UnauthorizedException"
-      ) {
-        this.dispatchErrorToast(
-          "failed to retrieve the contract due to an authorization error"
-        );
-      } else {
-        this.dispatchErrorToast();
-      }
+      console.error(error);
+      const errorMessage = this.errorMessageFromError(error);
+      this.dispatchErrorToast(errorMessage);
     } else if (data) {
       // nop
     }
   }
 
+  errorMessageFromError(error) {
+    const exceptionType = error.body && error.body.exceptionType;
+    switch (exceptionType) {
+      case "demo_aho.UnauthorizedException":
+        return "failed to retrieve the contract due to an authorization error";
+      case "demo_aho.UnauthorizedException.NotSetApiKeyException":
+        return "failed to retrieve the contract due to apikey is not set";
+      default:
+        return "failed to retrieve contract due to unexpected error";
+    }
+  }
+
   // Helper
-  dispatchErrorToast(
-    message = "failed to retrieve contract due to unexpected error"
-  ) {
+  dispatchErrorToast(message) {
     this.dispatchEvent(
       new ShowToastEvent({
         title: "Error loading Contract",

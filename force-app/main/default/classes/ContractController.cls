@@ -1,20 +1,16 @@
 public with sharing class ContractController {
+  @TestVisible
+  private static DemoApi demoApi;
+
+  static {
+    demoApi = new DemoApi();
+  }
+
   @AuraEnabled(cacheable=true)
   public static Contract getContract() {
-    try {
-      ExternalService.demo_aho.DemoApi api = new ExternalService.demo_aho.DemoApi();
+    DemoApi.Contract apiResult = demoApi.getContract();
 
-      ExternalService.demo_aho.DemoApi.getContractByAuth_Response response = api.getContractByAuth();
-      ExternalService.demo_aho.DemoApi_Contract demoApiContract = response.Code200;
-
-      return new Contract(demoApiContract.id, demoApiContract.name);
-    } catch (ExternalService.demo_aho.DemoApi.getContractByAuth_ResponseException e) {
-      if (e.responseCode == 401) {
-        throw new UnauthorizedException(e);
-      } else {
-        throw e;
-      }
-    }
+    return new Contract(apiResult.id, apiResult.name);
   }
 
   public class Contract {
