@@ -6,9 +6,11 @@ print_org_info() {
 
   local instanceUrl=$(cat "${file_org_info}" | jq -r '.result.instanceUrl')
   local apiVersion=$(cat "${file_org_info}" | jq -r '.result.apiVersion')
+  local organizationId=$(cat "${file_org_info}" | jq -r '.result.id')
   echo "selenide.baseUrl=${instanceUrl}"
   echo "test.instanceUrl=${instanceUrl}"
   echo "test.apiVersion=${apiVersion}"
+  echo "test.organizationId=${organizationId}"
 }
 
 rm_dir_tmp() {
