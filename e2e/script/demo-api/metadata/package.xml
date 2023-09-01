@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <Package xmlns="http://soap.sforce.com/2006/04/metadata">
     <types>
-        <members>api_config.demo_api</members>
+        <members>demo_aho__api_config.demo_aho__demo_api</members>
         <name>CustomMetadata</name>
     </types>
     <types>
-        <members>DemoApi</members>
+        <members>demo_aho__DemoApi</members>
         <name>RemoteSiteSetting</name>
     </types>
     <version>58.0</version>

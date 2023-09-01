@@ -6,7 +6,7 @@ ready_metadata() {
 
   cp -r ${metadata_src_dir} ${metadata_dir}
 
-  for target in $(echo "customMetadata/api_config.demo_api.md" "remoteSiteSettings/DemoApi.remoteSite"); do
+  for target in $(echo "customMetadata/demo_aho__api_config.demo_aho__demo_api.md" "remoteSiteSettings/demo_aho__DemoApi.remoteSite"); do
     env demo_api_host=${DEMO_API_HOST} envsubst < ${metadata_src_dir}/${target} > ${metadata_dir}/${target}
   done
 
