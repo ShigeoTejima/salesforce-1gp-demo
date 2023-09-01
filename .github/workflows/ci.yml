@@ -225,7 +225,7 @@ jobs:
       - name: start ngrok
         id: start-ngrok
         run: |
-          docker run -d --name ngrok -t -p 4040:4040 -e NGROK_AUTHTOKEN=${{ secrets.ngrok_authtoken }} ngrok/ngrok http host.docker.internal:8080
+          docker run --net=host -d --name ngrok -t -e NGROK_AUTHTOKEN=${{ secrets.ngrok_authtoken }} ngrok/ngrok http 8080
           docker ps
 
       - name: wait ngrok starting
@@ -239,7 +239,8 @@ jobs:
       - name: config ngrok
         id: config-ngrok
         run: |
-          ngrok_public_url=$(curl http://localhost:4040/api/tunnels | jq -r '.tunnels[] | select(.config.addr == "http://host.docker.internal:8080").public_url')
+          curl http://localhost:4040/api/tunnels | jq .
+          ngrok_public_url=$(curl http://localhost:4040/api/tunnels | jq -r '.tunnels[] | select(.config.addr == "http://localhost:8080").public_url')
           echo "ngrok_public_url: ${ngrok_public_url}"
 
           echo "ngrok_public_url=${ngrok_public_url}" >> "$GITHUB_OUTPUT"
