@@ -44,8 +44,16 @@ public interface Configuration {
     }
 
     interface MockDemoApi {
-        static String host() {
-            return System.getProperty("test.mock.demo-api.host");
+        static Integer port() {
+            return Integer.valueOf(System.getProperty("test.mock.demo-api.port"));
+        }
+    }
+
+    interface Depends {
+        interface WireMock {
+            static String dockerImageName() {
+                return System.getProperty("test.depends.wiremock.docker-image-name");
+            }
         }
     }
 }

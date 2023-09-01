@@ -3,15 +3,12 @@ package org.example.gateway;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import org.example.Configuration;
 
-import java.net.URI;
-
 public class DemoApiGateway implements Configuration {
 
     private final WireMock wireMock;
 
     public DemoApiGateway() {
-        URI wireMockUri = URI.create(MockDemoApi.host());
-        this.wireMock = new WireMock(wireMockUri.getScheme(), wireMockUri.getHost(), wireMockUri.getPort());
+        this.wireMock = new WireMock(MockDemoApi.port());
     }
 
     public void resetAll() {

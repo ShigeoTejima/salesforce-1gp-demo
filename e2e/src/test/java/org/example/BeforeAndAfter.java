@@ -10,10 +10,14 @@ import org.example.gateway.DemoApiSettingGateway;
 import org.example.gateway.DemoGateway;
 import org.example.gateway.PermissionSetGateway;
 import io.github.cdimascio.dotenv.Dotenv;
+import org.testcontainers.containers.FixedHostPortGenericContainer;
+import org.testcontainers.containers.GenericContainer;
+import org.testcontainers.utility.DockerImageName;
 
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
-public class BeforeAndAfter {
+public class BeforeAndAfter implements Configuration {
 
     @BeforeSuite
     public void beforeSuite() {
@@ -27,6 +31,11 @@ public class BeforeAndAfter {
             ".env-local"
         ).stream().forEach(env -> loadSystemPropertiesFromDotenv(env));
 
+        // NOTE: start wiremock for mock of DemoApi
+        new FixedHostPortGenericContainer(Depends.WireMock.dockerImageName())
+                .withFixedExposedPort(MockDemoApi.port(), MockDemoApi.port())
+                .withExposedPorts(MockDemoApi.port())
+                .start();
     }
 
     @BeforeScenario
