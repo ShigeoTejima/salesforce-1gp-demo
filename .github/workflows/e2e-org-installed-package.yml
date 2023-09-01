@@ -83,7 +83,7 @@ jobs:
 
       - name: install package
         run: |
-          sf package install -p ${{ inputs.package_version_id }} -o scratch -w 10 -b 10 --json
+          sf package install -p ${{ inputs.package_version_id }} -o scratch -w 10 -b 10 --no-prompt --json
 
       - name: set loginIpRange to admin profile
         uses: ./.github/actions/set-loginIpRanges-to-profile
