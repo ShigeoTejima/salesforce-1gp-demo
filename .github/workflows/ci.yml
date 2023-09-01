@@ -220,7 +220,37 @@ jobs:
         with:
           alias: scratch
           permissionSet-namespacePrefix: demo_aho
-          permissionSet-name: demo
+          permissionSet-name: admin_user
+
+      - name: start ngrok
+        id: start-ngrok
+        run: |
+          docker run -d --name ngrok -t -p 4040:4040 -e NGROK_AUTHTOKEN=${{ secrets.ngrok_authtoken }} ngrok/ngrok http host.docker.internal:8080
+          docker ps
+
+      - name: wait ngrok starting
+        uses: cygnetdigital/wait_for_response@v2.0.0
+        with:
+          url: "http://localhost:4040/api/"
+          responseCode: "200"
+          timeout: 10000
+          interval: 500
+
+      - name: config ngrok
+        id: config-ngrok
+        run: |
+          ngrok_public_url=$(curl http://localhost:4040/api/tunnels | jq -r '.tunnels[] | select(.config.addr == "http://host.docker.internal:8080").public_url')
+          echo "ngrok_public_url: ${ngrok_public_url}"
+
+          echo "ngrok_public_url=${ngrok_public_url}" >> "$GITHUB_OUTPUT"
+
+      - name: setup demo api
+        run: |
+          ngrok_public_url=${{ steps.config-ngrok.outputs.ngrok_public_url }}
+
+          cd e2e
+
+          ./script/setup-demo-api-host.sh scratch "${ngrok_public_url}"
 
       - name: configure .env-local
         run: |
@@ -260,6 +290,16 @@ jobs:
         with:
           name: e2e-reports
           path: ${{ steps.archive-e2e-reports.outputs.archive_file }}
+
+      - name: stop ngrok
+        if: ${{ always() && steps.start-ngrok.conclusion == 'success' }}
+        run: |
+          container_name=$(docker ps -f name=ngrok --format json | jq -r '.Names')
+          echo "container_name: ${container_name}"
+          if [[ -n "${container_name}" ]]; then
+            echo "container exist, stopping..."
+            docker stop ngrok
+          fi
 
   create-beta-package:
     needs: [test, e2e]
