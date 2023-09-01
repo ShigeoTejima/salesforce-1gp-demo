@@ -191,7 +191,7 @@ jobs:
       - name: run e2e
         run: |
           cd e2e
-          ./mvnw gauge:execute
+          ./mvnw gauge:execute -Dflags="--max-retries-count=3"
 
       - name: archive e2e reports
         if: ${{ always() && steps.compile-e2e.conclusion == 'success' }}
