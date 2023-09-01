@@ -5,7 +5,7 @@
   xmlns:xsd="http://www.w3.org/2001/XMLSchema"
 >
     <label>DemoApi</label>
-    <protected>true</protected>
+    <protected>false</protected>
     <values>
         <field>host__c</field>
         <value xsi:type="xsd:string">https://demo-api.example.com</value>
