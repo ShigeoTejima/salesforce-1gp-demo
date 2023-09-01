@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       scratch_username:
-        description: 'when input, connected to username for scratch'
+        description: "when input, connected to username for scratch"
         required: false
         type: string
       package_version_id:
@@ -15,167 +15,213 @@ jobs:
   e2e:
     runs-on: ubuntu-latest
     steps:
-    - name: checkout
-      uses: actions/checkout@v3
+      - name: checkout
+        uses: actions/checkout@v3
 
-    - name: setup japanese fonts
-      uses: ./.github/actions/setup-japanese-fonts
+      - name: setup japanese fonts
+        uses: ./.github/actions/setup-japanese-fonts
 
-    - name: setup salesforce cli
-      uses: ./.github/actions/setup-salesforce-cli
+      - name: setup salesforce cli
+        uses: ./.github/actions/setup-salesforce-cli
 
-    - name: setup java
-      uses: actions/setup-java@v3
-      with:
-        distribution: 'temurin'
-        java-version: '17'
-        cache: 'maven'
+      - name: setup java
+        uses: actions/setup-java@v3
+        with:
+          distribution: "temurin"
+          java-version: "17"
+          cache: "maven"
 
-    - name: setup gauge
-      uses: ./.github/actions/setup-gauge
+      - name: setup gauge
+        uses: ./.github/actions/setup-gauge
 
-    - name: authorize devhub org
-      uses: ./.github/actions/authorize-org
-      with:
-        encoded_private_key_content: ${{ secrets.devhub_org_encoded_private_key_content }}
-        encode_raw_key: ${{ secrets.devhub_org_encode_raw_key }}
-        encode_iv: ${{ secrets.devhub_org_encode_iv }}
-        client_id: ${{ secrets.devhub_org_client_id }}
-        username: ${{ secrets.devhub_org_username }}
-        alias: devhub
-        is-devhub: true
-        set-default: true
+      - name: authorize devhub org
+        uses: ./.github/actions/authorize-org
+        with:
+          encoded_private_key_content: ${{ secrets.devhub_org_encoded_private_key_content }}
+          encode_raw_key: ${{ secrets.devhub_org_encode_raw_key }}
+          encode_iv: ${{ secrets.devhub_org_encode_iv }}
+          client_id: ${{ secrets.devhub_org_client_id }}
+          username: ${{ secrets.devhub_org_username }}
+          alias: devhub
+          is-devhub: true
+          set-default: true
 
-    - name: create scratch org
-      if: ${{ inputs.scratch_username == '' }}
-      run: |
-        sf org create scratch --name="e2e org" --edition developer --no-namespace --set-default --alias scratch --json
+      - name: create scratch org
+        if: ${{ inputs.scratch_username == '' }}
+        run: |
+          sf org create scratch --name="e2e org" --edition developer --no-namespace --set-default --alias scratch --json
 
-    - name: authorize scratch org
-      if: ${{ inputs.scratch_username != '' }}
-      uses: ./.github/actions/authorize-org
-      with:
-        encoded_private_key_content: ${{ secrets.devhub_org_encoded_private_key_content }}
-        encode_raw_key: ${{ secrets.devhub_org_encode_raw_key }}
-        encode_iv: ${{ secrets.devhub_org_encode_iv }}
-        client_id: ${{ secrets.devhub_org_client_id }}
-        username: ${{ inputs.scratch_username }}
-        alias: scratch
-        is-scratch: true
-        set-default: true
+      - name: authorize scratch org
+        if: ${{ inputs.scratch_username != '' }}
+        uses: ./.github/actions/authorize-org
+        with:
+          encoded_private_key_content: ${{ secrets.devhub_org_encoded_private_key_content }}
+          encode_raw_key: ${{ secrets.devhub_org_encode_raw_key }}
+          encode_iv: ${{ secrets.devhub_org_encode_iv }}
+          client_id: ${{ secrets.devhub_org_client_id }}
+          username: ${{ inputs.scratch_username }}
+          alias: scratch
+          is-scratch: true
+          set-default: true
 
-    - name: confirm package installed
-      run: |
-        package_installed_file=${RUNNER_TEMP}/package_installed.json
+      - name: generate password for test admin user
+        run: |
+          sf org generate password -o scratch
 
-        sf package installed list -o scratch --json > "${package_installed_file}"
+      - name: confirm package installed
+        run: |
+          package_installed_file=${RUNNER_TEMP}/package_installed.json
 
-        subscriberPackageVersionId=$(cat "${package_installed_file}" | jq -r '.result[] | select(.SubscriberPackageNamespace == "demo_aho" and .SubscriberPackageName == "demo1stpkg").SubscriberPackageVersionId')
+          sf package installed list -o scratch --json > "${package_installed_file}"
 
-        if [[ -n "${subscriberPackageVersionId}" ]]; then
-          echo "The package is already installed. The first generation management package can only be uninstalled via the user interface."
-          exit 1
-        fi
+          subscriberPackageVersionId=$(cat "${package_installed_file}" | jq -r '.result[] | select(.SubscriberPackageNamespace == "demo_aho" and .SubscriberPackageName == "demo1stpkg").SubscriberPackageVersionId')
 
-    - name: install package
-      run: |
-        sf package install -p ${{ inputs.package_version_id }} -o scratch -w 10 -b 10 --json
+          if [[ -n "${subscriberPackageVersionId}" ]]; then
+            echo "The package is already installed. The first generation management package can only be uninstalled via the user interface."
+            exit 1
+          fi
 
-    - name: generate password for test admin user
-      run: |
-        sf org generate password -o scratch
+      - name: install package
+        run: |
+          sf package install -p ${{ inputs.package_version_id }} -o scratch -w 10 -b 10 --json
 
-    - name: set loginIpRange to admin profile
-      uses: ./.github/actions/set-loginIpRanges-to-profile
-      with:
-        alias: scratch
-        profile: Admin
-        start-address: 0.0.0.0
-        end-address: 255.255.255.255
+      - name: set loginIpRange to admin profile
+        uses: ./.github/actions/set-loginIpRanges-to-profile
+        with:
+          alias: scratch
+          profile: Admin
+          start-address: 0.0.0.0
+          end-address: 255.255.255.255
 
-    - name: set loginIpRange to standard profile
-      uses: ./.github/actions/set-loginIpRanges-to-profile
-      with:
-        alias: scratch
-        profile: Standard
-        start-address: 0.0.0.0
-        end-address: 255.255.255.255
+      - name: set loginIpRange to standard profile
+        uses: ./.github/actions/set-loginIpRanges-to-profile
+        with:
+          alias: scratch
+          profile: Standard
+          start-address: 0.0.0.0
+          end-address: 255.255.255.255
 
-    - name: find current standard user
-      id: find-current-standard-user
-      uses: ./.github/actions/find-user-by-profile
-      with:
-        alias: scratch
-        profile: '標準ユーザ'
+      - name: find current standard user
+        id: find-current-standard-user
+        uses: ./.github/actions/find-user-by-profile
+        with:
+          alias: scratch
+          profile: "標準ユーザ"
 
-    - name: authorize scratch org for standard user
-      if: ${{ steps.find-current-standard-user.outputs.username != '' }}
-      uses: ./.github/actions/authorize-org
-      with:
-        encoded_private_key_content: ${{ secrets.devhub_org_encoded_private_key_content }}
-        encode_raw_key: ${{ secrets.devhub_org_encode_raw_key }}
-        encode_iv: ${{ secrets.devhub_org_encode_iv }}
-        client_id: ${{ secrets.devhub_org_client_id }}
-        username: ${{ steps.find-current-standard-user.outputs.username }}
-        alias: scratch-standard
-        is-scratch: true
-        set-default: false
+      - name: authorize scratch org for standard user
+        if: ${{ steps.find-current-standard-user.outputs.username != '' }}
+        uses: ./.github/actions/authorize-org
+        with:
+          encoded_private_key_content: ${{ secrets.devhub_org_encoded_private_key_content }}
+          encode_raw_key: ${{ secrets.devhub_org_encode_raw_key }}
+          encode_iv: ${{ secrets.devhub_org_encode_iv }}
+          client_id: ${{ secrets.devhub_org_client_id }}
+          username: ${{ steps.find-current-standard-user.outputs.username }}
+          alias: scratch-standard
+          is-scratch: true
+          set-default: false
 
-    - name: create standard user for test
-      if: ${{ steps.find-current-standard-user.outputs.username == '' }}
-      run: |
-        sf org create user profileName="標準ユーザ" firstName=Standard --set-unique-username --set-alias=scratch-standard -o scratch --json
+      - name: create standard user for test
+        if: ${{ steps.find-current-standard-user.outputs.username == '' }}
+        run: |
+          sf org create user profileName="標準ユーザ" firstName=Standard --set-unique-username --set-alias=scratch-standard -o scratch --json
 
-    - name: show list auth
-      run: |
-        sf org list auth
+      - name: show list auth
+        run: |
+          sf org list auth
 
-    - name: generate password for test standard user
-      run: |
-        sf org generate password -o scratch-standard
+      - name: generate password for test standard user
+        run: |
+          sf org generate password -o scratch-standard
 
-    - name: assign permissionSet to admin user
-      uses: ./.github/actions/assign-permissionSet
-      with:
-        alias: scratch
-        permissionSet-namespacePrefix: demo_aho
-        permissionSet-name: demo
+      - name: assign permissionSet to admin user
+        uses: ./.github/actions/assign-permissionSet
+        with:
+          alias: scratch
+          permissionSet-namespacePrefix: demo_aho
+          permissionSet-name: admin_user
 
-    - name: configure .env-local
-      run: |
-        cd e2e
+      - name: start ngrok
+        id: start-ngrok
+        run: |
+          docker run --net=host -d --name ngrok -t -e NGROK_AUTHTOKEN=${{ secrets.ngrok_authtoken }} ngrok/ngrok http 8080
+          docker ps
 
-        env_local_file=./.env-local
+      - name: wait ngrok starting
+        uses: cygnetdigital/wait_for_response@v2.0.0
+        with:
+          url: "http://localhost:4040/api/"
+          responseCode: "200"
+          timeout: 10000
+          interval: 500
 
-        ./script/generate-env.sh scratch scratch-standard > "${env_local_file}"
+      - name: config ngrok
+        id: config-ngrok
+        run: |
+          curl http://localhost:4040/api/tunnels | jq .
+          ngrok_public_url=$(curl http://localhost:4040/api/tunnels | jq -r '.tunnels[] | select(.config.addr == "http://localhost:8080").public_url')
+          echo "ngrok_public_url: ${ngrok_public_url}"
+              
+          echo "ngrok_public_url=${ngrok_public_url}" >> "$GITHUB_OUTPUT"
 
-        cat "${env_local_file}"
+      - name: setup demo api
+        run: |
+          ngrok_public_url=${{ steps.config-ngrok.outputs.ngrok_public_url }}
+              
+          cd e2e
 
-    - name: compile e2e
-      id: compile-e2e
-      run: |
-        cd e2e
-        ./mvnw clean test-compile
+          ./script/setup-demo-api-host.sh scratch "${ngrok_public_url}"
 
-    - name: run e2e
-      run: |
-        cd e2e
-        ./mvnw gauge:execute
+      - name: configure .env-local
+        run: |
+          cd e2e
 
-    - name: archive e2e reports
-      if: ${{ always() && steps.compile-e2e.conclusion == 'success' }}
-      id: archive-e2e-reports
-      run: |
-        declare archive_file=${RUNNER_TEMP}/e2e-reports.zip
+          env_local_file=./.env-local
 
-        cd e2e
-        zip -r ${archive_file} reports
+          ./script/generate-env.sh scratch scratch-standard > "${env_local_file}"
 
-        echo "archive_file=${archive_file}" >> "$GITHUB_OUTPUT"
+          cat "${env_local_file}"
 
-    - name: upload e2e reports
-      if: ${{ always() && steps.archive-e2e-reports.conclusion == 'success' }}
-      uses: actions/upload-artifact@v3
-      with:
-        name: e2e-reports
-        path: ${{ steps.archive-e2e-reports.outputs.archive_file }}
+      - name: compile e2e
+        id: compile-e2e
+        run: |
+          cd e2e
+          ./mvnw clean test-compile
+
+      - name: run e2e
+        run: |
+          cd e2e
+          ./mvnw gauge:execute
+
+      - name: archive e2e reports
+        if: ${{ always() && steps.compile-e2e.conclusion == 'success' }}
+        id: archive-e2e-reports
+        run: |
+          declare archive_file=${RUNNER_TEMP}/e2e-reports.zip
+
+          cd e2e
+          zip -r ${archive_file} reports
+
+          echo "archive_file=${archive_file}" >> "$GITHUB_OUTPUT"
+
+      - name: upload e2e reports
+        if: ${{ always() && steps.archive-e2e-reports.conclusion == 'success' }}
+        uses: actions/upload-artifact@v3
+        with:
+          name: e2e-reports
+          path: ${{ steps.archive-e2e-reports.outputs.archive_file }}
+
+      - name: request http for ngrok
+        if: ${{ always() && steps.start-ngrok.conclusion == 'success' }}
+        run: |
+          curl http://localhost:4040/api/requests/http | jq .
+
+      - name: stop ngrok
+        if: ${{ always() && steps.start-ngrok.conclusion == 'success' }}
+        run: |
+          container_name=$(docker ps -f name=ngrok --format json | jq -r '.Names')
+          echo "container_name: ${container_name}"
+          if [[ -n "${container_name}" ]]; then
+            echo "container exist, stopping..."
+            docker stop ngrok
+          fi
