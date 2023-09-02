@@ -11,11 +11,8 @@ import org.example.gateway.DemoGateway;
 import org.example.gateway.PermissionSetGateway;
 import io.github.cdimascio.dotenv.Dotenv;
 import org.testcontainers.containers.FixedHostPortGenericContainer;
-import org.testcontainers.containers.GenericContainer;
-import org.testcontainers.utility.DockerImageName;
 
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 public class BeforeAndAfter implements Configuration {
 
@@ -76,12 +73,12 @@ public class BeforeAndAfter implements Configuration {
 
     @BeforeScenario(tags = { "correctApiKy" })
     public void setCorrectApiKy() {
-        new DemoApiSettingGateway().setApiKey("correct-api-key");
+        new DemoApiSettingGateway().setApiKeyByAnonymousApex("correct-api-key");
     }
 
     @BeforeScenario(tags = { "wrongApiKy" })
     public void setWrongApiKy() {
-        new DemoApiSettingGateway().setApiKey("wrong-api-key");
+        new DemoApiSettingGateway().setApiKeyByAnonymousApex("wrong-api-key");
     }
 
     private void loadSystemPropertiesFromDotenv(String filename) {
