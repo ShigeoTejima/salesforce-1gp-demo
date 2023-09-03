@@ -121,4 +121,58 @@ private class SettingControllerTest {
     }
 
   }
+
+  @IsTest
+  static void getApiKey() {
+    Profile p = TestUtility.getStandardProfile();
+    User u = TestUtility.createDemoUser(p);
+    TestUtility.assignPermission(u, 'setting');
+
+    System.runAs(u) {
+      // given:
+      Mocks.MockDemoApiSettingRepository mockDemoApiSettingRepository = new Mocks.MockDemoApiSettingRepository();
+      mockDemoApiSettingRepository.find_return = new DemoApiSettingRepository.DemoApiSetting(
+        'api-key-for-test'
+      );
+
+      // check before set mock:
+      System.assert(SettingController.demoApiSettingRepository != null);
+
+      SettingController.demoApiSettingRepository = mockDemoApiSettingRepository;
+
+      // when:
+      SettingController.GetApiKeyResponse actual = SettingController.getApiKey();
+
+      // then:
+      System.assertEquals('api-key-for-test', actual.value);
+    }
+
+  }
+
+  @IsTest
+  static void getApiKey_when_notfound() {
+    Profile p = TestUtility.getStandardProfile();
+    User u = TestUtility.createDemoUser(p);
+    TestUtility.assignPermission(u, 'setting');
+
+    System.runAs(u) {
+      // given:
+      Mocks.MockDemoApiSettingRepository mockDemoApiSettingRepository = new Mocks.MockDemoApiSettingRepository();
+      mockDemoApiSettingRepository.find_return = new DemoApiSettingRepository.DemoApiSetting(
+        null
+      );
+
+      // check before set mock:
+      System.assert(SettingController.demoApiSettingRepository != null);
+
+      SettingController.demoApiSettingRepository = mockDemoApiSettingRepository;
+
+      // when:
+      SettingController.GetApiKeyResponse actual = SettingController.getApiKey();
+
+      // then:
+      System.assertEquals(null, actual.value);
+    }
+
+  }
 }

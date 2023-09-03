@@ -5,6 +5,11 @@ global with sharing virtual class DemoApiSettingRepository {
     upsert target;
   }
 
+  global virtual DemoApiSetting find() {
+    demo_api_setting__c current = demo_api_setting__c.getOrgDefaults();
+    return new DemoApiSetting(current.api_key__c);
+  }
+
   global with sharing class DemoApiSetting {
     global String apiKey { get; private set; }
 

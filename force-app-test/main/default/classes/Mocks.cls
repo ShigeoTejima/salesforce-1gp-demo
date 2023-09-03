@@ -48,5 +48,15 @@ public class Mocks {
         throw register_throws;
       }
     }
+
+    // find
+    public Integer find_times = 0;
+    public DemoApiSetting find_return;
+
+    public override DemoApiSetting find() {
+      find_times++;
+
+      return find_return;
+    }
   }
 }

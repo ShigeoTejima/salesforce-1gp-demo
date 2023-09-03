@@ -32,6 +32,12 @@ public with sharing class SettingController {
     }
   }
 
+  @AuraEnabled
+  public static GetApiKeyResponse getApiKey() {
+    DemoApiSettingRepository.DemoApiSetting current = demoApiSettingRepository.find();
+    return new GetApiKeyResponse(current.apiKey);
+  }
+
   public class TestConnectResponse {
     @AuraEnabled
     public String result { get; private set; }
@@ -47,6 +53,15 @@ public with sharing class SettingController {
 
     public SaveApiKeyResponse(Result result) {
       this.result = result.name();
+    }
+  }
+
+  public class GetApiKeyResponse {
+    @AuraEnabled
+    public String value { get; private set; }
+
+    public GetApiKeyResponse(String value) {
+      this.value = value;
     }
   }
 
