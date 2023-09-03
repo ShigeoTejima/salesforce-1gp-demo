@@ -1,0 +1,35 @@
+<template>
+  <lightning-card title="Setting">
+    <div class="slds-var-m-around_medium">
+      <lightning-layout>
+        <lightning-layout-item size="4">
+          <lightning-input
+            class="api-key"
+            type="password"
+            label="Enter api-key"
+            placeholder="type your api-key..."
+            required
+            onchange={handleChangeApiKey}
+          ></lightning-input>
+        </lightning-layout-item>
+      </lightning-layout>
+    </div>
+    <div class="slds-var-m-around_medium">
+      <lightning-button-group>
+        <lightning-button
+          class="test-connect"
+          label="Test connect"
+          onclick={handleTestConnect}
+          disabled={apiKeyNotInputed}
+        ></lightning-button>
+        <lightning-button
+          class="save"
+          variant="brand"
+          label="Save"
+          onclick={handleSave}
+          disabled={apiKeyNotInputed}
+        ></lightning-button>
+      </lightning-button-group>
+    </div>
+  </lightning-card>
+</template>
