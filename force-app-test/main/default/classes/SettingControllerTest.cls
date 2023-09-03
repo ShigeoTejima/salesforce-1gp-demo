@@ -8,9 +8,9 @@ private class SettingControllerTest {
 
     System.runAs(u) {
       // given:
-      MockDemoApi mockDemoApi = new MockDemoApi();
-      mockDemoApi.getContract_apiKey_params_apiKey = 'api-key-for-test';
-      mockDemoApi.getContract_apiKey_return = new DemoApi.Contract(
+      Mocks.MockDemoApi mockDemoApi = new Mocks.MockDemoApi();
+      mockDemoApi.getContract_with_apiKey_params_apiKey = 'api-key-for-test';
+      mockDemoApi.getContract_with_apiKey_return = new DemoApi.Contract(
         '123',
         'Demo Contract'
       );
@@ -39,9 +39,9 @@ private class SettingControllerTest {
 
     System.runAs(u) {
       // given:
-      MockDemoApi mockDemoApi = new MockDemoApi();
-      mockDemoApi.getContract_apiKey_params_apiKey = 'api-key-for-test';
-      mockDemoApi.getContract_apiKey_throws = new UnauthorizedException(
+      Mocks.MockDemoApi mockDemoApi = new Mocks.MockDemoApi();
+      mockDemoApi.getContract_with_apiKey_params_apiKey = 'api-key-for-test';
+      mockDemoApi.getContract_with_apiKey_throws = new UnauthorizedException(
         'error for test'
       );
 
@@ -69,7 +69,7 @@ private class SettingControllerTest {
 
     System.runAs(u) {
       // given:
-      MockDemoApiSettingRepository mockDemoApiSettingRepository = new MockDemoApiSettingRepository();
+      Mocks.MockDemoApiSettingRepository mockDemoApiSettingRepository = new Mocks.MockDemoApiSettingRepository();
       mockDemoApiSettingRepository.register_params_entity = new DemoApiSettingRepository.DemoApiSetting(
         'api-key-for-test'
       );
@@ -98,7 +98,7 @@ private class SettingControllerTest {
 
     System.runAs(u) {
       // given:
-      MockDemoApiSettingRepository mockDemoApiSettingRepository = new MockDemoApiSettingRepository();
+      Mocks.MockDemoApiSettingRepository mockDemoApiSettingRepository = new Mocks.MockDemoApiSettingRepository();
       mockDemoApiSettingRepository.register_params_entity = new DemoApiSettingRepository.DemoApiSetting(
         'api-key-for-test'
       );
@@ -120,44 +120,5 @@ private class SettingControllerTest {
       System.assertEquals(1, mockDemoApiSettingRepository.register_times);
     }
 
-  }
-
-  class MockDemoApi extends DemoApi {
-    Integer getContract_apiKey_times = 0;
-    String getContract_apiKey_params_apiKey;
-    Contract getContract_apiKey_return;
-    Exception getContract_apiKey_throws;
-
-    public override Contract getContract(String apiKey) {
-      getContract_apiKey_times++;
-
-      System.assertEquals(getContract_apiKey_params_apiKey, apiKey);
-
-      if (getContract_apiKey_throws != null) {
-        throw getContract_apiKey_throws;
-      }
-
-      return getContract_apiKey_return;
-    }
-  }
-
-  class MockDemoApiSettingRepository extends DemoApiSettingRepository {
-    Integer register_times = 0;
-    DemoApiSetting register_params_entity;
-    Exception register_throws;
-
-    public override void register(DemoApiSetting entity) {
-      register_times++;
-
-      if (register_params_entity == null) {
-        System.assertEquals(null, entity);
-      } else {
-        System.assertEquals(register_params_entity.apiKey, entity.apiKey);
-      }
-
-      if (register_throws != null) {
-        throw register_throws;
-      }
-    }
   }
 }
