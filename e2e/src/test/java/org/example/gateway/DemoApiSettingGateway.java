@@ -58,6 +58,20 @@ public class DemoApiSettingGateway implements Configuration {
                 """;
 
         String snippet = snippetTemplate.replaceAll("\\$\\{apiKey\\}", apiKey);
+
+        runAnonymousApex(snippet);
+    }
+
+    public void removeApiKeyByAnonymousApex() {
+        String snippet = """
+                demo_aho.DemoApiSettingRepository sut = new demo_aho.DemoApiSettingRepository();
+                sut.remove();
+                """;
+
+        runAnonymousApex(snippet);
+    }
+
+    private void runAnonymousApex(String snippet) {
         Result<RunAnonymousApexResult, ErrorsResult> runResult = this.repository.runAnonymousApex(snippet);
         if (runResult instanceof Result.Failure) {
             throw new RuntimeException(((Result.Failure) runResult).value().toString());
@@ -67,6 +81,5 @@ public class DemoApiSettingGateway implements Configuration {
         if (!result.value().success()) {
             throw new RuntimeException(result.toString());
         }
-
     }
 }

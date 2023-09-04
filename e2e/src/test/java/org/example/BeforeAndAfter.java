@@ -56,19 +56,29 @@ public class BeforeAndAfter implements Configuration {
         new PermissionSetGateway().assignToDemo();
     }
 
-    @BeforeSpec(tags = { "assignPermissionSetOfContract" })
-    public void assignPermissionSetOfContract() {
-        new PermissionSetGateway().assignToContract();
-    }
-
     @BeforeSpec(tags = { "unAssignPermissionSetOfDemo" })
     public void unAssignPermissionSetOfDemo() {
         new PermissionSetGateway().unAssignFromDemo();
     }
 
+    @BeforeSpec(tags = { "assignPermissionSetOfContract" })
+    public void assignPermissionSetOfContract() {
+        new PermissionSetGateway().assignToContract();
+    }
+
     @BeforeSpec(tags = { "unAssignPermissionSetOfContract" })
     public void unAssignPermissionSetOfContract() {
         new PermissionSetGateway().unAssignFromContract();
+    }
+
+    @BeforeSpec(tags = { "assignPermissionSetOfSetting" })
+    public void assignPermissionSetOfSetting() {
+        new PermissionSetGateway().assignToSetting();
+    }
+
+    @BeforeSpec(tags = { "unAssignPermissionSetOfSetting" })
+    public void unAssignPermissionSetOfSetting() {
+        new PermissionSetGateway().unAssignFromSetting();
     }
 
     @BeforeScenario(tags = { "correctApiKy" })
@@ -79,6 +89,11 @@ public class BeforeAndAfter implements Configuration {
     @BeforeScenario(tags = { "wrongApiKy" })
     public void setWrongApiKy() {
         new DemoApiSettingGateway().setApiKeyByAnonymousApex("wrong-api-key");
+    }
+
+    @BeforeScenario(tags = { "removeApiKy" })
+    public void removeApiKy() {
+        new DemoApiSettingGateway().removeApiKeyByAnonymousApex();
     }
 
     private void loadSystemPropertiesFromDotenv(String filename) {
