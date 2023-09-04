@@ -10,6 +10,13 @@ global with sharing virtual class DemoApiSettingRepository {
     return new DemoApiSetting(current.api_key__c);
   }
 
+  global void remove() {
+    demo_api_setting__c current = demo_api_setting__c.getOrgDefaults();
+    if (current != null && current.Id != null) {
+      delete current;
+    }
+  }
+
   global with sharing class DemoApiSetting {
     global String apiKey { get; private set; }
 

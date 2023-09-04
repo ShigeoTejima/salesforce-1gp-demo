@@ -115,4 +115,62 @@ private class DemoApiSettingRepositoryTest {
     }
 
   }
+
+  @IsTest
+  static void remove_when_set() {
+    Profile p = TestUtility.getStandardProfile();
+    User u = TestUtility.createDemoUser(p);
+    TestUtility.assignPermission(u, 'contract');
+
+    System.runAs(u) {
+      // begin:
+      demo_api_setting__c current = demo_api_setting__c.getOrgDefaults();
+      current.api_key__c = 'api-key-for-test';
+      upsert current;
+
+      Test.startTest();
+
+      DemoApiSettingRepository sut = new DemoApiSettingRepository();
+
+      // when:
+      sut.remove();
+
+      // then:
+      demo_api_setting__c actual = demo_api_setting__c.getOrgDefaults();
+      System.assertEquals(null, actual.api_key__c);
+
+      Test.stopTest();
+    }
+
+  }
+
+  @IsTest
+  static void remove_when_notset() {
+    Profile p = TestUtility.getStandardProfile();
+    User u = TestUtility.createDemoUser(p);
+    TestUtility.assignPermission(u, 'contract');
+
+    System.runAs(u) {
+      // begin:
+      demo_api_setting__c current = demo_api_setting__c.getOrgDefaults();
+      current.api_key__c = 'api-key-for-test';
+      if (current != null && current.Id != null) {
+        delete current;
+      }
+
+      Test.startTest();
+
+      DemoApiSettingRepository sut = new DemoApiSettingRepository();
+
+      // when:
+      sut.remove();
+
+      // then:
+      demo_api_setting__c actual = demo_api_setting__c.getOrgDefaults();
+      System.assertEquals(null, actual.api_key__c);
+
+      Test.stopTest();
+    }
+
+  }
 }
