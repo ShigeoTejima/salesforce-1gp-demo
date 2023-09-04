@@ -2,16 +2,54 @@ import { LightningElement } from "lwc";
 import { ShowToastEvent } from "lightning/platformShowToastEvent";
 import testConnect from "@salesforce/apex/SettingController.testConnect";
 import saveApiKey from "@salesforce/apex/SettingController.saveApiKey";
+import getApiKey from "@salesforce/apex/SettingController.getApiKey";
 
 export default class Setting_page extends LightningElement {
+  edit;
   apiKey;
+  editApiKey;
+
+  get apiKeyLabel() {
+    if (this.edit) {
+      return "Enter api-key:";
+    }
+    return "Current api-key:";
+  }
+
+  get apiKeyPlaceholder() {
+    if (this.edit) {
+      return "type your api-key...";
+    }
+    return "";
+  }
+
+  get notEdit() {
+    return !this.edit;
+  }
 
   get apiKeyNotInputed() {
+    if (this.edit) {
+      return !this.editApiKey || this.editApiKey === "";
+    }
     return !this.apiKey || this.apiKey === "";
   }
 
+  connectedCallback() {
+    getApiKey()
+      .then((result) => {
+        console.log(result);
+        this.apiKey = result.value ? result.value : "";
+        this.edit = !this.apiKey || this.apiKey === "" ? true : false;
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+  }
+
   handleChangeApiKey(e) {
-    this.apiKey = e.target.value;
+    if (this.edit) {
+      this.editApiKey = e.target.value;
+    }
   }
 
   handleTestConnect() {
@@ -19,7 +57,7 @@ export default class Setting_page extends LightningElement {
       return;
     }
 
-    testConnect({ apiKey: this.apiKey })
+    testConnect({ apiKey: this.getTargetApiKey() })
       .then((result) => {
         console.log(result);
         if (result.result === "SUCCESS") {
@@ -52,12 +90,22 @@ export default class Setting_page extends LightningElement {
       });
   }
 
+  handleEdit() {
+    this.edit = true;
+    this.editApiKey = this.apiKey;
+  }
+
+  handleEditCancel() {
+    this.editCancel();
+  }
+
   handleSave() {
     if (this.apiKeyNotInputed) {
+      this.editCancel();
       return;
     }
 
-    saveApiKey({ apiKey: this.apiKey })
+    saveApiKey({ apiKey: this.editApiKey })
       .then((result) => {
         console.log(result);
         if (result.result === "SUCCESS") {
@@ -66,6 +114,10 @@ export default class Setting_page extends LightningElement {
             message: "success",
             variant: "success"
           });
+
+          this.edit = false;
+          this.apiKey = this.editApiKey;
+          this.editApiKey = null;
         } else if (result.result === "FAILURE") {
           this.dispatchToast({
             title: "Save",
@@ -88,6 +140,19 @@ export default class Setting_page extends LightningElement {
           variant: "error"
         });
       });
+  }
+
+  editCancel() {
+    this.edit = false;
+    this.template.querySelector(".api-key").value = this.apiKey;
+    this.editApiKey = null;
+  }
+
+  getTargetApiKey() {
+    if (this.edit) {
+      return this.editApiKey;
+    }
+    return this.apiKey;
   }
 
   // Helper

@@ -5,11 +5,13 @@
         <lightning-layout-item size="4">
           <lightning-input
             class="api-key"
-            type="password"
-            label="Enter api-key"
-            placeholder="type your api-key..."
-            required
+            type="text"
+            label={apiKeyLabel}
+            placeholder={apiKeyPlaceholder}
+            required={edit}
+            disabled={notEdit}
             onchange={handleChangeApiKey}
+            value={apiKey}
           ></lightning-input>
         </lightning-layout-item>
       </lightning-layout>
@@ -22,13 +24,29 @@
           onclick={handleTestConnect}
           disabled={apiKeyNotInputed}
         ></lightning-button>
-        <lightning-button
-          class="save"
-          variant="brand"
-          label="Save"
-          onclick={handleSave}
-          disabled={apiKeyNotInputed}
-        ></lightning-button>
+        <template if:false={edit}>
+          <lightning-button
+            class="edit"
+            label="Edit"
+            onclick={handleEdit}
+          ></lightning-button>
+        </template>
+        <template if:true={edit}>
+          <template if:true={apiKey}>
+            <lightning-button
+              class="edit-cancel"
+              label="Cancel"
+              onclick={handleEditCancel}
+            ></lightning-button>
+          </template>
+          <lightning-button
+            class="save"
+            variant="brand"
+            label="Save"
+            onclick={handleSave}
+            disabled={apiKeyNotInputed}
+          ></lightning-button>
+        </template>
       </lightning-button-group>
     </div>
   </lightning-card>

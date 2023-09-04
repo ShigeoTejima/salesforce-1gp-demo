@@ -3,6 +3,7 @@ import { ShowToastEventName } from "lightning/platformShowToastEvent";
 import Setting_page from "c/setting_page";
 import testConnect from "@salesforce/apex/SettingController.testConnect";
 import saveApiKey from "@salesforce/apex/SettingController.saveApiKey";
+import getApiKey from "@salesforce/apex/SettingController.getApiKey";
 
 jest.mock(
   "@salesforce/apex/SettingController.testConnect",
@@ -13,6 +14,13 @@ jest.mock(
 );
 jest.mock(
   "@salesforce/apex/SettingController.saveApiKey",
+  () => ({
+    default: jest.fn()
+  }),
+  { virtual: true }
+);
+jest.mock(
+  "@salesforce/apex/SettingController.getApiKey",
   () => ({
     default: jest.fn()
   }),
@@ -34,468 +42,938 @@ describe("c-setting-page", () => {
     return Promise.resolve();
   }
 
-  describe("test connect", () => {
-    it("success", async () => {
+  describe("display page", () => {
+    it("api-key does not set yet", async () => {
+      // given:
+      //   - because call in connect Callback
+      const mockGetApiKey = { value: null };
+      getApiKey.mockResolvedValue(mockGetApiKey);
+
       const element = createElement("c-setting-page", {
         is: Setting_page
       });
       document.body.appendChild(element);
 
-      // step 1:
-      // step 1 - when:
+      // when:
+      await flushPromises();
+
+      // then:
+      const apiKeyElement = element.shadowRoot.querySelector(".api-key");
+      expect(apiKeyElement.label).toBe("Enter api-key:");
+      expect(apiKeyElement.placeholder).toBe("type your api-key...");
+      expect(apiKeyElement.value).toBe("");
+      expect(apiKeyElement.disabled).toBeFalsy();
+      expect(apiKeyElement.required).toBeTruthy();
+
       const testConnectElement =
         element.shadowRoot.querySelector(".test-connect");
-
-      // step 1 - then:
       expect(testConnectElement.disabled).toBeTruthy();
 
-      // step 2:
-      // step 2 - given:
-      const apiKeyElement = element.shadowRoot.querySelector(".api-key");
-      apiKeyElement.value = "api-key-for-test";
+      const editElement = element.shadowRoot.querySelector(".edit");
+      expect(editElement).toBeNull();
 
-      // step 2 - when:
-      apiKeyElement.dispatchEvent(new CustomEvent("change"));
+      const editCancelElement =
+        element.shadowRoot.querySelector(".edit-cancel");
+      expect(editCancelElement).toBeNull();
 
+      const saveConnectElement = element.shadowRoot.querySelector(".save");
+      expect(saveConnectElement.disabled).toBeTruthy();
+    });
+
+    it("api-key does set already", async () => {
+      // given:
+      //   - because call in connect Callback
+      const mockGetApiKey = { value: "api-key-for-test" };
+      getApiKey.mockResolvedValue(mockGetApiKey);
+
+      const element = createElement("c-setting-page", {
+        is: Setting_page
+      });
+      document.body.appendChild(element);
+
+      // when:
       await flushPromises();
 
-      // step 2 - then:
+      // then:
+      const apiKeyElement = element.shadowRoot.querySelector(".api-key");
+      expect(apiKeyElement.label).toBe("Current api-key:");
+      expect(apiKeyElement.placeholder).toBe("");
+      expect(apiKeyElement.value).toBe("api-key-for-test");
+      expect(apiKeyElement.disabled).toBeTruthy();
+      expect(apiKeyElement.required).toBeFalsy();
+
+      const testConnectElement =
+        element.shadowRoot.querySelector(".test-connect");
       expect(testConnectElement.disabled).toBeFalsy();
 
-      // step 3
-      // step 3 - given:
+      const editElement = element.shadowRoot.querySelector(".edit");
+      expect(editElement).not.toBeNull();
+      expect(editElement.disabled).toBeFalsy();
 
-      // Mock handler for toast event
-      const toastHandler = jest.fn();
-      element.addEventListener(ShowToastEventName, toastHandler);
+      const editCancelElement =
+        element.shadowRoot.querySelector(".edit-cancel");
+      expect(editCancelElement).toBeNull();
 
-      const mockTestConnect = { result: "SUCCESS" };
-      testConnect.mockResolvedValue(mockTestConnect);
+      const saveElement = element.shadowRoot.querySelector(".save");
+      expect(saveElement).toBeNull();
+    });
+  });
 
-      // step 3 - when:
-      testConnectElement.click();
+  describe("show mode", () => {
+    describe("test connect", () => {
+      it("success", async () => {
+        // given:
+        //   - because call in connect Callback
+        const mockGetApiKey = { value: "api-key-for-test" };
+        getApiKey.mockResolvedValue(mockGetApiKey);
 
-      await flushPromises();
+        const element = createElement("c-setting-page", {
+          is: Setting_page
+        });
+        document.body.appendChild(element);
 
-      // step 3 - then:
-      expect(testConnect.mock.calls.length).toBe(1);
-      expect(testConnect.mock.calls[0][0]).toEqual({
-        apiKey: "api-key-for-test"
+        // when:
+        await flushPromises();
+
+        // step 1:
+        // step 1 - then:
+        const apiKeyElement = element.shadowRoot.querySelector(".api-key");
+        expect(apiKeyElement.value).toBe("api-key-for-test");
+
+        const testConnectElement =
+          element.shadowRoot.querySelector(".test-connect");
+        expect(testConnectElement.disabled).toBeFalsy();
+
+        // step 2
+        // step 2 - given:
+
+        // Mock handler for toast event
+        const toastHandler = jest.fn();
+        element.addEventListener(ShowToastEventName, toastHandler);
+
+        const mockTestConnect = { result: "SUCCESS" };
+        testConnect.mockResolvedValue(mockTestConnect);
+
+        // step 2 - when:
+        testConnectElement.click();
+
+        await flushPromises();
+
+        // step 2 - then:
+        expect(testConnect.mock.calls.length).toBe(1);
+        expect(testConnect.mock.calls[0][0]).toEqual({
+          apiKey: "api-key-for-test"
+        });
+
+        expect(toastHandler).toHaveBeenCalled();
+        expect(toastHandler).toHaveBeenCalledTimes(1);
+        expect(toastHandler.mock.calls[0][0].detail).toEqual({
+          title: "Test connect",
+          message: "success",
+          variant: "success"
+        });
       });
 
-      expect(toastHandler).toHaveBeenCalled();
-      expect(toastHandler).toHaveBeenCalledTimes(1);
-      expect(toastHandler.mock.calls[0][0].detail).toEqual({
-        title: "Test connect",
-        message: "success",
-        variant: "success"
+      it("failure", async () => {
+        // given:
+        //   - because call in connect Callback
+        const mockGetApiKey = { value: "api-key-for-test" };
+        getApiKey.mockResolvedValue(mockGetApiKey);
+
+        const element = createElement("c-setting-page", {
+          is: Setting_page
+        });
+        document.body.appendChild(element);
+
+        // when:
+        await flushPromises();
+
+        // step 1:
+        // step 1 - then:
+        const apiKeyElement = element.shadowRoot.querySelector(".api-key");
+        expect(apiKeyElement.value).toBe("api-key-for-test");
+
+        const testConnectElement =
+          element.shadowRoot.querySelector(".test-connect");
+        expect(testConnectElement.disabled).toBeFalsy();
+
+        // step 2
+        // step 2 - given:
+
+        // Mock handler for toast event
+        const toastHandler = jest.fn();
+        element.addEventListener(ShowToastEventName, toastHandler);
+
+        const mockTestConnect = { result: "FAILURE" };
+        testConnect.mockResolvedValue(mockTestConnect);
+
+        // step 2 - when:
+        testConnectElement.click();
+
+        await flushPromises();
+
+        // step 2 - then:
+        expect(testConnect.mock.calls.length).toBe(1);
+        expect(testConnect.mock.calls[0][0]).toEqual({
+          apiKey: "api-key-for-test"
+        });
+
+        expect(toastHandler).toHaveBeenCalled();
+        expect(toastHandler).toHaveBeenCalledTimes(1);
+        expect(toastHandler.mock.calls[0][0].detail).toEqual({
+          title: "Test connect",
+          message: "failure",
+          variant: "warning"
+        });
+      });
+
+      it("unexpected result", async () => {
+        // given:
+        //   - because call in connect Callback
+        const mockGetApiKey = { value: "api-key-for-test" };
+        getApiKey.mockResolvedValue(mockGetApiKey);
+
+        const element = createElement("c-setting-page", {
+          is: Setting_page
+        });
+        document.body.appendChild(element);
+
+        // when:
+        await flushPromises();
+
+        // step 1:
+        // step 1 - then:
+        const apiKeyElement = element.shadowRoot.querySelector(".api-key");
+        expect(apiKeyElement.value).toBe("api-key-for-test");
+
+        const testConnectElement =
+          element.shadowRoot.querySelector(".test-connect");
+        expect(testConnectElement.disabled).toBeFalsy();
+
+        // step 2
+        // step 2 - given:
+
+        // Mock handler for toast event
+        const toastHandler = jest.fn();
+        element.addEventListener(ShowToastEventName, toastHandler);
+
+        const mockTestConnect = { result: "UNEXPECTED" };
+        testConnect.mockResolvedValue(mockTestConnect);
+
+        // step 2 - when:
+        testConnectElement.click();
+
+        await flushPromises();
+
+        // step 2 - then:
+        expect(testConnect.mock.calls.length).toBe(1);
+        expect(testConnect.mock.calls[0][0]).toEqual({
+          apiKey: "api-key-for-test"
+        });
+
+        expect(toastHandler).toHaveBeenCalled();
+        expect(toastHandler).toHaveBeenCalledTimes(1);
+        expect(toastHandler.mock.calls[0][0].detail).toEqual({
+          title: "Test connect",
+          message: "unexpected error occured",
+          variant: "error"
+        });
+      });
+
+      it("unexpected error occured", async () => {
+        // given:
+        //   - because call in connect Callback
+        const mockGetApiKey = { value: "api-key-for-test" };
+        getApiKey.mockResolvedValue(mockGetApiKey);
+
+        const element = createElement("c-setting-page", {
+          is: Setting_page
+        });
+        document.body.appendChild(element);
+
+        // when:
+        await flushPromises();
+
+        // step 1:
+        // step 1 - then:
+        const apiKeyElement = element.shadowRoot.querySelector(".api-key");
+        expect(apiKeyElement.value).toBe("api-key-for-test");
+
+        const testConnectElement =
+          element.shadowRoot.querySelector(".test-connect");
+        expect(testConnectElement.disabled).toBeFalsy();
+
+        // step 2
+        // step 2 - given:
+
+        // Mock handler for toast event
+        const toastHandler = jest.fn();
+        element.addEventListener(ShowToastEventName, toastHandler);
+
+        const mockTestConnect = {
+          body: { message: "An internal server error has occurred" },
+          ok: false,
+          status: 400,
+          statusText: "Bad Request"
+        };
+        testConnect.mockRejectedValue(mockTestConnect);
+
+        // step 2 - when:
+        testConnectElement.click();
+
+        await flushPromises();
+
+        // step 2 - then:
+        expect(testConnect.mock.calls.length).toBe(1);
+        expect(testConnect.mock.calls[0][0]).toEqual({
+          apiKey: "api-key-for-test"
+        });
+
+        expect(toastHandler).toHaveBeenCalled();
+        expect(toastHandler).toHaveBeenCalledTimes(1);
+        expect(toastHandler.mock.calls[0][0].detail).toEqual({
+          title: "Test connect",
+          message: "unexpected error occured",
+          variant: "error"
+        });
       });
     });
 
-    it("failure", async () => {
-      const element = createElement("c-setting-page", {
-        is: Setting_page
-      });
-      document.body.appendChild(element);
+    describe("edit", () => {
+      it("change to edit mode", async () => {
+        // given:
+        //   - because call in connect Callback
+        const mockGetApiKey = { value: "api-key-for-test" };
+        getApiKey.mockResolvedValue(mockGetApiKey);
 
-      // step 1:
-      // step 1 - when:
-      const testConnectElement =
-        element.shadowRoot.querySelector(".test-connect");
+        const element = createElement("c-setting-page", {
+          is: Setting_page
+        });
+        document.body.appendChild(element);
 
-      // step 1 - then:
-      expect(testConnectElement.disabled).toBeTruthy();
+        // when:
+        await flushPromises();
 
-      // step 2:
-      // step 2 - given:
-      const apiKeyElement = element.shadowRoot.querySelector(".api-key");
-      apiKeyElement.value = "api-key-for-test";
+        // then:
+        const editElement = element.shadowRoot.querySelector(".edit");
+        expect(editElement).not.toBeNull();
+        expect(editElement.disabled).toBeFalsy();
 
-      // step 2 - when:
-      apiKeyElement.dispatchEvent(new CustomEvent("change"));
+        // Step 1
+        // Step 1 - when:
+        editElement.click();
 
-      await flushPromises();
+        await flushPromises();
 
-      // step 2 - then:
-      expect(testConnectElement.disabled).toBeFalsy();
+        // Step 1 - then
+        const apiKeyElement = element.shadowRoot.querySelector(".api-key");
+        expect(apiKeyElement.label).toBe("Enter api-key:");
+        expect(apiKeyElement.placeholder).toBe("type your api-key...");
+        expect(apiKeyElement.value).toBe("api-key-for-test");
+        expect(apiKeyElement.disabled).toBeFalsy();
+        expect(apiKeyElement.required).toBeTruthy();
 
-      // step 3
-      // step 3 - given:
+        const testConnectElement =
+          element.shadowRoot.querySelector(".test-connect");
+        expect(testConnectElement.disabled).toBeFalsy();
 
-      // Mock handler for toast event
-      const toastHandler = jest.fn();
-      element.addEventListener(ShowToastEventName, toastHandler);
+        const editElementAfterClick = element.shadowRoot.querySelector(".edit");
+        expect(editElementAfterClick).toBeNull();
 
-      const mockTestConnect = { result: "FAILURE" };
-      testConnect.mockResolvedValue(mockTestConnect);
+        const editCancelElement =
+          element.shadowRoot.querySelector(".edit-cancel");
+        expect(editCancelElement.disabled).toBeFalsy();
 
-      // step 3 - when:
-      testConnectElement.click();
-
-      await flushPromises();
-
-      // step 3 - then:
-      expect(testConnect.mock.calls.length).toBe(1);
-      expect(testConnect.mock.calls[0][0]).toEqual({
-        apiKey: "api-key-for-test"
-      });
-
-      expect(toastHandler).toHaveBeenCalled();
-      expect(toastHandler).toHaveBeenCalledTimes(1);
-      expect(toastHandler.mock.calls[0][0].detail).toEqual({
-        title: "Test connect",
-        message: "failure",
-        variant: "warning"
-      });
-    });
-
-    it("result is unexpected", async () => {
-      const element = createElement("c-setting-page", {
-        is: Setting_page
-      });
-      document.body.appendChild(element);
-
-      // step 1:
-      // step 1 - when:
-      const testConnectElement =
-        element.shadowRoot.querySelector(".test-connect");
-
-      // step 1 - then:
-      expect(testConnectElement.disabled).toBeTruthy();
-
-      // step 2:
-      // step 2 - given:
-      const apiKeyElement = element.shadowRoot.querySelector(".api-key");
-      apiKeyElement.value = "api-key-for-test";
-
-      // step 2 - when:
-      apiKeyElement.dispatchEvent(new CustomEvent("change"));
-
-      await flushPromises();
-
-      // step 2 - then:
-      expect(testConnectElement.disabled).toBeFalsy();
-
-      // step 3
-      // step 3 - given:
-
-      // Mock handler for toast event
-      const toastHandler = jest.fn();
-      element.addEventListener(ShowToastEventName, toastHandler);
-
-      const mockTestConnect = { result: "UNEXPECTED" };
-      testConnect.mockResolvedValue(mockTestConnect);
-
-      // step 3 - when:
-      testConnectElement.click();
-
-      await flushPromises();
-
-      // step 3 - then:
-      expect(testConnect.mock.calls.length).toBe(1);
-      expect(testConnect.mock.calls[0][0]).toEqual({
-        apiKey: "api-key-for-test"
-      });
-
-      expect(toastHandler).toHaveBeenCalled();
-      expect(toastHandler).toHaveBeenCalledTimes(1);
-      expect(toastHandler.mock.calls[0][0].detail).toEqual({
-        title: "Test connect",
-        message: "unexpected error occured",
-        variant: "error"
-      });
-    });
-
-    it("unexpected error", async () => {
-      const element = createElement("c-setting-page", {
-        is: Setting_page
-      });
-      document.body.appendChild(element);
-
-      // step 1:
-      // step 1 - when:
-      const testConnectElement =
-        element.shadowRoot.querySelector(".test-connect");
-
-      // step 1 - then:
-      expect(testConnectElement.disabled).toBeTruthy();
-
-      // step 2:
-      // step 2 - given:
-      const apiKeyElement = element.shadowRoot.querySelector(".api-key");
-      apiKeyElement.value = "api-key-for-test";
-
-      // step 2 - when:
-      apiKeyElement.dispatchEvent(new CustomEvent("change"));
-
-      await flushPromises();
-
-      // step 2 - then:
-      expect(testConnectElement.disabled).toBeFalsy();
-
-      // step 3
-      // step 3 - given:
-
-      // Mock handler for toast event
-      const toastHandler = jest.fn();
-      element.addEventListener(ShowToastEventName, toastHandler);
-
-      const mockTestConnect = {
-        body: { message: "An internal server error has occurred" },
-        ok: false,
-        status: 400,
-        statusText: "Bad Request"
-      };
-      testConnect.mockRejectedValue(mockTestConnect);
-
-      // step 3 - when:
-      testConnectElement.click();
-
-      await flushPromises();
-
-      // step 3 - then:
-      expect(testConnect.mock.calls.length).toBe(1);
-      expect(testConnect.mock.calls[0][0]).toEqual({
-        apiKey: "api-key-for-test"
-      });
-
-      expect(toastHandler).toHaveBeenCalled();
-      expect(toastHandler).toHaveBeenCalledTimes(1);
-      expect(toastHandler.mock.calls[0][0].detail).toEqual({
-        title: "Test connect",
-        message: "unexpected error occured",
-        variant: "error"
+        const saveConnectElement = element.shadowRoot.querySelector(".save");
+        expect(saveConnectElement.disabled).toBeFalsy();
       });
     });
   });
 
-  describe("save api-key", () => {
-    it("success", async () => {
-      const element = createElement("c-setting-page", {
-        is: Setting_page
+  describe("edit mode", () => {
+    describe("test connect", () => {
+      it("success", async () => {
+        // given:
+        //   - because call in connect Callback
+        const mockGetApiKey = { value: "api-key-for-test" };
+        getApiKey.mockResolvedValue(mockGetApiKey);
+
+        const element = createElement("c-setting-page", {
+          is: Setting_page
+        });
+        document.body.appendChild(element);
+
+        // when:
+        await flushPromises();
+
+        // step 1:
+        // step 1 - then:
+        const apiKeyElement = element.shadowRoot.querySelector(".api-key");
+        expect(apiKeyElement.value).toBe("api-key-for-test");
+
+        const testConnectElement =
+          element.shadowRoot.querySelector(".test-connect");
+        expect(testConnectElement.disabled).toBeFalsy();
+
+        // step 2
+        // step 2 - when:
+        element.shadowRoot.querySelector(".edit").click();
+
+        await flushPromises();
+
+        // step 2 - then:
+        expect(testConnectElement.disabled).toBeFalsy();
+
+        // step 3
+        // step 3 - given
+        apiKeyElement.value = "api-key-for-test-changed";
+        apiKeyElement.dispatchEvent(new CustomEvent("change"));
+
+        // Mock handler for toast event
+        const toastHandler = jest.fn();
+        element.addEventListener(ShowToastEventName, toastHandler);
+
+        const mockTestConnect = { result: "SUCCESS" };
+        testConnect.mockResolvedValue(mockTestConnect);
+
+        // step 3 - when:
+        testConnectElement.click();
+
+        await flushPromises();
+
+        // step 3 - then:
+        expect(testConnect.mock.calls.length).toBe(1);
+        expect(testConnect.mock.calls[0][0]).toEqual({
+          apiKey: "api-key-for-test-changed"
+        });
+
+        expect(toastHandler).toHaveBeenCalled();
+        expect(toastHandler).toHaveBeenCalledTimes(1);
+        expect(toastHandler.mock.calls[0][0].detail).toEqual({
+          title: "Test connect",
+          message: "success",
+          variant: "success"
+        });
       });
-      document.body.appendChild(element);
 
-      // step 1:
-      // step 1 - when:
-      const saveElement = element.shadowRoot.querySelector(".save");
+      it("failure", async () => {
+        // given:
+        //   - because call in connect Callback
+        const mockGetApiKey = { value: "api-key-for-test" };
+        getApiKey.mockResolvedValue(mockGetApiKey);
 
-      // step 1 - then:
-      expect(saveElement.disabled).toBeTruthy();
+        const element = createElement("c-setting-page", {
+          is: Setting_page
+        });
+        document.body.appendChild(element);
 
-      // step 2:
-      // step 2 - given:
-      const apiKeyElement = element.shadowRoot.querySelector(".api-key");
-      apiKeyElement.value = "api-key-for-test";
+        // when:
+        await flushPromises();
 
-      // step 2 - when:
-      apiKeyElement.dispatchEvent(new CustomEvent("change"));
+        // step 1:
+        // step 1 - then:
+        const apiKeyElement = element.shadowRoot.querySelector(".api-key");
+        expect(apiKeyElement.value).toBe("api-key-for-test");
 
-      await flushPromises();
+        const testConnectElement =
+          element.shadowRoot.querySelector(".test-connect");
+        expect(testConnectElement.disabled).toBeFalsy();
 
-      // step 2 - then:
-      expect(saveElement.disabled).toBeFalsy();
+        // step 2
+        // step 2 - when:
+        element.shadowRoot.querySelector(".edit").click();
 
-      // step 3
-      // step 3 - given:
+        await flushPromises();
 
-      // Mock handler for toast event
-      const toastHandler = jest.fn();
-      element.addEventListener(ShowToastEventName, toastHandler);
+        // step 2 - then:
+        expect(testConnectElement.disabled).toBeFalsy();
 
-      const mockSaveApiKey = { result: "SUCCESS" };
-      saveApiKey.mockResolvedValue(mockSaveApiKey);
+        // step 3
+        // step 3 - given
+        apiKeyElement.value = "api-key-for-test-changed";
+        apiKeyElement.dispatchEvent(new CustomEvent("change"));
 
-      // step 3 - when:
-      saveElement.click();
+        // Mock handler for toast event
+        const toastHandler = jest.fn();
+        element.addEventListener(ShowToastEventName, toastHandler);
 
-      await flushPromises();
+        const mockTestConnect = { result: "FAILURE" };
+        testConnect.mockResolvedValue(mockTestConnect);
 
-      // step 3 - then:
-      expect(saveApiKey.mock.calls.length).toBe(1);
-      expect(saveApiKey.mock.calls[0][0]).toEqual({
-        apiKey: "api-key-for-test"
+        // step 3 - when:
+        testConnectElement.click();
+
+        await flushPromises();
+
+        // step 3 - then:
+        expect(testConnect.mock.calls.length).toBe(1);
+        expect(testConnect.mock.calls[0][0]).toEqual({
+          apiKey: "api-key-for-test-changed"
+        });
+
+        expect(toastHandler).toHaveBeenCalled();
+        expect(toastHandler).toHaveBeenCalledTimes(1);
+        expect(toastHandler.mock.calls[0][0].detail).toEqual({
+          title: "Test connect",
+          message: "failure",
+          variant: "warning"
+        });
       });
 
-      expect(toastHandler).toHaveBeenCalled();
-      expect(toastHandler).toHaveBeenCalledTimes(1);
-      expect(toastHandler.mock.calls[0][0].detail).toEqual({
-        title: "Save",
-        message: "success",
-        variant: "success"
+      it("unexpected result", async () => {
+        // given:
+        //   - because call in connect Callback
+        const mockGetApiKey = { value: "api-key-for-test" };
+        getApiKey.mockResolvedValue(mockGetApiKey);
+
+        const element = createElement("c-setting-page", {
+          is: Setting_page
+        });
+        document.body.appendChild(element);
+
+        // when:
+        await flushPromises();
+
+        // step 1:
+        // step 1 - then:
+        const apiKeyElement = element.shadowRoot.querySelector(".api-key");
+        expect(apiKeyElement.value).toBe("api-key-for-test");
+
+        const testConnectElement =
+          element.shadowRoot.querySelector(".test-connect");
+        expect(testConnectElement.disabled).toBeFalsy();
+
+        // step 2
+        // step 2 - when:
+        element.shadowRoot.querySelector(".edit").click();
+
+        await flushPromises();
+
+        // step 2 - then:
+        expect(testConnectElement.disabled).toBeFalsy();
+
+        // step 3
+        // step 3 - given
+        apiKeyElement.value = "api-key-for-test-changed";
+        apiKeyElement.dispatchEvent(new CustomEvent("change"));
+
+        // Mock handler for toast event
+        const toastHandler = jest.fn();
+        element.addEventListener(ShowToastEventName, toastHandler);
+
+        const mockTestConnect = { result: "UNEXPECTED" };
+        testConnect.mockResolvedValue(mockTestConnect);
+
+        // step 3 - when:
+        testConnectElement.click();
+
+        await flushPromises();
+
+        // step 3 - then:
+        expect(testConnect.mock.calls.length).toBe(1);
+        expect(testConnect.mock.calls[0][0]).toEqual({
+          apiKey: "api-key-for-test-changed"
+        });
+
+        expect(toastHandler).toHaveBeenCalled();
+        expect(toastHandler).toHaveBeenCalledTimes(1);
+        expect(toastHandler.mock.calls[0][0].detail).toEqual({
+          title: "Test connect",
+          message: "unexpected error occured",
+          variant: "error"
+        });
+      });
+
+      it("unexpected error occured", async () => {
+        // given:
+        //   - because call in connect Callback
+        const mockGetApiKey = { value: "api-key-for-test" };
+        getApiKey.mockResolvedValue(mockGetApiKey);
+
+        const element = createElement("c-setting-page", {
+          is: Setting_page
+        });
+        document.body.appendChild(element);
+
+        // when:
+        await flushPromises();
+
+        // step 1:
+        // step 1 - then:
+        const apiKeyElement = element.shadowRoot.querySelector(".api-key");
+        expect(apiKeyElement.value).toBe("api-key-for-test");
+
+        const testConnectElement =
+          element.shadowRoot.querySelector(".test-connect");
+        expect(testConnectElement.disabled).toBeFalsy();
+
+        // step 2
+        // step 2 - when:
+        element.shadowRoot.querySelector(".edit").click();
+
+        await flushPromises();
+
+        // step 2 - then:
+        expect(testConnectElement.disabled).toBeFalsy();
+
+        // step 3
+        // step 3 - given
+        apiKeyElement.value = "api-key-for-test-changed";
+        apiKeyElement.dispatchEvent(new CustomEvent("change"));
+
+        // Mock handler for toast event
+        const toastHandler = jest.fn();
+        element.addEventListener(ShowToastEventName, toastHandler);
+
+        const mockTestConnect = {
+          body: { message: "An internal server error has occurred" },
+          ok: false,
+          status: 400,
+          statusText: "Bad Request"
+        };
+        testConnect.mockRejectedValue(mockTestConnect);
+
+        // step 3 - when:
+        testConnectElement.click();
+
+        await flushPromises();
+
+        // step 3 - then:
+        expect(testConnect.mock.calls.length).toBe(1);
+        expect(testConnect.mock.calls[0][0]).toEqual({
+          apiKey: "api-key-for-test-changed"
+        });
+
+        expect(toastHandler).toHaveBeenCalled();
+        expect(toastHandler).toHaveBeenCalledTimes(1);
+        expect(toastHandler.mock.calls[0][0].detail).toEqual({
+          title: "Test connect",
+          message: "unexpected error occured",
+          variant: "error"
+        });
       });
     });
 
-    it("failure", async () => {
-      const element = createElement("c-setting-page", {
-        is: Setting_page
+    describe("save api-key", () => {
+      it("success", async () => {
+        // given:
+        //   - because call in connect Callback
+        const mockGetApiKey = { value: "api-key-for-test" };
+        getApiKey.mockResolvedValue(mockGetApiKey);
+
+        const element = createElement("c-setting-page", {
+          is: Setting_page
+        });
+        document.body.appendChild(element);
+
+        // when:
+        await flushPromises();
+
+        // step 1:
+        // step 1 - then:
+        const apiKeyElement = element.shadowRoot.querySelector(".api-key");
+        expect(apiKeyElement.value).toBe("api-key-for-test");
+
+        // step 2
+        // step 2 - when:
+        element.shadowRoot.querySelector(".edit").click();
+
+        await flushPromises();
+
+        // step 2 - then:
+        const saveElement = element.shadowRoot.querySelector(".save");
+        expect(saveElement.disabled).toBeFalsy();
+
+        // step 3
+        // step 3 - given
+        apiKeyElement.value = "api-key-for-test-changed";
+        apiKeyElement.dispatchEvent(new CustomEvent("change"));
+
+        // Mock handler for toast event
+        const toastHandler = jest.fn();
+        element.addEventListener(ShowToastEventName, toastHandler);
+
+        const mockSaveApiKey = { result: "SUCCESS" };
+        saveApiKey.mockResolvedValue(mockSaveApiKey);
+
+        // step 3 - when:
+        saveElement.click();
+
+        await flushPromises();
+
+        // step 3 - then:
+        expect(saveApiKey.mock.calls.length).toBe(1);
+        expect(saveApiKey.mock.calls[0][0]).toEqual({
+          apiKey: "api-key-for-test-changed"
+        });
+
+        expect(toastHandler).toHaveBeenCalled();
+        expect(toastHandler).toHaveBeenCalledTimes(1);
+        expect(toastHandler.mock.calls[0][0].detail).toEqual({
+          title: "Save",
+          message: "success",
+          variant: "success"
+        });
+
+        const apiKeyElementAfterSave =
+          element.shadowRoot.querySelector(".api-key");
+        expect(apiKeyElementAfterSave.label).toBe("Current api-key:");
+        expect(apiKeyElementAfterSave.placeholder).toBe("");
+        expect(apiKeyElementAfterSave.value).toBe("api-key-for-test-changed");
+        expect(apiKeyElementAfterSave.disabled).toBeTruthy();
+        expect(apiKeyElementAfterSave.required).toBeFalsy();
+
+        const testConnectElement =
+          element.shadowRoot.querySelector(".test-connect");
+        expect(testConnectElement.disabled).toBeFalsy();
+
+        const editElement = element.shadowRoot.querySelector(".edit");
+        expect(editElement).not.toBeNull();
+        expect(editElement.disabled).toBeFalsy();
+
+        const editCancelElement =
+          element.shadowRoot.querySelector(".edit-cancel");
+        expect(editCancelElement).toBeNull();
+
+        const saveElementAfterSave = element.shadowRoot.querySelector(".save");
+        expect(saveElementAfterSave).toBeNull();
       });
-      document.body.appendChild(element);
 
-      // step 1:
-      // step 1 - when:
-      const saveElement = element.shadowRoot.querySelector(".save");
+      it("failure", async () => {
+        // given:
+        //   - because call in connect Callback
+        const mockGetApiKey = { value: "api-key-for-test" };
+        getApiKey.mockResolvedValue(mockGetApiKey);
 
-      // step 1 - then:
-      expect(saveElement.disabled).toBeTruthy();
+        const element = createElement("c-setting-page", {
+          is: Setting_page
+        });
+        document.body.appendChild(element);
 
-      // step 2:
-      // step 2 - given:
-      const apiKeyElement = element.shadowRoot.querySelector(".api-key");
-      apiKeyElement.value = "api-key-for-test";
+        // when:
+        await flushPromises();
 
-      // step 2 - when:
-      apiKeyElement.dispatchEvent(new CustomEvent("change"));
+        // step 1:
+        // step 1 - then:
+        const apiKeyElement = element.shadowRoot.querySelector(".api-key");
+        expect(apiKeyElement.value).toBe("api-key-for-test");
 
-      await flushPromises();
+        // step 2
+        // step 2 - when:
+        element.shadowRoot.querySelector(".edit").click();
 
-      // step 2 - then:
-      expect(saveElement.disabled).toBeFalsy();
+        await flushPromises();
 
-      // step 3
-      // step 3 - given:
+        // step 2 - then:
+        const saveElement = element.shadowRoot.querySelector(".save");
+        expect(saveElement.disabled).toBeFalsy();
 
-      // Mock handler for toast event
-      const toastHandler = jest.fn();
-      element.addEventListener(ShowToastEventName, toastHandler);
+        // step 3
+        // step 3 - given
+        apiKeyElement.value = "api-key-for-test-changed";
+        apiKeyElement.dispatchEvent(new CustomEvent("change"));
 
-      const mockSaveApiKey = { result: "FAILURE" };
-      saveApiKey.mockResolvedValue(mockSaveApiKey);
+        // Mock handler for toast event
+        const toastHandler = jest.fn();
+        element.addEventListener(ShowToastEventName, toastHandler);
 
-      // step 3 - when:
-      saveElement.click();
+        const mockSaveApiKey = { result: "FAILURE" };
+        saveApiKey.mockResolvedValue(mockSaveApiKey);
 
-      await flushPromises();
+        // step 3 - when:
+        saveElement.click();
 
-      // step 3 - then:
-      expect(saveApiKey.mock.calls.length).toBe(1);
-      expect(saveApiKey.mock.calls[0][0]).toEqual({
-        apiKey: "api-key-for-test"
+        await flushPromises();
+
+        // step 3 - then:
+        expect(saveApiKey.mock.calls.length).toBe(1);
+        expect(saveApiKey.mock.calls[0][0]).toEqual({
+          apiKey: "api-key-for-test-changed"
+        });
+
+        expect(toastHandler).toHaveBeenCalled();
+        expect(toastHandler).toHaveBeenCalledTimes(1);
+        expect(toastHandler.mock.calls[0][0].detail).toEqual({
+          title: "Save",
+          message: "failure",
+          variant: "error"
+        });
       });
 
-      expect(toastHandler).toHaveBeenCalled();
-      expect(toastHandler).toHaveBeenCalledTimes(1);
-      expect(toastHandler.mock.calls[0][0].detail).toEqual({
-        title: "Save",
-        message: "failure",
-        variant: "error"
+      it("unexpected result", async () => {
+        // given:
+        //   - because call in connect Callback
+        const mockGetApiKey = { value: "api-key-for-test" };
+        getApiKey.mockResolvedValue(mockGetApiKey);
+
+        const element = createElement("c-setting-page", {
+          is: Setting_page
+        });
+        document.body.appendChild(element);
+
+        // when:
+        await flushPromises();
+
+        // step 1:
+        // step 1 - then:
+        const apiKeyElement = element.shadowRoot.querySelector(".api-key");
+        expect(apiKeyElement.value).toBe("api-key-for-test");
+
+        // step 2
+        // step 2 - when:
+        element.shadowRoot.querySelector(".edit").click();
+
+        await flushPromises();
+
+        // step 2 - then:
+        const saveElement = element.shadowRoot.querySelector(".save");
+        expect(saveElement.disabled).toBeFalsy();
+
+        // step 3
+        // step 3 - given
+        apiKeyElement.value = "api-key-for-test-changed";
+        apiKeyElement.dispatchEvent(new CustomEvent("change"));
+
+        // Mock handler for toast event
+        const toastHandler = jest.fn();
+        element.addEventListener(ShowToastEventName, toastHandler);
+
+        const mockSaveApiKey = { result: "UNEXPECTED" };
+        saveApiKey.mockResolvedValue(mockSaveApiKey);
+
+        // step 3 - when:
+        saveElement.click();
+
+        await flushPromises();
+
+        // step 3 - then:
+        expect(saveApiKey.mock.calls.length).toBe(1);
+        expect(saveApiKey.mock.calls[0][0]).toEqual({
+          apiKey: "api-key-for-test-changed"
+        });
+
+        expect(toastHandler).toHaveBeenCalled();
+        expect(toastHandler).toHaveBeenCalledTimes(1);
+        expect(toastHandler.mock.calls[0][0].detail).toEqual({
+          title: "Save",
+          message: "unexpected error occured",
+          variant: "error"
+        });
+      });
+
+      it("unexpected error occured", async () => {
+        // given:
+        //   - because call in connect Callback
+        const mockGetApiKey = { value: "api-key-for-test" };
+        getApiKey.mockResolvedValue(mockGetApiKey);
+
+        const element = createElement("c-setting-page", {
+          is: Setting_page
+        });
+        document.body.appendChild(element);
+
+        // when:
+        await flushPromises();
+
+        // step 1:
+        // step 1 - then:
+        const apiKeyElement = element.shadowRoot.querySelector(".api-key");
+        expect(apiKeyElement.value).toBe("api-key-for-test");
+
+        // step 2
+        // step 2 - when:
+        element.shadowRoot.querySelector(".edit").click();
+
+        await flushPromises();
+
+        // step 2 - then:
+        const saveElement = element.shadowRoot.querySelector(".save");
+        expect(saveElement.disabled).toBeFalsy();
+
+        // step 3
+        // step 3 - given
+        apiKeyElement.value = "api-key-for-test-changed";
+        apiKeyElement.dispatchEvent(new CustomEvent("change"));
+
+        // Mock handler for toast event
+        const toastHandler = jest.fn();
+        element.addEventListener(ShowToastEventName, toastHandler);
+
+        const mockSaveApiKey = {
+          body: { message: "An internal server error has occurred" },
+          ok: false,
+          status: 400,
+          statusText: "Bad Request"
+        };
+        saveApiKey.mockRejectedValue(mockSaveApiKey);
+
+        // step 3 - when:
+        saveElement.click();
+
+        await flushPromises();
+
+        // step 3 - then:
+        expect(saveApiKey.mock.calls.length).toBe(1);
+        expect(saveApiKey.mock.calls[0][0]).toEqual({
+          apiKey: "api-key-for-test-changed"
+        });
+
+        expect(toastHandler).toHaveBeenCalled();
+        expect(toastHandler).toHaveBeenCalledTimes(1);
+        expect(toastHandler.mock.calls[0][0].detail).toEqual({
+          title: "Save",
+          message: "unexpected error occured",
+          variant: "error"
+        });
       });
     });
 
-    it("result is unexpected", async () => {
-      const element = createElement("c-setting-page", {
-        is: Setting_page
-      });
-      document.body.appendChild(element);
+    describe("edit cancel", () => {
+      it("api-key value back to original", async () => {
+        // given:
+        //   - because call in connect Callback
+        const mockGetApiKey = { value: "api-key-for-test" };
+        getApiKey.mockResolvedValue(mockGetApiKey);
 
-      // step 1:
-      // step 1 - when:
-      const saveElement = element.shadowRoot.querySelector(".save");
+        const element = createElement("c-setting-page", {
+          is: Setting_page
+        });
+        document.body.appendChild(element);
 
-      // step 1 - then:
-      expect(saveElement.disabled).toBeTruthy();
+        // when:
+        await flushPromises();
 
-      // step 2:
-      // step 2 - given:
-      const apiKeyElement = element.shadowRoot.querySelector(".api-key");
-      apiKeyElement.value = "api-key-for-test";
+        // step 1:
+        // step 1 - then:
+        const apiKeyElement = element.shadowRoot.querySelector(".api-key");
+        expect(apiKeyElement.value).toBe("api-key-for-test");
 
-      // step 2 - when:
-      apiKeyElement.dispatchEvent(new CustomEvent("change"));
+        // step 2
+        // step 2 - when:
+        element.shadowRoot.querySelector(".edit").click();
 
-      await flushPromises();
+        await flushPromises();
 
-      // step 2 - then:
-      expect(saveElement.disabled).toBeFalsy();
+        // step 2 - then:
+        const editCancelElement =
+          element.shadowRoot.querySelector(".edit-cancel");
+        expect(editCancelElement.disabled).toBeFalsy();
 
-      // step 3
-      // step 3 - given:
+        // step 3
+        // step 3 - given:
+        apiKeyElement.value = "api-key-for-test-changed";
+        apiKeyElement.dispatchEvent(new CustomEvent("change"));
 
-      // Mock handler for toast event
-      const toastHandler = jest.fn();
-      element.addEventListener(ShowToastEventName, toastHandler);
+        await flushPromises();
 
-      const mockSaveApiKey = { result: "UNEXPECTED" };
-      saveApiKey.mockResolvedValue(mockSaveApiKey);
+        // step 4
+        // step 4 - when:
+        editCancelElement.click();
 
-      // step 3 - when:
-      saveElement.click();
+        await flushPromises();
 
-      await flushPromises();
-
-      // step 3 - then:
-      expect(saveApiKey.mock.calls.length).toBe(1);
-      expect(saveApiKey.mock.calls[0][0]).toEqual({
-        apiKey: "api-key-for-test"
-      });
-
-      expect(toastHandler).toHaveBeenCalled();
-      expect(toastHandler).toHaveBeenCalledTimes(1);
-      expect(toastHandler.mock.calls[0][0].detail).toEqual({
-        title: "Save",
-        message: "unexpected error occured",
-        variant: "error"
-      });
-    });
-
-    it("unexpected error occured", async () => {
-      const element = createElement("c-setting-page", {
-        is: Setting_page
-      });
-      document.body.appendChild(element);
-
-      // step 1:
-      // step 1 - when:
-      const saveElement = element.shadowRoot.querySelector(".save");
-
-      // step 1 - then:
-      expect(saveElement.disabled).toBeTruthy();
-
-      // step 2:
-      // step 2 - given:
-      const apiKeyElement = element.shadowRoot.querySelector(".api-key");
-      apiKeyElement.value = "api-key-for-test";
-
-      // step 2 - when:
-      apiKeyElement.dispatchEvent(new CustomEvent("change"));
-
-      await flushPromises();
-
-      // step 2 - then:
-      expect(saveElement.disabled).toBeFalsy();
-
-      // step 3
-      // step 3 - given:
-
-      // Mock handler for toast event
-      const toastHandler = jest.fn();
-      element.addEventListener(ShowToastEventName, toastHandler);
-
-      const mockSaveApiKey = {
-        body: { message: "An internal server error has occurred" },
-        ok: false,
-        status: 400,
-        statusText: "Bad Request"
-      };
-      saveApiKey.mockRejectedValue(mockSaveApiKey);
-
-      // step 3 - when:
-      saveElement.click();
-
-      await flushPromises();
-
-      // step 3 - then:
-      expect(saveApiKey.mock.calls.length).toBe(1);
-      expect(saveApiKey.mock.calls[0][0]).toEqual({
-        apiKey: "api-key-for-test"
-      });
-
-      expect(toastHandler).toHaveBeenCalled();
-      expect(toastHandler).toHaveBeenCalledTimes(1);
-      expect(toastHandler.mock.calls[0][0].detail).toEqual({
-        title: "Save",
-        message: "unexpected error occured",
-        variant: "error"
+        // step 4 - then:
+        expect(apiKeyElement.value).toBe("api-key-for-test");
       });
     });
   });
