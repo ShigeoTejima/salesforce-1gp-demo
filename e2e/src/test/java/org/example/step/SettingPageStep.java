@@ -46,6 +46,11 @@ public class SettingPageStep {
         getApiKey().shouldBe(Condition.disabled);
     }
 
+    @Step("setting page - field 'api-key' set <value>.")
+    public void setValueApiKey(String value) {
+        getApiKey().val(value);
+    }
+
     @Step("setting page - button 'Test connect' is disable.")
     public void verifyTestConnectIsDisable() {
         getTestConnect().shouldBe(Condition.disabled);
@@ -54,6 +59,11 @@ public class SettingPageStep {
     @Step("setting page - button 'Test connect' is enable.")
     public void verifyTestConnectIsEnable() {
         getTestConnect().shouldBe(Condition.enabled);
+    }
+
+    @Step("setting page - button 'Test connect' click.")
+    public void clickTestConnect() {
+        getTestConnect().click();
     }
 
     @Step("setting page - button 'Save' is disable.")
@@ -87,7 +97,17 @@ public class SettingPageStep {
                 "demo_aho-setting_page",
                 ".edit-cancel"))
             .shouldBe(Condition.enabled);
+    }
 
+    @Step("setting page - toast displayed. variant: <variant>, title: <title>, message: <message>")
+    public void verifyToastDisplayed(String variant, String title, String message) {
+        SelenideElement toast = $(".forceToastMessage");
+        toast.shouldBe(Condition.visible)
+            .shouldBe(Condition.attribute("data-key", variant));
+
+        toast.$(".toastContent .toastTitle").shouldBe(Condition.exactText(title));
+
+        toast.$(".toastContent .toastMessage").shouldBe(Condition.exactText(message));
     }
 
     private SelenideElement getTitle() {
