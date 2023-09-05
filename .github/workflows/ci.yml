@@ -320,7 +320,7 @@ jobs:
 
       - name: convert source to metadata
         run: |
-          sf project convert source --output-dir metadata --package-name demo1stpkg --json
+          sf project convert source --source-dir force-app/,force-app-test/ --output-dir metadata --package-name demo1stpkg --json
           ls -lR metadata
           cat metadata/package.xml
 

@@ -4,5 +4,6 @@
     <label>Demo - Admin User</label>
     <permissionSets>demo_aho__contract</permissionSets>
     <permissionSets>demo_aho__demo</permissionSets>
+    <permissionSets>demo_aho__setting</permissionSets>
     <status>Updated</status>
 </PermissionSetGroup>

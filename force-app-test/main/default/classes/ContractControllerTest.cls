@@ -8,7 +8,7 @@ private class ContractControllerTest {
 
     System.runAs(u) {
       // given:
-      MockDemoApi mockDemoApi = new MockDemoApi();
+      Mocks.MockDemoApi mockDemoApi = new Mocks.MockDemoApi();
       mockDemoApi.getContract_return = new DemoApi.Contract(
         '123',
         'Demo Contract'
@@ -27,16 +27,5 @@ private class ContractControllerTest {
       System.assertEquals('Demo Contract', actual.name);
     }
 
-  }
-
-  class MockDemoApi extends DemoApi {
-    Integer getContract_times = 0;
-    Contract getContract_return;
-
-    public override Contract getContract() {
-      getContract_times++;
-
-      return getContract_return;
-    }
   }
 }

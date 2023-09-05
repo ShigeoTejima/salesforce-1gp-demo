@@ -1,0 +1,53 @@
+<template>
+  <lightning-card title="Setting">
+    <div class="slds-var-m-around_medium">
+      <lightning-layout>
+        <lightning-layout-item size="4">
+          <lightning-input
+            class="api-key"
+            type="text"
+            label={apiKeyLabel}
+            placeholder={apiKeyPlaceholder}
+            required={edit}
+            disabled={notEdit}
+            onchange={handleChangeApiKey}
+            value={apiKey}
+          ></lightning-input>
+        </lightning-layout-item>
+      </lightning-layout>
+    </div>
+    <div class="slds-var-m-around_medium">
+      <lightning-button-group>
+        <lightning-button
+          class="test-connect"
+          label="Test connect"
+          onclick={handleTestConnect}
+          disabled={apiKeyNotInputed}
+        ></lightning-button>
+        <template if:false={edit}>
+          <lightning-button
+            class="edit"
+            label="Edit"
+            onclick={handleEdit}
+          ></lightning-button>
+        </template>
+        <template if:true={edit}>
+          <template if:true={apiKey}>
+            <lightning-button
+              class="edit-cancel"
+              label="Cancel"
+              onclick={handleEditCancel}
+            ></lightning-button>
+          </template>
+          <lightning-button
+            class="save"
+            variant="brand"
+            label="Save"
+            onclick={handleSave}
+            disabled={apiKeyNotInputed}
+          ></lightning-button>
+        </template>
+      </lightning-button-group>
+    </div>
+  </lightning-card>
+</template>
