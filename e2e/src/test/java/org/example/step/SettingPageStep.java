@@ -76,6 +76,16 @@ public class SettingPageStep {
         getSave().shouldBe(Condition.enabled);
     }
 
+    @Step("setting page - button 'Save' is not visible.")
+    public void verifySaveIsNotVisible() {
+        getSave().shouldNotBe(Condition.visible);
+    }
+
+    @Step("setting page - button 'Save' click.")
+    public void clickSave() {
+        getSave().click();
+    }
+
     @Step("setting page - button 'Edit' is enable.")
     public void verifyEditIsEnable() {
         getEdit().shouldBe(Condition.enabled);
@@ -93,10 +103,17 @@ public class SettingPageStep {
 
     @Step("setting page - button 'Cancel' is enable.")
     public void verifyCancelIsEnable() {
-        $(ByShadow.cssSelector("button",
-                "demo_aho-setting_page",
-                ".edit-cancel"))
-            .shouldBe(Condition.enabled);
+        getCancel().shouldBe(Condition.enabled);
+    }
+
+    @Step("setting page - button 'Cancel' is not visible.")
+    public void verifyCancelIsNotVisible() {
+        getCancel().shouldNotBe(Condition.visible);
+    }
+
+    @Step("setting page - button 'Cancel' click.")
+    public void clickCancel() {
+        getCancel().click();
     }
 
     @Step("setting page - toast displayed. variant: <variant>, title: <title>, message: <message>")
@@ -138,5 +155,11 @@ public class SettingPageStep {
         return $(ByShadow.cssSelector("button",
                 "demo_aho-setting_page",
                 ".save"));
+    }
+
+    private SelenideElement getCancel() {
+        return $(ByShadow.cssSelector("button",
+                "demo_aho-setting_page",
+                ".edit-cancel"));
     }
 }
