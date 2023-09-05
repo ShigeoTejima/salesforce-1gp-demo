@@ -116,17 +116,6 @@ public class SettingPageStep {
         getCancel().click();
     }
 
-    @Step("setting page - toast displayed. variant: <variant>, title: <title>, message: <message>")
-    public void verifyToastDisplayed(String variant, String title, String message) {
-        SelenideElement toast = $(".forceToastMessage");
-        toast.shouldBe(Condition.visible)
-            .shouldBe(Condition.attribute("data-key", variant));
-
-        toast.$(".toastContent .toastTitle").shouldBe(Condition.exactText(title));
-
-        toast.$(".toastContent .toastMessage").shouldBe(Condition.exactText(message));
-    }
-
     private SelenideElement getTitle() {
         return $(ByShadow.cssSelector("article h2.slds-card__header-title",
                 "demo_aho-setting_page",

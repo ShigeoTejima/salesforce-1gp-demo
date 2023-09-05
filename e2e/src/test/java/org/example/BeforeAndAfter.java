@@ -81,17 +81,22 @@ public class BeforeAndAfter implements Configuration {
         new PermissionSetGateway().unAssignFromSetting();
     }
 
-    @BeforeScenario(tags = { "correctApiKy" })
+    @BeforeScenario(tags = { "correctApiKey" })
     public void setCorrectApiKy() {
         new DemoApiSettingGateway().setApiKeyByAnonymousApex("correct-api-key");
     }
 
-    @BeforeScenario(tags = { "wrongApiKy" })
+    @BeforeScenario(tags = { "wrongApiKey" })
     public void setWrongApiKy() {
         new DemoApiSettingGateway().setApiKeyByAnonymousApex("wrong-api-key");
     }
 
-    @BeforeScenario(tags = { "removeApiKy" })
+    @BeforeScenario(tags = { "unexpectedApiKey" })
+    public void setUnexpectedApiKy() {
+        new DemoApiSettingGateway().setApiKeyByAnonymousApex("unexpected-api-key");
+    }
+
+    @BeforeScenario(tags = { "removeApiKey" })
     public void removeApiKy() {
         new DemoApiSettingGateway().removeApiKeyByAnonymousApex();
     }

@@ -7,7 +7,7 @@ NOTE: un-testable cases
 
 
 ## setting page - show mode by initial when api-key does set already
-tags: correctApiKy
+tags: correctApiKey
 
 * try login.
 * setting page - open page.
@@ -19,7 +19,7 @@ tags: correctApiKy
 * setting page - button 'Save' is not visible.
 
 ## setting page - change to edit mode, change api-key then cancel
-tags: correctApiKy
+tags: correctApiKey
 
 * try login.
 * setting page - open page.
@@ -58,7 +58,7 @@ show back
 * setting page - button 'Save' is not visible.
 
 ## setting page - test connect is success in show mode
-tags: correctApiKy
+tags: correctApiKey
 
 * demo-api - setup mappings by "fixtures/cdc/demo-api/contract" .
 * try login.
@@ -67,10 +67,10 @@ tags: correctApiKy
 * setting page - field 'api-key' is disable.
 * setting page - button 'Test connect' is enable.
 * setting page - button 'Test connect' click.
-* setting page - toast displayed. variant: "success", title: "Test connect", message: "success"
+* salesforce ui - toast displayed. variant: "success", title: "Test connect", message: "success"
 
 ## setting page - test connect is failure in show mode
-tags: wrongApiKy
+tags: wrongApiKey
 
 * demo-api - setup mappings by "fixtures/cdc/demo-api/contract" .
 * try login.
@@ -79,10 +79,10 @@ tags: wrongApiKy
 * setting page - field 'api-key' is disable.
 * setting page - button 'Test connect' is enable.
 * setting page - button 'Test connect' click.
-* setting page - toast displayed. variant: "warning", title: "Test connect", message: "failure"
+* salesforce ui - toast displayed. variant: "warning", title: "Test connect", message: "failure"
 
 ## setting page - edit mode by initial when api-key does not set
-tags: removeApiKy
+tags: removeApiKey
 
 * try login.
 * setting page - open page.
@@ -94,7 +94,7 @@ tags: removeApiKy
 * setting page - button 'Save' is disable.
 
 ## setting page - test connect is success in edit mode
-tags: removeApiKy
+tags: removeApiKey
 
 * demo-api - setup mappings by "fixtures/cdc/demo-api/contract" .
 * try login.
@@ -105,10 +105,10 @@ tags: removeApiKy
 * setting page - field 'api-key' set "correct-api-key".
 * setting page - button 'Test connect' is enable.
 * setting page - button 'Test connect' click.
-* setting page - toast displayed. variant: "success", title: "Test connect", message: "success"
+* salesforce ui - toast displayed. variant: "success", title: "Test connect", message: "success"
 
 ## setting page - test connect is failure in edit mode
-tags: removeApiKy
+tags: removeApiKey
 
 * demo-api - setup mappings by "fixtures/cdc/demo-api/contract" .
 * try login.
@@ -119,10 +119,10 @@ tags: removeApiKy
 * setting page - field 'api-key' set "wrong-api-key".
 * setting page - button 'Test connect' is enable.
 * setting page - button 'Test connect' click.
-* setting page - toast displayed. variant: "warning", title: "Test connect", message: "failure"
+* salesforce ui - toast displayed. variant: "warning", title: "Test connect", message: "failure"
 
 ## setting page - save api-key is success in edit mode by initial
-tags: removeApiKy
+tags: removeApiKey
 
 * try login.
 * setting page - open page.
@@ -132,11 +132,11 @@ tags: removeApiKy
 * setting page - field 'api-key' set "correct-api-key".
 * setting page - button 'Save' is enable.
 * setting page - button 'Save' click.
-* setting page - toast displayed. variant: "success", title: "Save", message: "success"
+* salesforce ui - toast displayed. variant: "success", title: "Save", message: "success"
 * salesforce data - custom setting 'DemoApiSetting' api-key is "correct-api-key".
 
 ## setting page - save api-key is success in edit mode
-tags: correctApiKy
+tags: correctApiKey
 
 * try login.
 * setting page - open page.
@@ -149,5 +149,5 @@ tags: correctApiKy
 * setting page - field 'api-key' set "changed-api-key".
 * setting page - button 'Save' is enable.
 * setting page - button 'Save' click.
-* setting page - toast displayed. variant: "success", title: "Save", message: "success"
+* salesforce ui - toast displayed. variant: "success", title: "Save", message: "success"
 * salesforce data - custom setting 'DemoApiSetting' api-key is "changed-api-key".
