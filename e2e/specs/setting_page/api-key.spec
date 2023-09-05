@@ -11,8 +11,8 @@ tags: correctApiKy
 
 * try login.
 * setting page - open page.
-* setting page - filed 'api-key' is "correct-api-key".
-* setting page - filed 'api-key' is disable.
+* setting page - field 'api-key' is "correct-api-key".
+* setting page - field 'api-key' is disable.
 * setting page - button 'Test connect' is enable.
 * setting page - button 'Edit' is enable.
 * setting page - button 'Cancel' is not visible.
@@ -24,16 +24,16 @@ tags: correctApiKy
 * try login.
 * setting page - open page.
 show
-* setting page - filed 'api-key' is "correct-api-key".
-* setting page - filed 'api-key' is disable.
+* setting page - field 'api-key' is "correct-api-key".
+* setting page - field 'api-key' is disable.
 * setting page - button 'Test connect' is enable.
 * setting page - button 'Edit' is enable.
 * setting page - button 'Cancel' is not visible.
 * setting page - button 'Save' is not visible.
 edit
 * setting page - button 'Edit' click.
-* setting page - filed 'api-key' is "correct-api-key".
-* setting page - filed 'api-key' is enable.
+* setting page - field 'api-key' is "correct-api-key".
+* setting page - field 'api-key' is enable.
 * setting page - button 'Test connect' is enable.
 * setting page - button 'Edit' is not visible.
 * setting page - button 'Cancel' is enable.
@@ -50,8 +50,8 @@ change api-key
 cancel
 * setting page - button 'Cancel' click.
 show back
-* setting page - filed 'api-key' is "correct-api-key".
-* setting page - filed 'api-key' is disable.
+* setting page - field 'api-key' is "correct-api-key".
+* setting page - field 'api-key' is disable.
 * setting page - button 'Test connect' is enable.
 * setting page - button 'Edit' is enable.
 * setting page - button 'Cancel' is not visible.
@@ -63,8 +63,8 @@ tags: correctApiKy
 * demo-api - setup mappings by "fixtures/cdc/demo-api/contract" .
 * try login.
 * setting page - open page.
-* setting page - filed 'api-key' is "correct-api-key".
-* setting page - filed 'api-key' is disable.
+* setting page - field 'api-key' is "correct-api-key".
+* setting page - field 'api-key' is disable.
 * setting page - button 'Test connect' is enable.
 * setting page - button 'Test connect' click.
 * setting page - toast displayed. variant: "success", title: "Test connect", message: "success"
@@ -75,8 +75,8 @@ tags: wrongApiKy
 * demo-api - setup mappings by "fixtures/cdc/demo-api/contract" .
 * try login.
 * setting page - open page.
-* setting page - filed 'api-key' is "wrong-api-key".
-* setting page - filed 'api-key' is disable.
+* setting page - field 'api-key' is "wrong-api-key".
+* setting page - field 'api-key' is disable.
 * setting page - button 'Test connect' is enable.
 * setting page - button 'Test connect' click.
 * setting page - toast displayed. variant: "warning", title: "Test connect", message: "failure"
@@ -86,8 +86,8 @@ tags: removeApiKy
 
 * try login.
 * setting page - open page.
-* setting page - filed 'api-key' is empty.
-* setting page - filed 'api-key' is enable.
+* setting page - field 'api-key' is empty.
+* setting page - field 'api-key' is enable.
 * setting page - button 'Test connect' is disable.
 * setting page - button 'Edit' is not visible.
 * setting page - button 'Cancel' is not visible.
@@ -99,8 +99,8 @@ tags: removeApiKy
 * demo-api - setup mappings by "fixtures/cdc/demo-api/contract" .
 * try login.
 * setting page - open page.
-* setting page - filed 'api-key' is empty.
-* setting page - filed 'api-key' is enable.
+* setting page - field 'api-key' is empty.
+* setting page - field 'api-key' is enable.
 * setting page - button 'Test connect' is disable.
 * setting page - field 'api-key' set "correct-api-key".
 * setting page - button 'Test connect' is enable.
@@ -113,8 +113,8 @@ tags: removeApiKy
 * demo-api - setup mappings by "fixtures/cdc/demo-api/contract" .
 * try login.
 * setting page - open page.
-* setting page - filed 'api-key' is empty.
-* setting page - filed 'api-key' is enable.
+* setting page - field 'api-key' is empty.
+* setting page - field 'api-key' is enable.
 * setting page - button 'Test connect' is disable.
 * setting page - field 'api-key' set "wrong-api-key".
 * setting page - button 'Test connect' is enable.
@@ -126,28 +126,28 @@ tags: removeApiKy
 
 * try login.
 * setting page - open page.
-* setting page - filed 'api-key' is empty.
-* setting page - filed 'api-key' is enable.
+* setting page - field 'api-key' is empty.
+* setting page - field 'api-key' is enable.
 * setting page - button 'Save' is disable.
 * setting page - field 'api-key' set "correct-api-key".
 * setting page - button 'Save' is enable.
 * setting page - button 'Save' click.
 * setting page - toast displayed. variant: "success", title: "Save", message: "success"
-TODO: verify api-key registered
+* salesforce data - custom setting 'DemoApiSetting' api-key is "correct-api-key".
 
 ## setting page - save api-key is success in edit mode
 tags: correctApiKy
 
 * try login.
 * setting page - open page.
-* setting page - filed 'api-key' is "correct-api-key".
+* setting page - field 'api-key' is "correct-api-key".
 * setting page - button 'Edit' is enable.
 * setting page - button 'Edit' click.
-* setting page - filed 'api-key' is "correct-api-key".
-* setting page - filed 'api-key' is enable.
+* setting page - field 'api-key' is "correct-api-key".
+* setting page - field 'api-key' is enable.
 * setting page - button 'Save' is enable.
 * setting page - field 'api-key' set "changed-api-key".
 * setting page - button 'Save' is enable.
 * setting page - button 'Save' click.
 * setting page - toast displayed. variant: "success", title: "Save", message: "success"
-TODO: verify api-key registered
+* salesforce data - custom setting 'DemoApiSetting' api-key is "changed-api-key".

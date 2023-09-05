@@ -156,7 +156,7 @@ public class GenericRepository implements Configuration {
 
     }
 
-    public <T> Result<RunAnonymousApexResult, ErrorsResult> runAnonymousApex(String snippet) {
+    public Result<RunAnonymousApexResult, ErrorsResult> runAnonymousApex(String snippet) {
         String encodedSnippet = URLEncoder.encode(snippet, StandardCharsets.UTF_8);
         String url = String.format("%s/services/data/v%s/tooling/executeAnonymous?anonymousBody=%s", instanceUrl, apiVersion, encodedSnippet);
         HttpRequest request = HttpRequest.newBuilder()
@@ -173,6 +173,32 @@ public class GenericRepository implements Configuration {
                         HttpResponse.BodySubscribers.ofString(StandardCharsets.UTF_8),
                         (body) -> new Result.Success<>(gson.fromJson(body, RunAnonymousApexResult.class))
                     );
+                    default -> mappingErrorsResult();
+                });
+
+            return response.body();
+        } catch (IOException | InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public <T> Result<T, ErrorsResult> getApexRestResource(String resourceName, Class<T> returnClass) {
+        String url = String.format("%s/services/apexrest/%s/%s/", instanceUrl, namespacePrefix(), resourceName);
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(url))
+                .header("Authorization", "Bearer " + accessToken)
+                .build();
+
+        try {
+            Gson gson = new Gson();
+            HttpResponse<Result<T, ErrorsResult>> response = httpClient.send(request, responseInfo ->
+                switch (responseInfo.statusCode()) {
+                    case 200 ->
+                        HttpResponse.BodySubscribers.mapping(
+                            HttpResponse.BodySubscribers.ofString(StandardCharsets.UTF_8),
+                            (body) -> new Result.Success<>(gson.fromJson(body, returnClass))
+                        );
+
                     default -> mappingErrorsResult();
                 });
 

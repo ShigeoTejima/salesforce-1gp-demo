@@ -26,22 +26,22 @@ public class SettingPageStep {
         getTitle().shouldBe(Condition.not(Condition.visible));
     }
 
-    @Step("setting page - filed 'api-key' is empty.")
+    @Step("setting page - field 'api-key' is empty.")
     public void verifyApiKeyIsEmpty() {
         verifyApiKeyIs("");
     }
 
-    @Step("setting page - filed 'api-key' is <value>.")
+    @Step("setting page - field 'api-key' is <value>.")
     public void verifyApiKeyIs(String value) {
         getApiKey().shouldBe(Condition.exactValue(value));
     }
 
-    @Step("setting page - filed 'api-key' is enable.")
+    @Step("setting page - field 'api-key' is enable.")
     public void verifyApiKeyIsEnable() {
         getApiKey().shouldBe(Condition.enabled);
     }
 
-    @Step("setting page - filed 'api-key' is disable.")
+    @Step("setting page - field 'api-key' is disable.")
     public void verifyApiKeyIsDisable() {
         getApiKey().shouldBe(Condition.disabled);
     }
