@@ -125,7 +125,8 @@ public class SettingPageStep {
     private SelenideElement getApiKey() {
         return $(ByShadow.cssSelector("input",
                 "demo_aho-setting_page",
-                ".api-key"));
+                ".api-key",
+                "lightning-primitive-input-simple"));
     }
 
     private SelenideElement getTestConnect() {
