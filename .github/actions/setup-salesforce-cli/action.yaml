@@ -1,6 +1,6 @@
-name: 'Setup Salesforce CLI'
+name: "Setup Salesforce CLI"
 runs:
-  using: 'composite'
+  using: "composite"
   steps:
     - name: install salesforce cli
       env:
@@ -15,6 +15,16 @@ runs:
       shell: bash
 
     - name: confirm sf version
+      run: |
+        sf version
+      shell: bash
+
+    - name: downgrade sf version
+      run: |
+        sf update --version 2.19.8 --force
+      shell: bash
+
+    - name: confirm sf version after downgrade
       run: |
         sf version
       shell: bash
