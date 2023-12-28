@@ -187,7 +187,7 @@ jobs:
         uses: ./.github/actions/find-user-by-profile
         with:
           alias: scratch
-          profile: "標準ユーザ"
+          profile: "標準ユーザー"
 
       - name: authorize scratch org for standard user
         if: ${{ steps.find-current-standard-user.outputs.username != '' }}
@@ -205,7 +205,7 @@ jobs:
       - name: create standard user for test
         if: ${{ steps.find-current-standard-user.outputs.username == '' }}
         run: |
-          sf org create user profileName="標準ユーザ" firstName=Standard --set-unique-username --set-alias=scratch-standard -o scratch --json
+          sf org create user profileName="標準ユーザー" firstName=Standard --set-unique-username --set-alias=scratch-standard -o scratch --json
 
       - name: show list auth
         run: |
