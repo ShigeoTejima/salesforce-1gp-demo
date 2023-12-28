@@ -71,7 +71,7 @@ public class ContractPageStep {
 
     private SelenideElement getContractDatatableBody(SelenideElement datatable) {
         return $(datatable.getShadowRoot()
-                .findElement(By.cssSelector("tbody[lightning-datatable_table][data-rowgroup-body]")));
+                .findElement(By.cssSelector("table tbody[data-rowgroup-body]")));
     }
 
     private ElementsCollection getContractRows(SelenideElement datatable) {
