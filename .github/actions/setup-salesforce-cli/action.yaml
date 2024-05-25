@@ -18,13 +18,12 @@ runs:
       run: |
         sf version
       shell: bash
+#    - name: downgrade sf version
+#      run: |
+#        sf update --version 2.19.8 --force
+#      shell: bash
 
-    - name: downgrade sf version
-      run: |
-        sf update --version 2.19.8 --force
-      shell: bash
-
-    - name: confirm sf version after downgrade
-      run: |
-        sf version
-      shell: bash
+#    - name: confirm sf version after downgrade
+#      run: |
+#        sf version
+#      shell: bash
