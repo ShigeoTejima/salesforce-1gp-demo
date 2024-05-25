@@ -308,7 +308,7 @@ jobs:
           fi
 
   create-beta-package:
-    needs: [test, e2e]
+    needs: [test]
     if: ${{ inputs.create_beta_package }}
     runs-on: ubuntu-latest
     steps:
