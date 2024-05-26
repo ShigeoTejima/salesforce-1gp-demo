@@ -9,14 +9,14 @@ export default class Demo_record_page extends LightningElement {
       query queryName($recordId: ID) {
         uiapi {
           query {
-            Demo__c(where: { Id: { eq: $recordId } }) {
+            demo_aho__Demo__c(where: { Id: { eq: $recordId } }) {
               edges {
                 node {
                   Id
                   Name {
                     value
                   }
-                  description__c {
+                  demo_aho__description__c {
                     value
                   }
                 }
